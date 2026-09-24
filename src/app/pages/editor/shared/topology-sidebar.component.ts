@@ -171,29 +171,29 @@ export type { Selection };
     :host {
       display: block;
       font-size: 12px;
-      color: var(--op-ink, #152019);
+      color: var(--op-ink, #12233b);
     }
-    button:focus-visible { outline: 3px solid color-mix(in srgb, var(--op-blue, #196ca6) 30%, transparent); outline-offset: 1px; }
-    .sidebar-section { min-width: 0; padding: 8px 12px 12px; border-bottom: 1px solid var(--op-border, #d7ded8); }
+    button:focus-visible { outline: 3px solid color-mix(in srgb, var(--op-blue, #0369a1) 30%, transparent); outline-offset: 1px; }
+    .sidebar-section { min-width: 0; padding: 8px 12px 12px; border-bottom: 1px solid var(--op-border, #cfdae7); }
     .sidebar-title {
       min-height: 44px; width: 100%; display: flex; align-items: center; justify-content: space-between;
-      color: var(--op-muted, #68756d); background: none; border: none; padding: 0 3px;
+      color: var(--op-muted, #60738a); background: none; border: none; padding: 0 3px;
       font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; cursor: pointer;
       transition: color var(--motion-press, 130ms) var(--ease-standard, ease);
     }
-    .sidebar-title:hover { color: var(--op-ink, #152019); }
+    .sidebar-title:hover { color: var(--op-ink, #12233b); }
     .section-chevron { width: 16px; height: 16px; flex: none; transition: transform var(--motion-selection, 170ms) var(--ease-standard, ease); }
     .section-chevron.is-open { transform: rotate(90deg); }
-    .pipe-path { margin: 0 3px 10px; overflow: hidden; color: var(--op-muted, #68756d); font: 600 11px/1.4 ui-monospace, monospace; text-overflow: ellipsis; white-space: nowrap; }
-    .delete-action { min-height: 44px; width: 100%; border: 1px solid color-mix(in srgb, var(--op-red, #b42318) 52%, var(--op-border, #d7ded8)); border-radius: 9px; color: var(--op-red, #b42318); background: #fff; font-size: 12px; font-weight: 800; }
-    .delete-action:hover { background: color-mix(in srgb, var(--op-red, #b42318) 6%, #fff); }
-    .route-row { min-height: 48px; width: 100%; min-width: 0; padding: 6px 4px 6px 6px; display: flex; align-items: center; gap: 7px; border-bottom: 1px solid var(--op-border, #d7ded8); border-radius: 8px; text-align: left; transition: background var(--motion-press, 130ms) var(--ease-standard, ease); }
-    .route-row:hover { background: var(--op-panel, #f3f6f2); }
-    .route-key { min-width: 0; flex: 1; display: flex; align-items: center; gap: 7px; color: var(--op-ink, #152019); font: 650 11px/1.35 ui-monospace, monospace; }
-    .route-key svg { width: 16px; height: 16px; flex: none; color: var(--op-blue, #196ca6); }
+    .pipe-path { margin: 0 3px 10px; overflow: hidden; color: var(--op-muted, #60738a); font: 600 11px/1.4 ui-monospace, monospace; text-overflow: ellipsis; white-space: nowrap; }
+    .delete-action { min-height: 44px; width: 100%; border: 1px solid color-mix(in srgb, var(--op-red, #c93636) 52%, var(--op-border, #cfdae7)); border-radius: 9px; color: var(--op-red, #c93636); background: #fff; font-size: 12px; font-weight: 800; }
+    .delete-action:hover { background: color-mix(in srgb, var(--op-red, #c93636) 6%, #fff); }
+    .route-row { min-height: 48px; width: 100%; min-width: 0; padding: 6px 4px 6px 6px; display: flex; align-items: center; gap: 7px; border-bottom: 1px solid var(--op-border, #cfdae7); border-radius: 8px; text-align: left; transition: background var(--motion-press, 130ms) var(--ease-standard, ease); }
+    .route-row:hover { background: var(--op-panel, #edf3f8); }
+    .route-key { min-width: 0; flex: 1; display: flex; align-items: center; gap: 7px; color: var(--op-ink, #12233b); font: 650 11px/1.35 ui-monospace, monospace; }
+    .route-key svg { width: 16px; height: 16px; flex: none; color: var(--op-blue, #0369a1); }
     .route-key span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .route-row .badge { flex: none; }
-    .override-key { display: block; max-width: 100%; overflow-wrap: anywhere; color: var(--op-ink, #152019); font: 700 11px/1.4 ui-monospace, monospace; }
+    .override-key { display: block; max-width: 100%; overflow-wrap: anywhere; color: var(--op-ink, #12233b); font: 700 11px/1.4 ui-monospace, monospace; }
     @media (prefers-reduced-motion: reduce) { .sidebar-title, .section-chevron, .route-row { transition: none; } }
   `],
 })

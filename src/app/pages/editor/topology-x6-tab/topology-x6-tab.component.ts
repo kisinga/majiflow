@@ -129,61 +129,61 @@ import { renderControllerOverlays } from '../../../shared/canvas/controller-over
       min-height: 0;
       min-width: 0;
       overflow: hidden;
-      color: var(--op-ink, #152019);
-      background: var(--op-shell, #fbfcfa);
+      color: var(--op-ink, #12233b);
+      background: var(--op-shell, #f6f9fc);
     }
     .design-toolbar {
       min-width: 0; min-height: 68px; padding: 10px 14px 10px 18px;
       display: flex; align-items: center; gap: 18px;
-      border-bottom: 1px solid var(--op-border, #d7ded8);
+      border-bottom: 1px solid var(--op-border, #cfdae7);
       background: rgb(251 252 250 / .96); z-index: 22;
     }
     .toolbar-copy { min-width: 9.5rem; flex: 1; }
     .toolbar-copy h2 { margin: 3px 0 0; font-size: 17px; line-height: 1.15; font-weight: 800; }
-    .toolbar-eyebrow { display: block; color: var(--op-muted, #68756d); font-size: 9px; line-height: 1; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+    .toolbar-eyebrow { display: block; color: var(--op-muted, #60738a); font-size: 9px; line-height: 1; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
     .toolbar-actions { min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 6px; overflow-x: auto; scrollbar-width: none; }
     .toolbar-actions::-webkit-scrollbar { display: none; }
     .design-tool, :host ::ng-deep app-add-controller .design-tool {
       min-width: 44px; min-height: 44px; padding: 0 12px; flex: none;
       display: inline-flex; align-items: center; justify-content: center; gap: 7px;
       border: 1px solid transparent; border-radius: 11px; background: transparent;
-      color: var(--op-ink, #152019); font-size: 12px; line-height: 1; font-weight: 750;
+      color: var(--op-ink, #12233b); font-size: 12px; line-height: 1; font-weight: 750;
       transition: background var(--motion-press, 130ms) var(--ease-standard, ease), border-color var(--motion-press, 130ms) var(--ease-standard, ease), transform var(--motion-press, 130ms) var(--ease-standard, ease);
     }
-    .design-tool:hover, :host ::ng-deep app-add-controller .design-tool:hover { border-color: var(--op-border, #d7ded8); background: var(--op-panel, #f3f6f2); }
+    .design-tool:hover, :host ::ng-deep app-add-controller .design-tool:hover { border-color: var(--op-border, #cfdae7); background: var(--op-panel, #edf3f8); }
     .design-tool:active, :host ::ng-deep app-add-controller .design-tool:active { transform: scale(.97); }
-    .design-tool:focus-visible, :host ::ng-deep app-add-controller .design-tool:focus-visible { outline: 3px solid color-mix(in srgb, var(--op-blue, #196ca6) 30%, transparent); outline-offset: 2px; }
+    .design-tool:focus-visible, :host ::ng-deep app-add-controller .design-tool:focus-visible { outline: 3px solid color-mix(in srgb, var(--op-blue, #0369a1) 30%, transparent); outline-offset: 2px; }
     .design-tool svg, :host ::ng-deep app-add-controller .design-tool svg { width: 18px; height: 18px; flex: none; }
-    .design-tool-primary { color: var(--op-blue, #196ca6); border-color: color-mix(in srgb, var(--op-blue, #196ca6) 36%, var(--op-border, #d7ded8)); background: var(--op-route-surface, #e0f0fb); }
+    .design-tool-primary { color: var(--op-blue, #0369a1); border-color: color-mix(in srgb, var(--op-blue, #0369a1) 36%, var(--op-border, #cfdae7)); background: var(--op-route-surface, #dff2fe); }
     .design-tool-icon { padding: 0; font-size: 20px; }
     .design-tool-fit { min-width: 50px; }
-    .view-tools { padding: 3px; display: flex; gap: 2px; border: 1px solid var(--op-border, #d7ded8); border-radius: 13px; background: #fff; }
-    .tool-separator { width: 1px; height: 28px; margin: 0 3px; flex: none; background: var(--op-border, #d7ded8); }
-    .node-menu { margin-top: 6px; border: 1px solid var(--op-border, #d7ded8); background: #fff; box-shadow: 0 16px 42px rgb(21 32 25 / .16); color: var(--op-ink, #152019); }
-    .node-menu .menu-title { padding: 9px 9px 5px; color: var(--op-muted, #68756d); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .view-tools { padding: 3px; display: flex; gap: 2px; border: 1px solid var(--op-border, #cfdae7); border-radius: 13px; background: #fff; }
+    .tool-separator { width: 1px; height: 28px; margin: 0 3px; flex: none; background: var(--op-border, #cfdae7); }
+    .node-menu { margin-top: 6px; border: 1px solid var(--op-border, #cfdae7); background: #fff; box-shadow: 0 16px 42px rgb(18 35 59 / .16); color: var(--op-ink, #12233b); }
+    .node-menu .menu-title { padding: 9px 9px 5px; color: var(--op-muted, #60738a); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
     .node-menu button { min-height: 40px; width: 100%; display: flex; align-items: center; gap: 9px; border-radius: 8px; font-size: 12px; text-align: left; }
-    .node-menu button:hover { background: var(--op-panel, #f3f6f2); }
+    .node-menu button:hover { background: var(--op-panel, #edf3f8); }
     .menu-icon { width: 26px; display: grid; place-items: center; flex: none; }
     .design-stage { min-width: 0; min-height: 0; flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) clamp(18rem, 22vw, 21rem); overflow: hidden; }
     :host ::ng-deep .x6-graph { cursor: grab; }
     :host ::ng-deep .x6-graph:active { cursor: grabbing; }
-    .canvas-wrap { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: var(--op-canvas, #edf2ee); }
+    .canvas-wrap { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: var(--op-canvas, #eaf2f8); }
     .legend {
       position: absolute; bottom: 14px; left: 14px; max-width: calc(100% - 28px);
       padding: 10px 12px 11px; background: rgb(255 255 255 / .92);
-      border: 1px solid var(--op-border, #d7ded8); border-radius: 11px;
-      box-shadow: 0 8px 24px rgb(21 32 25 / .09); backdrop-filter: blur(10px);
-      color: var(--op-ink, #152019); pointer-events: none; z-index: 10;
+      border: 1px solid var(--op-border, #cfdae7); border-radius: 11px;
+      box-shadow: 0 8px 24px rgb(18 35 59 / .09); backdrop-filter: blur(10px);
+      color: var(--op-ink, #12233b); pointer-events: none; z-index: 10;
     }
-    .legend-title { display: block; margin-bottom: 7px; color: var(--op-muted, #68756d); font-size: 9px; line-height: 1; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .legend-title { display: block; margin-bottom: 7px; color: var(--op-muted, #60738a); font-size: 9px; line-height: 1; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
     .legend-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 15px; }
-    .legend-item { min-width: 0; display: flex; align-items: center; gap: 7px; color: var(--op-muted, #68756d); font: 600 10px/1.25 ui-monospace, monospace; white-space: nowrap; }
+    .legend-item { min-width: 0; display: flex; align-items: center; gap: 7px; color: var(--op-muted, #60738a); font: 600 10px/1.25 ui-monospace, monospace; white-space: nowrap; }
     .legend-icon { width: 23px; min-height: 17px; display: flex; justify-content: center; align-items: center; flex: none; }
-    .sidebar { min-width: 0; min-height: 0; overflow-y: auto; border-left: 1px solid var(--op-border, #d7ded8); background: #fff; font-size: 12px; scrollbar-gutter: stable; }
-    .sidebar-intro { padding: 17px 16px 15px; border-bottom: 1px solid var(--op-border, #d7ded8); background: var(--op-shell, #fbfcfa); }
-    .sidebar-intro span { color: var(--op-blue, #196ca6); font-size: 9px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+    .sidebar { min-width: 0; min-height: 0; overflow-y: auto; border-left: 1px solid var(--op-border, #cfdae7); background: #fff; font-size: 12px; scrollbar-gutter: stable; }
+    .sidebar-intro { padding: 17px 16px 15px; border-bottom: 1px solid var(--op-border, #cfdae7); background: var(--op-shell, #f6f9fc); }
+    .sidebar-intro span { color: var(--op-blue, #0369a1); font-size: 9px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
     .sidebar-intro strong { display: block; margin-top: 5px; font-size: 15px; }
-    .sidebar-intro p { margin: 5px 0 0; color: var(--op-muted, #68756d); font-size: 11px; line-height: 1.45; }
+    .sidebar-intro p { margin: 5px 0 0; color: var(--op-muted, #60738a); font-size: 11px; line-height: 1.45; }
     :host-context(.preview) .sidebar input,
     :host-context(.preview) .sidebar select,
     :host-context(.preview) .sidebar .toggle,
@@ -206,7 +206,7 @@ import { renderControllerOverlays } from '../../../shared/canvas/controller-over
       .design-tool > span, :host ::ng-deep app-add-controller .design-tool > span { display: none; }
       .design-tool, :host ::ng-deep app-add-controller .design-tool { padding: 0; }
       .design-stage { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(24rem, 1fr) minmax(12rem, 38vh); overflow-y: auto; }
-      .sidebar { border-top: 1px solid var(--op-border, #d7ded8); border-left: 0; }
+      .sidebar { border-top: 1px solid var(--op-border, #cfdae7); border-left: 0; }
       .legend-list { grid-template-columns: minmax(0, 1fr); }
       .legend-item:nth-child(n+6) { display: none; }
     }

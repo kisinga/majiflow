@@ -248,14 +248,153 @@
    marketing site: borders carry grouping; shadows are reserved for menus and
    drawers that actually sit above the page. */
 .authenticated-shell .surface {
-  border: 1px solid #d7ded8;
-  background: #ffffff;
-  background-image: none;
-  box-shadow: 0 1px 2px rgb(21 32 25 / 0.05);
+  border: 1px solid var(--op-border);
+  background: var(--op-surface);
+  background-image: linear-gradient(180deg, rgb(255 255 255 / .96), rgb(248 251 254 / .96));
+  box-shadow: var(--op-shadow-sm);
   --tw-ring-shadow: 0 0 #0000;
   transition: border-color var(--motion-press) var(--ease-standard),
               box-shadow var(--motion-press) var(--ease-standard),
-              background-color var(--motion-press) var(--ease-standard);
+              background-color var(--motion-press) var(--ease-standard),
+              transform var(--motion-press) var(--ease-standard);
+}
+
+/* Authenticated UI hierarchy. Primary blue is deliberately scarce and carries
+   the next action; neutral controls recede; semantic colors keep one meaning. */
+.authenticated-shell :where(.btn, .input, .select, .textarea, .toggle, .badge, .alert) {
+  font-family: var(--font-body);
+}
+.authenticated-shell :where(h1, h2, h3) { color: var(--op-ink); letter-spacing: -.018em; }
+.authenticated-shell :where(.site-context-header, .system-context, .context, .billing-context) :where(h1, strong) {
+  font-family: var(--font-display);
+  letter-spacing: -.016em;
+}
+.authenticated-shell .section-label { color: var(--op-brand-deep); }
+
+.authenticated-shell .btn {
+  border-radius: .7rem;
+  font-weight: 700;
+  letter-spacing: -.005em;
+  transition: color var(--motion-press) var(--ease-standard),
+              border-color var(--motion-press) var(--ease-standard),
+              background-color var(--motion-press) var(--ease-standard),
+              box-shadow var(--motion-press) var(--ease-standard),
+              transform var(--motion-press) var(--ease-standard);
+}
+.authenticated-shell .btn:not(.btn-primary):not(.btn-secondary):not(.btn-success):not(.btn-warning):not(.btn-error) {
+  color: var(--op-ink);
+}
+.authenticated-shell .btn:not(.btn-ghost):not(.btn-link):not(.btn-primary):not(.btn-secondary):not(.btn-success):not(.btn-warning):not(.btn-error) {
+  border-color: var(--op-border);
+  background: var(--op-surface);
+  box-shadow: var(--op-shadow-sm);
+}
+.authenticated-shell .btn-primary {
+  border-color: #0275b4;
+  background: linear-gradient(135deg, #0793d1, var(--op-brand-deep));
+  color: #fff;
+  box-shadow: 0 7px 18px -8px rgb(2 132 199 / .72), inset 0 1px rgb(255 255 255 / .2);
+}
+.authenticated-shell .btn-primary:hover:not(:disabled) {
+  border-color: #025f93;
+  background: linear-gradient(135deg, #0284c7, #075985);
+  box-shadow: 0 10px 24px -9px rgb(2 105 161 / .72), inset 0 1px rgb(255 255 255 / .18);
+  transform: translateY(-1px);
+}
+.authenticated-shell .btn-ghost:hover:not(:disabled) {
+  color: var(--op-brand-deep);
+  background: var(--op-blue-soft);
+}
+.authenticated-shell .btn-ghost.btn-active {
+  color: var(--op-brand-deep);
+  background: var(--op-blue-soft);
+  box-shadow: inset 0 0 0 1px rgb(2 132 199 / .14);
+}
+.authenticated-shell .btn-outline:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--op-brand) 62%, var(--op-border));
+  color: var(--op-brand-deep);
+  background: var(--op-blue-soft);
+}
+.authenticated-shell .btn:active:not(:disabled) { transform: translateY(1px) scale(.975); }
+.authenticated-shell .btn:disabled { box-shadow: none; filter: saturate(.55); }
+
+.authenticated-shell :where(.input, .select, .textarea) {
+  border-color: var(--op-border);
+  color: var(--op-ink);
+  background: var(--op-surface);
+  box-shadow: inset 0 1px 2px rgb(18 35 59 / .035);
+  transition: border-color var(--motion-selection) var(--ease-standard),
+              box-shadow var(--motion-selection) var(--ease-standard),
+              background-color var(--motion-selection) var(--ease-standard);
+}
+.authenticated-shell :where(.input, .select, .textarea):hover:not(:disabled) {
+  border-color: var(--op-border-strong);
+}
+.authenticated-shell :where(.input, .select, .textarea):focus,
+.authenticated-shell :where(.input, .select, .textarea):focus-within {
+  border-color: var(--op-brand);
+  box-shadow: 0 0 0 3px rgb(2 132 199 / .13), inset 0 1px 2px rgb(18 35 59 / .03);
+  outline: none;
+}
+
+.authenticated-shell .card {
+  border-color: var(--op-border);
+  background-color: var(--op-surface);
+  box-shadow: var(--op-shadow-sm);
+}
+.authenticated-shell .alert {
+  border-width: 1px;
+  box-shadow: 0 6px 18px -14px currentColor;
+}
+.authenticated-shell .alert-info { border-color: rgb(2 132 199 / .24); background: var(--op-blue-soft); color: var(--op-brand-deep); }
+.authenticated-shell .alert-success { border-color: rgb(15 128 99 / .25); background: var(--op-green-soft); color: #09664e; }
+.authenticated-shell .alert-warning { border-color: rgb(183 97 8 / .25); background: var(--op-amber-soft); color: #7a4108; }
+.authenticated-shell .alert-error { border-color: rgb(201 54 54 / .24); background: var(--op-red-soft); color: #9f2727; }
+.authenticated-shell .badge { border-color: color-mix(in srgb, currentColor 18%, transparent); font-weight: 700; }
+.authenticated-shell :where(.badge-ghost, .badge-outline) { color: var(--op-muted); background: var(--op-panel); }
+.authenticated-shell .link:not(.text-error) { color: var(--op-brand-deep); text-decoration-color: rgb(2 132 199 / .28); }
+.authenticated-shell :where(.menu li > a, .menu li > button, tbody tr) {
+  transition: color var(--motion-press) var(--ease-standard), background-color var(--motion-press) var(--ease-standard);
+}
+.authenticated-shell .menu li > :where(a, button):hover { color: var(--op-brand-deep); background: var(--op-blue-soft); }
+.authenticated-shell tbody tr:hover { background-color: rgb(2 132 199 / .035); }
+.authenticated-shell .toggle {
+  background-color: var(--op-surface);
+  box-shadow: none;
+  transition: color var(--motion-selection) var(--ease-standard),
+              border-color var(--motion-selection) var(--ease-standard),
+              background-color var(--motion-selection) var(--ease-standard),
+              box-shadow var(--motion-selection) var(--ease-standard);
+}
+.authenticated-shell .toggle:checked,
+.authenticated-shell .toggle[aria-checked="true"] {
+  background-color: var(--op-surface);
+  box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* A single delegated ripple keeps press feedback consistent without adding a
+   directive to hundreds of controls. It is decorative and never receives input. */
+.ui-ripple {
+  position: absolute;
+  z-index: 20;
+  width: 1px;
+  height: 1px;
+  border-radius: 999px;
+  pointer-events: none;
+  background: currentColor;
+  opacity: .16;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ui-ripple-out 520ms var(--ease-standard) forwards;
+}
+.ui-ripple-host { position: relative !important; overflow: hidden !important; isolation: isolate; }
+@keyframes ui-ripple-out {
+  70% { opacity: .10; }
+  to { opacity: 0; transform: translate(-50%, -50%) scale(var(--ripple-scale, 180)); }
+}
+
+.authenticated-shell :where(button, .btn, .rail-link, .mobile-bottom-nav a, [role="button"]),
+:where(.mkt-btn) {
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Stacking utilities driven by the --z-* scale above. */

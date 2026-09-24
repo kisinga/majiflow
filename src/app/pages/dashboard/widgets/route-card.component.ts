@@ -51,24 +51,24 @@ interface RouteView {
     @keyframes rc-sweep { 0% { transform: translateX(-120%); } 100% { transform: translateX(420%); } }
     .rc-sweep { animation: rc-sweep 1.8s ease-in-out infinite; }
     .rc-card { transition: box-shadow var(--motion-selection, 170ms) var(--ease-standard, ease), border-color var(--motion-selection, 170ms) var(--ease-standard, ease); }
-    .rc-card.is-automation-selected { background:linear-gradient(90deg,var(--op-blue-surface,#e0f0fb),#fff 44%);box-shadow:0 0 0 2px var(--op-blue,#196ca6),0 8px 22px color-mix(in srgb,var(--op-blue,#196ca6) 16%,transparent); }
-    .rc-card.is-automation-selected .rc-automation{color:var(--op-blue,#196ca6);background:var(--op-blue-surface,#e0f0fb)}
+    .rc-card.is-automation-selected { background:linear-gradient(90deg,var(--op-blue-surface,#dff2fe),#fff 44%);box-shadow:0 0 0 2px var(--op-blue,#0369a1),0 8px 22px color-mix(in srgb,var(--op-blue,#0369a1) 16%,transparent); }
+    .rc-card.is-automation-selected .rc-automation{color:var(--op-blue,#0369a1);background:var(--op-blue-surface,#dff2fe)}
     .rc-row { min-height: 64px; }
     .rc-action,.rc-automation,.rc-summary { position: relative; transition: color var(--motion-press, 130ms) var(--ease-standard, ease), background-color var(--motion-press, 130ms) var(--ease-standard, ease), transform var(--motion-press, 130ms) var(--ease-standard, ease); }
     .rc-action { width: 58px; min-width: 58px; display: grid; place-items: center; border-right: 1px solid color-mix(in srgb, currentColor 10%, transparent); }
     .rc-action:hover:not(:disabled) { background: color-mix(in srgb, currentColor 7%, transparent); }
     .rc-action:active:not(:disabled),.rc-automation:active:not(:disabled) { transform: scale(.97); }
-    .rc-action:focus-visible,.rc-automation:focus-visible,.rc-summary:focus-visible { z-index: 3; outline: 3px solid color-mix(in srgb,var(--op-blue,#196ca6) 30%,transparent); outline-offset: -3px; }
+    .rc-action:focus-visible,.rc-automation:focus-visible,.rc-summary:focus-visible { z-index: 3; outline: 3px solid color-mix(in srgb,var(--op-blue,#0369a1) 30%,transparent); outline-offset: -3px; }
     .rc-action:disabled { cursor: not-allowed; }
     .rc-summary { min-width: 0; flex: 1; padding: 9px 10px; text-align: left; }
-    button.rc-summary:hover { background: color-mix(in srgb,var(--op-blue,#196ca6) 4%,transparent); }
-    .rc-automation { width: 54px; min-width: 54px; display: grid; place-items: center; align-content: center; gap: 1px; border-left: 1px solid var(--op-border,#d7ded8); color: var(--op-muted,#68756d); }
-    .rc-automation:hover:not(:disabled),.rc-automation.has-automations { color: var(--op-blue,#196ca6); background: var(--op-blue-surface,#e0f0fb); }
-    .rc-automation:disabled { color: color-mix(in srgb,var(--op-muted,#68756d) 45%,transparent); cursor: not-allowed; }
+    button.rc-summary:hover { background: color-mix(in srgb,var(--op-blue,#0369a1) 4%,transparent); }
+    .rc-automation { width: 54px; min-width: 54px; display: grid; place-items: center; align-content: center; gap: 1px; border-left: 1px solid var(--op-border,#cfdae7); color: var(--op-muted,#60738a); }
+    .rc-automation:hover:not(:disabled),.rc-automation.has-automations { color: var(--op-blue,#0369a1); background: var(--op-blue-surface,#dff2fe); }
+    .rc-automation:disabled { color: color-mix(in srgb,var(--op-muted,#60738a) 45%,transparent); cursor: not-allowed; }
     .rc-automation svg { width: 18px; height: 18px; }
-    .rc-count { min-width: 18px; height: 15px; padding: 0 4px; display: grid; place-items: center; border-radius: 999px; background: var(--op-panel-strong,#e8eee9); color: var(--op-muted,#68756d); font-size: 9px; line-height: 1; font-weight: 850; font-variant-numeric: tabular-nums; }
-    .rc-automation.has-automations .rc-count { background: #fff; color: var(--op-blue,#196ca6); }
-    .rc-target-cue { margin-left: auto; width: 18px; height: 18px; flex: none; display: grid; place-items: center; border-radius: 50%; color: var(--op-muted,#68756d); }
+    .rc-count { min-width: 18px; height: 15px; padding: 0 4px; display: grid; place-items: center; border-radius: 999px; background: var(--op-panel-strong,#dfe9f3); color: var(--op-muted,#60738a); font-size: 9px; line-height: 1; font-weight: 850; font-variant-numeric: tabular-nums; }
+    .rc-automation.has-automations .rc-count { background: #fff; color: var(--op-blue,#0369a1); }
+    .rc-target-cue { margin-left: auto; width: 18px; height: 18px; flex: none; display: grid; place-items: center; border-radius: 50%; color: var(--op-muted,#60738a); }
     .rc-glyph { transition-duration: var(--motion-selection, 170ms); transition-timing-function: var(--ease-standard, ease); }
     .rc-options { animation: op-page-enter var(--motion-mode, 200ms) var(--ease-enter, ease) both; }
     @media (prefers-reduced-motion: reduce) {

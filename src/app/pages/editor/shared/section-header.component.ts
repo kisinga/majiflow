@@ -11,7 +11,7 @@ import { Component, input } from '@angular/core';
   selector: 'app-section-header',
   standalone: true,
   styles: [`
-    :host{display:block}.section-heading{display:flex;align-items:center;gap:11px}.section-mark{width:5px;height:28px;flex:none;border-radius:999px;background:linear-gradient(180deg,#22d3ee,#0284c7)}h1{margin:0;color:var(--op-ink,#152019);font-size:24px;font-weight:800;letter-spacing:-.025em}p{max-width:700px;margin:7px 0 0 16px;color:var(--op-muted,#68756d);font-size:13px;line-height:1.5}@media(max-width:639.98px){h1{font-size:21px}p{margin-left:0}}
+    :host{display:block}.section-heading{display:flex;align-items:center;gap:11px}.section-mark{width:5px;height:28px;flex:none;border-radius:999px;background:linear-gradient(180deg,#22d3ee,#0284c7)}h1{margin:0;color:var(--op-ink,#12233b);font-size:24px;font-weight:800;letter-spacing:-.025em}p{max-width:700px;margin:7px 0 0 16px;color:var(--op-muted,#60738a);font-size:13px;line-height:1.5}@media(max-width:639.98px){h1{font-size:21px}p{margin-left:0}}
   `],
   template: `
     <header>

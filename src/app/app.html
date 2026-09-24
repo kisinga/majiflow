@@ -1,9 +1,9 @@
 @if (isPublic()) {
-  <div class="h-screen min-w-0 bg-base-200 text-base-content flex flex-col overflow-hidden">
+  <div class="h-screen min-w-0 bg-base-200 text-base-content flex flex-col overflow-hidden" (pointerdown)="showPressRipple($event)">
     <main class="flex-1 flex min-w-0 overflow-hidden"><router-outlet /></main>
   </div>
 } @else {
-  <div class="authenticated-shell" [class.rail-expanded]="railExpanded()">
+  <div class="authenticated-shell" [class.rail-expanded]="railExpanded()" (pointerdown)="showPressRipple($event)">
     <aside class="global-rail" [class.is-expanded]="railExpanded()" aria-label="Primary navigation">
       <a [routerLink]="auth.isManager() ? '/overview' : '/home'" class="rail-brand" [attr.aria-label]="branding.name() || 'MajiFlow'">
         @if (branding.logoUrl(); as logo) { <span class="rail-brand-logo"><img [src]="logo" alt="" /></span> }

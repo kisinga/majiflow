@@ -189,29 +189,29 @@ import { TankCalibrationVisualComponent } from '../../../shared/tank-calibration
     :host {
       display: block;
       font-size: 12px;
-      color: var(--op-ink, #152019);
+      color: var(--op-ink, #12233b);
     }
-    button:focus-visible, select:focus-visible { outline: 3px solid color-mix(in srgb, var(--op-blue, #196ca6) 30%, transparent); outline-offset: 1px; }
-    .sidebar-section { padding: 8px 12px 14px; border-bottom: 1px solid var(--op-border, #d7ded8); }
+    button:focus-visible, select:focus-visible { outline: 3px solid color-mix(in srgb, var(--op-blue, #0369a1) 30%, transparent); outline-offset: 1px; }
+    .sidebar-section { padding: 8px 12px 14px; border-bottom: 1px solid var(--op-border, #cfdae7); }
     .sidebar-title {
       min-height: 44px; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;
-      color: var(--op-muted, #68756d); background: none; border: none; padding: 0 3px;
+      color: var(--op-muted, #60738a); background: none; border: none; padding: 0 3px;
       font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; cursor: pointer;
     }
-    .sidebar-title:hover { color: var(--op-ink, #152019); }
+    .sidebar-title:hover { color: var(--op-ink, #12233b); }
     .section-chevron { width: 16px; height: 16px; flex: none; transition: transform var(--motion-selection, 170ms) var(--ease-standard, ease); }
     .section-chevron.is-open { transform: rotate(90deg); }
     .sidebar-fields { display: grid; grid-template-columns: minmax(5rem, auto) minmax(0, 1fr); gap: 8px 10px; align-items: center; }
-    .sidebar-label { color: var(--op-muted, #68756d); font-size: 10px; font-weight: 650; line-height: 1.3; }
+    .sidebar-label { color: var(--op-muted, #60738a); font-size: 10px; font-weight: 650; line-height: 1.3; }
     .sidebar-control { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-    :host ::ng-deep .sidebar-control :is(input:not([type='hidden']), select), select.select { min-height: 40px; border-color: var(--op-border, #d7ded8); border-radius: 9px; background: #fff; color: var(--op-ink, #152019); }
+    :host ::ng-deep .sidebar-control :is(input:not([type='hidden']), select), select.select { min-height: 40px; border-color: var(--op-border, #cfdae7); border-radius: 9px; background: #fff; color: var(--op-ink, #12233b); }
     .sidebar-info {
       cursor: help; font-size: 10px;
-      color: var(--op-muted, #68756d);
+      color: var(--op-muted, #60738a);
     }
-    .sidebar-info:hover { color: var(--op-ink, #152019); }
-    .delete-action { min-height: 44px; width: 100%; margin-top: 14px; border: 1px solid color-mix(in srgb, var(--op-red, #b42318) 52%, var(--op-border, #d7ded8)); border-radius: 9px; color: var(--op-red, #b42318); background: #fff; font-size: 12px; font-weight: 800; }
-    .delete-action:hover { background: color-mix(in srgb, var(--op-red, #b42318) 6%, #fff); }
+    .sidebar-info:hover { color: var(--op-ink, #12233b); }
+    .delete-action { min-height: 44px; width: 100%; margin-top: 14px; border: 1px solid color-mix(in srgb, var(--op-red, #c93636) 52%, var(--op-border, #cfdae7)); border-radius: 9px; color: var(--op-red, #c93636); background: #fff; font-size: 12px; font-weight: 800; }
+    .delete-action:hover { background: color-mix(in srgb, var(--op-red, #c93636) 6%, #fff); }
     @media (prefers-reduced-motion: reduce) { .section-chevron { transition: none; } }
   `],
 })

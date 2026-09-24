@@ -20,13 +20,13 @@ import { AddControllerComponent } from '../topology-x6-tab/add-controller.compon
   imports: [DeploymentCardComponent, SectionHeaderComponent, AddControllerComponent],
   host: { class: 'block min-h-full' },
   styles: [`
-    :host{background:var(--op-shell,#fbfcfa)}
+    :host{background:var(--op-shell,#f6f9fc)}
     .system-overview{display:flex;flex-direction:column;gap:22px}
     .overview-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-    .overview-stat{min-height:92px;padding:16px 18px;border:1px solid var(--op-border,#d7ded8);border-radius:15px;background:#fff;box-shadow:0 1px 2px rgb(21 32 25/.04)}
+    .overview-stat{min-height:92px;padding:16px 18px;border:1px solid var(--op-border,#cfdae7);border-radius:15px;background:#fff;box-shadow:0 1px 2px rgb(18 35 59/.04)}
     .controller-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
-    :host .surface{border:1px solid var(--op-border,#d7ded8);border-radius:15px;background:#fff;background-image:none;box-shadow:0 1px 2px rgb(21 32 25/.05);--tw-ring-shadow:0 0 #0000}
-    :host .surface:hover{box-shadow:0 5px 16px rgb(21 32 25/.07)}
+    :host .surface{border:1px solid var(--op-border,#cfdae7);border-radius:15px;background:#fff;background-image:none;box-shadow:0 1px 2px rgb(18 35 59/.05);--tw-ring-shadow:0 0 #0000}
+    :host .surface:hover{box-shadow:0 5px 16px rgb(18 35 59/.07)}
     @media(max-width:900px){.overview-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:639.98px){.system-overview{gap:18px}.overview-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.overview-stat{min-height:82px;padding:13px}.controller-grid{grid-template-columns:1fr}}
   `],

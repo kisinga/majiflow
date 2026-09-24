@@ -47,14 +47,14 @@ function ensureLiveStyles(): void {
    entity's identity colour while signalling live/fault the same way. A node is
    live when it's engaged (on a running route) OR its own actuator is active. */
 .live-glyph [data-part=body] { transition: filter var(--motion-selection, 170ms) var(--ease-standard, ease); }
-.live-glyph text { fill: #152019 !important; }
+.live-glyph text { fill: #12233b !important; }
 .live-glyph.state-on [data-part=body], .live-glyph.engaged [data-part=body] { filter: drop-shadow(0 0 3.5px ${active}); }
 .live-glyph.state-fault [data-part=body] { filter: drop-shadow(0 0 3.5px ${fault}); animation: x6-pulse 1.1s ease-in-out infinite; }
 .live-glyph.state-unavailable { opacity: .4; }
 .live-glyph.operator-selectable { cursor: pointer; }
 .live-glyph.operator-selectable [data-part=body] { transition: filter var(--motion-selection, 170ms) var(--ease-standard, ease), opacity var(--motion-press, 130ms) var(--ease-standard, ease); }
-.live-glyph.operator-selectable:hover [data-part=body] { filter: drop-shadow(0 0 5px #147448); }
-.live-glyph.operator-selected [data-part=body] { filter: drop-shadow(0 0 7px #147448) drop-shadow(0 0 13px #147448) !important; }
+.live-glyph.operator-selectable:hover [data-part=body] { filter: drop-shadow(0 0 5px #0f8063); }
+.live-glyph.operator-selected [data-part=body] { filter: drop-shadow(0 0 7px #0f8063) drop-shadow(0 0 13px #0f8063) !important; }
 
 /* Motion — live.spin. Part is drawn around its own centre, so this spins in
    place. Spins when live (engaged on a running route, or self-active). */
@@ -77,7 +77,7 @@ function ensureLiveStyles(): void {
 .live-label-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .value-label-html { position: absolute; top: 0; left: 0; will-change: transform; pointer-events: none; white-space: nowrap;
   font-weight: 700; font-size: ${SYMBOL.font.value}px; font-family: ${SYMBOL.font.family}; letter-spacing: .02em;
-  color: #152019; text-shadow: 0 0 2px #ffffff, 0 0 5px #ffffff, 0 1px 2px #ffffff; }
+  color: #12233b; text-shadow: 0 0 2px #ffffff, 0 0 5px #ffffff, 0 1px 2px #ffffff; }
 @media (prefers-reduced-motion: reduce) {
   .live-glyph.state-on [data-part=spin], .live-glyph.engaged [data-part=spin], .live-glyph.state-fault [data-part=body] { animation: none !important; }
   .live-glyph [data-part=body], .live-glyph [data-part=fill], .live-glyph [data-part=gate], .live-glyph [data-part=gate] * { transition: none !important; }
@@ -96,7 +96,7 @@ function extractNodeData(node: TopologyNode): Record<string, unknown> {
 function renderLiveGlyph(desc: NodeDescriptor, data: Record<string, unknown>): string {
   return desc.renderSvg(data)
     .replaceAll(UI_COLORS.bg, '#ffffff')
-    .replaceAll(UI_COLORS.text, '#152019');
+    .replaceAll(UI_COLORS.text, '#12233b');
 }
 
 /** The route overlay: nodes + pipes a route contributes, bucketed by its live
@@ -174,8 +174,8 @@ export class LiveCanvas {
       // Plain wheel remains page scroll. Trackpad pinch arrives as ctrl+wheel,
       // giving touch users native-feeling zoom without hijacking scrolling.
       mousewheel: { enabled: true, modifiers: ['ctrl'], minScale: 0.3, maxScale: 3 },
-      background: { color: '#edf2ee' },
-      grid: { visible: true, type: 'dot', args: [{ color: '#d7ded8' }] },
+      background: { color: '#eaf2f8' },
+      grid: { visible: true, type: 'dot', args: [{ color: '#cbd9e8' }] },
     });
     // Screen-space label overlay: a sibling layer X6's zoom transform never touches,
     // so readouts stay crisp + constant-size. Reposition over the nodes on any view
@@ -645,7 +645,7 @@ export class LiveCanvas {
    *  edges whose membership changed are rewritten, so this stays cheap per tick.
    *  Controller wires (`wire-*`) are left to the overlay renderer — skipped here. */
   private applyFlow(): void {
-    const FLOW = { line: { stroke: '#196ca6', strokeWidth: SYMBOL.stroke + 0.5, strokeDasharray: 8, style: { animation: 'x6-flow 20s infinite linear' } } };
+    const FLOW = { line: { stroke: '#0284c7', strokeWidth: SYMBOL.stroke + 0.5, strokeDasharray: 8, style: { animation: 'x6-flow 20s infinite linear' } } };
     const FAULT = { line: { stroke: STATE_COLORS.fault, strokeWidth: SYMBOL.stroke + 0.5, strokeDasharray: 0, style: { animation: '' } } };
     const REST = { line: { stroke: '#93a49a', strokeWidth: SYMBOL.stroke, strokeDasharray: 0, style: { animation: '' } } };
     for (const edge of this.graph.getEdges()) {

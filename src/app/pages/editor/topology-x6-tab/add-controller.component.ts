@@ -104,9 +104,9 @@ import type { TemplateListEntry } from '../../../core/models/backend-api';
     }
   `,
   styles: [`
-    .controller-menu { margin-top: 6px; border: 1px solid var(--op-border, #d7ded8); border-radius: 11px; background: #fff; box-shadow: 0 16px 42px rgb(21 32 25 / .16); color: var(--op-ink, #152019); }
+    .controller-menu { margin-top: 6px; border: 1px solid var(--op-border, #cfdae7); border-radius: 11px; background: #fff; box-shadow: 0 16px 42px rgb(18 35 59 / .16); color: var(--op-ink, #12233b); }
     .controller-menu button { min-height: 42px; width: 100%; border-radius: 8px; font-size: 12px; text-align: left; }
-    .controller-menu button:hover { background: var(--op-panel, #f3f6f2); }
+    .controller-menu button:hover { background: var(--op-panel, #edf3f8); }
   `],
 })
 export class AddControllerComponent {

@@ -97,10 +97,10 @@ export class X6Canvas {
         ? { visible: false }
         // The editor uses the same light operational canvas as the live map.
         // Geometry and highlight layers are unchanged; this is presentation only.
-        : { visible: true, type: 'dot', args: [{ color: '#cbd8cf' }] },
+        : { visible: true, type: 'dot', args: [{ color: '#cbd9e8' }] },
       background: options?.background === false
         ? false
-        : { color: '#edf2ee' },
+        : { color: '#eaf2f8' },
       panning: { enabled: true, eventTypes: ['leftMouseDown'], modifiers: [] },
       mousewheel: { enabled: true, factor: 1.1, minScale: 0.2, maxScale: 3 },
       connecting: {

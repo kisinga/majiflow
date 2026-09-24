@@ -25,19 +25,19 @@ import { LiveCanvas, type ActivePath, type CanvasViewportInsets } from './live-c
     .map-frame { height: min(70vh, 640px); }
     .map-frame.fill { height: 100%; min-height: 0; border-radius: 0; box-shadow: none; }
     .map-host { touch-action: none; }
-    .map-tools { padding: 3px; gap: 3px; border: 1px solid var(--op-border, #d7ded8); border-radius: 13px; background: rgb(255 255 255 / .9); box-shadow: 0 7px 20px rgb(21 32 25 / .08); backdrop-filter: blur(10px); }
-    .map-tools button { min-width: 2.75rem; min-height: 2.75rem; display: grid; place-items: center; border-radius: 9px; color: var(--op-ink, #152019); transition: background var(--motion-press, 130ms) var(--ease-standard, ease), transform var(--motion-press, 130ms) var(--ease-standard, ease); }
-    .map-tools button:hover { background: var(--op-panel, #f3f6f2); }
+    .map-tools { padding: 3px; gap: 3px; border: 1px solid var(--op-border, #cfdae7); border-radius: 13px; background: rgb(255 255 255 / .9); box-shadow: 0 7px 20px rgb(18 35 59 / .08); backdrop-filter: blur(10px); }
+    .map-tools button { min-width: 2.75rem; min-height: 2.75rem; display: grid; place-items: center; border-radius: 9px; color: var(--op-ink, #12233b); transition: background var(--motion-press, 130ms) var(--ease-standard, ease), transform var(--motion-press, 130ms) var(--ease-standard, ease); }
+    .map-tools button:hover { background: var(--op-panel, #edf3f8); }
     .map-tools button:active { transform: scale(.94); }
-    .map-tools button:focus-visible { outline: 3px solid color-mix(in srgb, var(--op-blue, #196ca6) 32%, transparent); outline-offset: 1px; }
-    .map-legend { border: 1px solid var(--op-border, #d7ded8); color: var(--op-muted, #68756d); background: rgb(255 255 255 / .9); box-shadow: 0 7px 20px rgb(21 32 25 / .06); backdrop-filter: blur(10px); }
+    .map-tools button:focus-visible { outline: 3px solid color-mix(in srgb, var(--op-blue, #0369a1) 32%, transparent); outline-offset: 1px; }
+    .map-legend { border: 1px solid var(--op-border, #cfdae7); color: var(--op-muted, #60738a); background: rgb(255 255 255 / .9); box-shadow: 0 7px 20px rgb(18 35 59 / .06); backdrop-filter: blur(10px); }
     @media (max-width: 767.98px) {
       .map-tools { top: .7rem; right: .7rem; flex-direction: row; }
       .map-legend { left: .7rem; bottom: .7rem; max-width: calc(100% - 1.4rem); }
     }
   `],
   template: `
-    <div class="map-frame relative w-full rounded-2xl overflow-hidden bg-[#edf2ee]"
+    <div class="map-frame relative w-full rounded-2xl overflow-hidden bg-[#eaf2f8]"
          [class.fill]="fill()">
       <div #host class="map-host absolute inset-0"></div>
 

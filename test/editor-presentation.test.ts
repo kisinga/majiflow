@@ -23,8 +23,8 @@ assert(!editor.includes('btn btn-ghost btn-xs'), 'primary editor toolbar contain
 assert(editor.includes('grid-template-columns: minmax(0, 1fr) clamp(18rem, 22vw, 21rem)'), 'canvas and inspector use a bounded responsive grid');
 assert(editor.includes('background: rgb(255 255 255 / .92)') && !editor.includes('rgba(15,23,42,0.92)'), 'component legend is a light operational surface');
 assert(editor.includes('min-height: 44px') && editor.includes('Component legend'), 'editor controls and legend retain semantic sizing and labeling');
-assert(canvas.includes("{ color: '#edf2ee' }") && canvas.includes("color: '#cbd8cf'"), 'X6 editor canvas uses the light canvas and grid palette');
-assert(shapes.includes(".replaceAll(UI_COLORS.bg, '#ffffff')") && shapes.includes(".replaceAll(UI_COLORS.text, '#152019')"), 'editor nodes remain legible on the light canvas');
+assert(canvas.includes("{ color: '#eaf2f8' }") && canvas.includes("color: '#cbd9e8'"), 'X6 editor canvas uses the blue-neutral canvas and grid palette');
+assert(shapes.includes(".replaceAll(UI_COLORS.bg, '#ffffff')") && shapes.includes(".replaceAll(UI_COLORS.text, '#12233b')"), 'editor nodes remain legible on the light canvas');
 assert(sidebar.includes('class="route-key" [title]="route.key"') && sidebar.includes('text-overflow: ellipsis'), 'long derived route keys truncate without widening the page');
 assert(canvas.includes('highlight(selection: Selection | null') && canvas.includes('private highlightEdge('), 'presentation rewrite preserves the existing X6 highlight layer');
 assert(editorShell.includes('<div class="system-workflow"><app-workspace-rail /></div>') && !editorShell.includes('\n      <app-workspace-rail />'), 'System workflow is contextual header control, not a second site navbar');

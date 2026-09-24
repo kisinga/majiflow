@@ -172,4 +172,28 @@ export class App implements OnInit {
   protected toggleRail(): void {
     this.railExpanded.update((expanded) => !expanded);
   }
+
+  /** Shared pointer feedback for high-intent controls. Event delegation keeps
+   * the effect coherent across lazy pages without a directive on every button. */
+  protected showPressRipple(event: PointerEvent): void {
+    if (event.button !== 0 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const origin = event.target instanceof Element ? event.target : null;
+    const target = origin?.closest<HTMLElement>(
+      'button:not(:disabled):not([data-no-ripple]), a.btn, a.mkt-btn, .rail-link, .mobile-bottom-nav a, [role="button"]:not([data-no-ripple])',
+    );
+    if (!target || !event.currentTarget || !(event.currentTarget as Element).contains(target)) return;
+
+    const rect = target.getBoundingClientRect();
+    const ripple = document.createElement('span');
+    ripple.className = 'ui-ripple';
+    ripple.style.left = `${event.clientX - rect.left}px`;
+    ripple.style.top = `${event.clientY - rect.top}px`;
+    ripple.style.setProperty('--ripple-scale', String(Math.ceil(Math.hypot(rect.width, rect.height) * 2)));
+    target.classList.add('ui-ripple-host');
+    target.append(ripple);
+    ripple.addEventListener('animationend', () => {
+      ripple.remove();
+      if (!target.querySelector('.ui-ripple')) target.classList.remove('ui-ripple-host');
+    }, { once: true });
+  }
 }

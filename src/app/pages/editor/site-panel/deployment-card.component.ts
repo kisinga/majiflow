@@ -25,7 +25,7 @@ import { BuildService } from '../../../core/services/build.service';
   standalone: true,
   imports: [FormsModule],
   styles: [`
-    :host{display:block}.surface{border:1px solid var(--op-border,#d7ded8);border-radius:15px;background:#fff;background-image:none;box-shadow:0 1px 2px rgb(21 32 25/.05);--tw-ring-shadow:0 0 #0000}
+    :host{display:block}.surface{border:1px solid var(--op-border,#cfdae7);border-radius:15px;background:#fff;background-image:none;box-shadow:0 1px 2px rgb(18 35 59/.05);--tw-ring-shadow:0 0 #0000}
   `],
   template: `
     <div class="surface p-4">

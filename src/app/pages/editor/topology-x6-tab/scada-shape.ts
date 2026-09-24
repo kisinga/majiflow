@@ -13,7 +13,7 @@ export function svgDataUri(kind: string, data: Record<string, unknown>, activeCo
   // unchanged for firmware/docs exports; X6 gets white surfaces and dark labels.
   svg = svg
     .replaceAll(UI_COLORS.bg, '#ffffff')
-    .replaceAll(UI_COLORS.text, '#152019');
+    .replaceAll(UI_COLORS.text, '#12233b');
   if (data['disabled']) {
     // Wrap SVG content with reduced opacity for disabled entities
     svg = svg.replace(/^<svg([^>]*)>/, '<svg$1><g opacity="0.3">').replace(/<\/svg>\s*$/, '</g></svg>');
