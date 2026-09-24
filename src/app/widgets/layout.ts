@@ -25,11 +25,14 @@ export interface LayoutItem {
 }
 
 const WIDTHS = new Set([4, 6, 12]);
+const OPERATIONAL_WIDGETS = new Set(['route-card', 'live-map']);
+const reportingOnly = (items: LayoutItem[]): LayoutItem[] =>
+  items.filter((item) => !OPERATIONAL_WIDGETS.has(item.widgetId));
 
 /** Stored-blob schema version. Bump when the curated default hierarchy changes
  *  in a way that should reset saved layouts: stale versions fail parsing and
  *  every viewer falls back to the new default (their widgets, our order). */
-export const LAYOUT_VERSION = 1;
+export const LAYOUT_VERSION = 2;
 
 /**
  * Validate an unknown blob as a layout. Returns null on any corruption —
@@ -40,7 +43,8 @@ export const LAYOUT_VERSION = 1;
 export function parseLayout(json: unknown): LayoutItem[] | null {
   if (typeof json !== 'object' || json === null) return null;
   const blob = json as Record<string, unknown>;
-  if (blob['v'] !== LAYOUT_VERSION || !Array.isArray(blob['items'])) return null;
+  const version = blob['v'];
+  if ((version !== 1 && version !== LAYOUT_VERSION) || !Array.isArray(blob['items'])) return null;
   const out: LayoutItem[] = [];
   const seen = new Set<string>();
   for (const it of blob['items']) {
@@ -52,6 +56,9 @@ export function parseLayout(json: unknown): LayoutItem[] | null {
     if (typeof o['hidden'] !== 'boolean') return null;
     if (seen.has(o['instanceId'])) return null;
     seen.add(o['instanceId']);
+    // Version 1 was a mixed operator/reporting dashboard. Operations now owns
+    // routes and the live topology, so those instances never enter Insights.
+    if (version === 1 && (o['widgetId'] === 'route-card' || o['widgetId'] === 'live-map')) continue;
     out.push({ widgetId: o['widgetId'], instanceId: o['instanceId'], w: o['w'] as 4 | 6 | 12, hidden: o['hidden'] });
   }
   return out;
@@ -69,14 +76,18 @@ export function serializeLayout(items: LayoutItem[]): string {
 /**
  * Merge a stored layout with the freshly auto-derived one. The stored layout
  * wins on order, widths and visibility for every instance it knows; any
- * derived instance MISSING from the stored layout is appended (in derived
- * order, with its derived visibility) so a widget that appears after a save —
- * new telemetry channel, new route — is never silently invisible.
+ * derived REPORTING instance missing from the stored layout is appended (in
+ * derived order, with its derived visibility) so a widget that appears after a
+ * save is never silently invisible. Route cards and the live map belong to the
+ * fixed Operate workspace, so they are stripped from both sides of the merge —
+ * including already-persisted v2 rows.
  */
 export function resolveLayout(stored: LayoutItem[] | null, derived: LayoutItem[]): LayoutItem[] {
-  if (!stored) return derived;
-  const known = new Set(stored.map((i) => i.instanceId));
-  return [...stored, ...derived.filter((i) => !known.has(i.instanceId))];
+  const reportingDerived = reportingOnly(derived);
+  if (!stored) return reportingDerived;
+  const reportingStored = reportingOnly(stored);
+  const known = new Set(reportingStored.map((i) => i.instanceId));
+  return [...reportingStored, ...reportingDerived.filter((i) => !known.has(i.instanceId))];
 }
 
 // --- Edit-mode helpers (pure; the grid and its tests share them) ------------

@@ -35,6 +35,13 @@ const wrap = (items: unknown, v = LAYOUT_VERSION) => ({ v, items });
   assert(empty !== null && empty.length === 0, "empty items is a valid (empty) layout");
 }
 
+// --- v1 → v2 migration: reporting survives, operator widgets move out --------
+{
+  const migrated = parseLayout({ v: 1, items: VALID });
+  assert(migrated?.length === 1 && migrated[0].widgetId === 'tank', 'v1 migration drops route/map instances');
+  assert(migrated?.[0].w === 6 && migrated[0].hidden === false, 'v1 migration preserves supported widget width/visibility');
+}
+
 // --- parseLayout: corruption / staleness → null --------------------------------
 {
   assert(parseLayout(null) === null, "rejects null");
@@ -75,8 +82,10 @@ const wrap = (items: unknown, v = LAYOUT_VERSION) => ({ v, items });
     { widgetId: "live-map", instanceId: "live-map", w: 12, hidden: false },
     { widgetId: "route-card", instanceId: "route/pump-ctrl/0", w: 4, hidden: false },
     { widgetId: "tank", instanceId: "widget/pump-ctrl/tank1_level", w: 4, hidden: false },
+    { widgetId: "timeline", instanceId: "widget/pump-ctrl/activity", w: 12, hidden: false },
   ];
-  assert(resolveLayout(null, derived) === derived, "null stored → derived layout used as-is");
+  const automatic = resolveLayout(null, derived);
+  assert(automatic.map((i) => i.widgetId).join(',') === 'tank,timeline', "null stored → reporting-only derived layout");
 
   // Stored wins: order, width and visibility come from the stored rows.
   const stored: LayoutItem[] = [
@@ -84,15 +93,21 @@ const wrap = (items: unknown, v = LAYOUT_VERSION) => ({ v, items });
     { widgetId: "live-map", instanceId: "live-map", w: 12, hidden: false },
   ];
   const out = resolveLayout(stored, derived)!;
-  assert(out[0].instanceId === "widget/pump-ctrl/tank1_level" && out[1].instanceId === "live-map",
+  assert(out[0].instanceId === "widget/pump-ctrl/tank1_level" && out[1].instanceId === "widget/pump-ctrl/activity",
     "stored order wins over derived order");
   assert(out[0].w === 6 && out[0].hidden === true, "stored width/visibility win over derived");
+  assert(!out.some((item) => item.widgetId === 'live-map' || item.widgetId === 'route-card'),
+    "operator map/routes cannot re-enter Insights during merge");
 
   // New derived instances (a widget that appeared after the layout was saved)
   // append rather than going invisible, honoring the derived visibility.
-  assert(out.length === 3 && out[2].instanceId === "route/pump-ctrl/0",
+  assert(out.length === 2 && out[1].instanceId === "widget/pump-ctrl/activity",
     "derived instances missing from stored are appended", JSON.stringify(out.map((i) => i.instanceId)));
-  assert(out[2].hidden === false, "appended instance keeps its derived (defaultVisible) visibility");
+  assert(out[1].hidden === false, "appended instance keeps its derived (defaultVisible) visibility");
+
+  const migrated = resolveLayout(parseLayout({ v: 1, items: VALID }), derived);
+  assert(!migrated.some((item) => item.widgetId === 'live-map' || item.widgetId === 'route-card'),
+    "v1 migration stays reporting-only after derived merge");
 
   // A derived instance whose def defaults to hidden stays hidden when appended.
   const derivedHidden: LayoutItem[] = [
@@ -146,15 +161,15 @@ const wrap = (items: unknown, v = LAYOUT_VERSION) => ({ v, items });
 {
   // After reset() clears the stored rows, the shell resolves with stored = null,
   // which is exactly the auto-derived layout.
-  const derived: LayoutItem[] = [{ widgetId: "live-map", instanceId: "live-map", w: 12, hidden: false }];
+  const derived: LayoutItem[] = [{ widgetId: "timeline", instanceId: "widget/c/activity", w: 12, hidden: false }];
   const out = resolveLayout(null, derived);
-  assert(out === derived, "reset (stored = null) resolves to the auto-derived layout");
+  assert(JSON.stringify(out) === JSON.stringify(derived), "reset (stored = null) resolves to the auto-derived reporting layout");
 }
 
 // --- Section labels: render-time only, never stored -----------------------------------
 {
   const items: LayoutItem[] = [
-    { widgetId: "route-card", instanceId: "route/c/0", w: 4, hidden: false, section: "Routes" },
+    { widgetId: "tank", instanceId: "widget/c/tank", w: 4, hidden: false, section: "Status & controls" },
   ];
   const blob = JSON.parse(serializeLayout(items)) as { items: Record<string, unknown>[] };
   assert(blob.items.every((i) => !("section" in i)), "serializeLayout strips section labels (derived at render)");

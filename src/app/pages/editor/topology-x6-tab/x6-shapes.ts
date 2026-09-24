@@ -27,8 +27,8 @@ export const MANHATTAN_ROUTER = {
 const portGroup = (side: 'left' | 'right') => ({
   position: side,
   attrs: {
-    circle: { r: SYMBOL.port, fill: UI_COLORS.port, stroke: '#fff', strokeWidth: 2, magnet: true },
-    text: { fontSize: 9, fill: UI_COLORS.text },
+    circle: { r: SYMBOL.port, fill: '#ffffff', stroke: '#64748b', strokeWidth: 2, magnet: true },
+    text: { fontSize: 9, fill: '#475569' },
   },
   label: { position: side },
 });

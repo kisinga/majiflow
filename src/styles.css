@@ -114,7 +114,12 @@
 /* Layout tokens */
 :root {
   --header-h: 56px;
-  --content-max: 56rem; /* max-w-4xl */
+  /* Authenticated layout contract. Content pages share one measure and gutter;
+     canvas/operator workspaces opt into `.workspace-page` and remain full-bleed. */
+  --page-content-max: 80rem;
+  --page-gutter: clamp(1rem, 2vw, 2rem);
+  --page-block-start: clamp(1.25rem, 2vw, 2rem);
+  --content-max: var(--page-content-max); /* legacy alias; do not define per-page */
 
   /* Navigation layer colors — each depth gets a unique accent (tuned for dark) */
   --nav-layer-overview: #818cf8; /* indigo-400 — top level */
@@ -131,12 +136,81 @@
   --z-overlay:  40;  /* scrims behind modals */
   --z-modal:    50;  /* dialogs */
   --z-toast:    60;  /* transient toasts (top of everything) */
+
+  /* Interaction motion. Components consume semantic duration/easing instead of
+     inventing their own curves, keeping route, panel and navigation feedback
+     predictable across cloud and on-device builds. */
+  --motion-press: 130ms;
+  --motion-selection: 170ms;
+  --motion-mode: 200ms;
+  --motion-panel: 230ms;
+  --motion-camera: 260ms;
+  --motion-fast: var(--motion-press);
+  --motion-base: var(--motion-selection);
+  --motion-enter: var(--motion-panel);
+  --motion-exit: 160ms;
+  --ease-standard: cubic-bezier(.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(.16, 1, .3, 1);
+  --ease-exit: cubic-bezier(.4, 0, 1, 1);
+  --touch-target: 44px;
 }
 
-/* Consistent content pane for form/workflow tabs */
-.content-pane {
-  @apply px-8 py-8 mx-auto w-full;
-  max-width: var(--content-max);
+/* Exactly two authenticated page widths:
+   - content-pane/page-container: every list, report, settings and form page.
+   - workspace-page: canvases and operator surfaces that need the viewport. */
+.content-pane,
+.page-container {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--page-content-max);
+  margin-inline: auto;
+  padding: var(--page-block-start) var(--page-gutter) 2.5rem;
+}
+.workspace-page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Operational motion language. Entrances explain hierarchy; feedback is fast
+   enough to feel immediate and never delays a command. */
+@keyframes op-page-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes op-popover-enter {
+  from { opacity: 0; transform: translateY(4px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes op-sheet-enter {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes op-attention-enter {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes op-scrim-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.authenticated-shell .page-container,
+.authenticated-shell .content-pane {
+  animation: op-page-enter var(--motion-panel) var(--ease-enter) both;
+}
+
+.authenticated-shell :where(a, button, summary, [role="button"]) {
+  -webkit-tap-highlight-color: transparent;
+  transition-duration: var(--motion-press);
+  transition-timing-function: var(--ease-standard);
+}
+
+.authenticated-shell :where(a, button, summary, input, select, textarea, [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--op-brand, #0284c7) 34%, transparent);
+  outline-offset: 2px;
 }
 
 /* ── Shared surface helpers (compose, don't build a component library) ─────── */
@@ -163,6 +237,25 @@
   .section-label {
     @apply text-xs font-semibold uppercase tracking-wider text-base-content/40;
   }
+  /* Use on compact icon controls that still need a real thumb-sized target. */
+  .touch-target {
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+  }
+}
+
+/* Authenticated workspaces use a quieter operational depth model than the
+   marketing site: borders carry grouping; shadows are reserved for menus and
+   drawers that actually sit above the page. */
+.authenticated-shell .surface {
+  border: 1px solid #d7ded8;
+  background: #ffffff;
+  background-image: none;
+  box-shadow: 0 1px 2px rgb(21 32 25 / 0.05);
+  --tw-ring-shadow: 0 0 #0000;
+  transition: border-color var(--motion-press) var(--ease-standard),
+              box-shadow var(--motion-press) var(--ease-standard),
+              background-color var(--motion-press) var(--ease-standard);
 }
 
 /* Stacking utilities driven by the --z-* scale above. */
@@ -255,6 +348,23 @@ app-root {
 }
 @media (prefers-reduced-motion: reduce) {
   .flow-line { animation: none; }
+  :root {
+    --motion-press: 0ms;
+    --motion-selection: 0ms;
+    --motion-mode: 0ms;
+    --motion-panel: 0ms;
+    --motion-camera: 0ms;
+    --motion-fast: 0ms;
+    --motion-base: 0ms;
+    --motion-enter: 0ms;
+    --motion-exit: 0ms;
+  }
+  .authenticated-shell .page-container,
+  .authenticated-shell .content-pane,
+  .authenticated-shell [class*="op-"] {
+    animation: none !important;
+    transform: none;
+  }
 }
 
 /* ── Marketing decoration animations ─────────────────────────────────────────

@@ -27,52 +27,62 @@ import { renderControllerOverlays } from '../../../shared/canvas/controller-over
     '(document:keydown.backspace)': 'deleteSelected($event)',
   },
   template: `
-    <!-- Toolbar -->
-    <div class="flex items-center gap-2 px-4 py-2 border-b border-base-300/30 bg-base-200/30">
-      <h2 class="text-sm font-semibold text-base-content/70">Design</h2>
-      <div class="flex-1"></div>
-      @if (!editor.readonly()) {
-        <div class="dropdown dropdown-end">
-          <div tabindex="0" role="button" class="btn btn-ghost btn-xs gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            Add Node
-          </div>
-          <ul tabindex="0" class="dropdown-content menu menu-xs bg-base-200 rounded-lg shadow-lg z-30 w-48 p-1">
-            @for (group of groupedDescs; track group.label) {
-              <li class="menu-title text-[9px] uppercase tracking-wider opacity-50 pt-2">{{ group.label }}</li>
-              @for (desc of group.items; track desc.kind) {
-                <li><a (click)="addNode(desc.kind)" [class.disabled]="desc.singleton && kindExists(desc.kind)">
-                  <span [innerHTML]="legendSvg(desc)"></span> {{ desc.label }}
-                  @if (desc.experimental) { <span class="badge badge-ghost badge-xs ml-auto">exp</span> }
-                </a></li>
+    <header class="design-toolbar">
+      <div class="toolbar-copy">
+        <span class="toolbar-eyebrow">Topology editor</span>
+        <h2>Design system</h2>
+      </div>
+      <div class="toolbar-actions" aria-label="Topology tools">
+        @if (!editor.readonly()) {
+          <div class="dropdown dropdown-end">
+            <button tabindex="0" type="button" class="design-tool design-tool-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              <span>Add node</span>
+            </button>
+            <ul tabindex="0" class="node-menu dropdown-content menu z-30 w-56 p-2">
+              @for (group of groupedDescs; track group.label) {
+                <li class="menu-title">{{ group.label }}</li>
+                @for (desc of group.items; track desc.kind) {
+                  <li><button type="button" (click)="addNode(desc.kind)" [class.disabled]="desc.singleton && kindExists(desc.kind)">
+                    <span class="menu-icon" [innerHTML]="legendSvg(desc)"></span><span>{{ desc.label }}</span>
+                    @if (desc.experimental) { <span class="badge badge-ghost badge-xs ml-auto">Experimental</span> }
+                  </button></li>
+                }
               }
-            }
-          </ul>
+            </ul>
+          </div>
+          <app-add-controller />
+          <span class="tool-separator" aria-hidden="true"></span>
+          <button class="design-tool design-tool-icon" type="button" aria-label="Undo" title="Undo" (click)="doUndo()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 7-5 5 5 5"/><path d="M20 17a7 7 0 0 0-7-7H4"/></svg>
+          </button>
+          <button class="design-tool design-tool-icon" type="button" aria-label="Redo" title="Redo" (click)="doRedo()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 7 5 5-5 5"/><path d="M4 17a7 7 0 0 1 7-7h9"/></svg>
+          </button>
+          <span class="tool-separator" aria-hidden="true"></span>
+        }
+        <div class="view-tools" aria-label="Canvas view">
+          <button class="design-tool design-tool-icon" type="button" aria-label="Zoom out" title="Zoom out" (click)="doZoomOut()">&minus;</button>
+          <button class="design-tool design-tool-icon" type="button" aria-label="Zoom in" title="Zoom in" (click)="doZoomIn()">+</button>
+          <button class="design-tool design-tool-fit" type="button" (click)="doFit()">Fit</button>
         </div>
-        <app-add-controller />
-        <div class="divider divider-horizontal mx-0 h-4"></div>
-        <button class="btn btn-ghost btn-xs" title="Undo" (click)="doUndo()">&#x21A9;</button>
-        <button class="btn btn-ghost btn-xs" title="Redo" (click)="doRedo()">&#x21AA;</button>
-        <div class="divider divider-horizontal mx-0 h-4"></div>
-      }
-      <button class="btn btn-ghost btn-xs" (click)="doZoomIn()">+</button>
-      <button class="btn btn-ghost btn-xs" (click)="doZoomOut()">&minus;</button>
-      <button class="btn btn-ghost btn-xs" (click)="doFit()">Fit</button>
-    </div>
+      </div>
+    </header>
 
-    <div class="flex flex-1 min-h-0 overflow-hidden">
+    <div class="design-stage">
       <!-- Canvas -->
-      <div class="canvas-wrap flex-1 min-w-0 min-h-0">
+      <div class="canvas-wrap">
         <div #x6canvas></div>
-        <div class="legend">
-          @for (desc of nodeDescs; track desc.kind) {
-            <div class="legend-item">
-              <span class="legend-icon" [innerHTML]="legendSvg(desc)"></span>
-              <span>{{ desc.label }}</span>
-            </div>
-          }
+        <div class="legend" aria-label="Component legend">
+          <span class="legend-title">Components</span>
+          <div class="legend-list">
+            @for (desc of nodeDescs; track desc.kind) {
+              <div class="legend-item">
+                <span class="legend-icon" [innerHTML]="legendSvg(desc)"></span>
+                <span>{{ desc.label }}</span>
+              </div>
+            }
+          </div>
         </div>
       </div>
 
@@ -80,18 +90,25 @@ import { renderControllerOverlays } from '../../../shared/canvas/controller-over
       @if (nodePopup(); as popup) {
         <div class="node-popup-backdrop" (click)="closePopup()"></div>
         <div class="node-popup" [style.left.px]="popup.clientPos.x" [style.top.px]="popup.clientPos.y">
-          <ul class="menu menu-xs bg-base-200 rounded-lg shadow-lg w-40 p-1">
+          <ul class="node-menu menu rounded-xl shadow-lg w-48 p-2">
             @for (desc of popupDescs(); track desc.kind) {
-              <li><a (click)="selectPopupNode(desc.kind)">
-                <span [innerHTML]="legendSvg(desc)"></span> {{ desc.label }}
-              </a></li>
+              <li><button type="button" (click)="selectPopupNode(desc.kind)">
+                <span class="menu-icon" [innerHTML]="legendSvg(desc)"></span><span>{{ desc.label }}</span>
+              </button></li>
             }
           </ul>
         </div>
       }
 
       <!-- Sidebar -->
-      <aside class="sidebar w-80 border-l border-base-300/30 bg-base-100 overflow-y-auto shrink-0">
+      <aside class="sidebar">
+        @if (!selection()) {
+          <div class="sidebar-intro">
+            <span>Inspector</span>
+            <strong>Topology details</strong>
+            <p>Select a node, pipe or derived route to inspect and configure it.</p>
+          </div>
+        }
         <app-topology-sidebar
           [selection]="selection()"
           (deleteNode)="deleteNode($event)"
@@ -110,23 +127,63 @@ import { renderControllerOverlays } from '../../../shared/canvas/controller-over
       flex-direction: column;
       flex: 1;
       min-height: 0;
+      min-width: 0;
       overflow: hidden;
+      color: var(--op-ink, #152019);
+      background: var(--op-shell, #fbfcfa);
     }
+    .design-toolbar {
+      min-width: 0; min-height: 68px; padding: 10px 14px 10px 18px;
+      display: flex; align-items: center; gap: 18px;
+      border-bottom: 1px solid var(--op-border, #d7ded8);
+      background: rgb(251 252 250 / .96); z-index: 22;
+    }
+    .toolbar-copy { min-width: 9.5rem; flex: 1; }
+    .toolbar-copy h2 { margin: 3px 0 0; font-size: 17px; line-height: 1.15; font-weight: 800; }
+    .toolbar-eyebrow { display: block; color: var(--op-muted, #68756d); font-size: 9px; line-height: 1; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+    .toolbar-actions { min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+    .toolbar-actions::-webkit-scrollbar { display: none; }
+    .design-tool, :host ::ng-deep app-add-controller .design-tool {
+      min-width: 44px; min-height: 44px; padding: 0 12px; flex: none;
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      border: 1px solid transparent; border-radius: 11px; background: transparent;
+      color: var(--op-ink, #152019); font-size: 12px; line-height: 1; font-weight: 750;
+      transition: background var(--motion-press, 130ms) var(--ease-standard, ease), border-color var(--motion-press, 130ms) var(--ease-standard, ease), transform var(--motion-press, 130ms) var(--ease-standard, ease);
+    }
+    .design-tool:hover, :host ::ng-deep app-add-controller .design-tool:hover { border-color: var(--op-border, #d7ded8); background: var(--op-panel, #f3f6f2); }
+    .design-tool:active, :host ::ng-deep app-add-controller .design-tool:active { transform: scale(.97); }
+    .design-tool:focus-visible, :host ::ng-deep app-add-controller .design-tool:focus-visible { outline: 3px solid color-mix(in srgb, var(--op-blue, #196ca6) 30%, transparent); outline-offset: 2px; }
+    .design-tool svg, :host ::ng-deep app-add-controller .design-tool svg { width: 18px; height: 18px; flex: none; }
+    .design-tool-primary { color: var(--op-blue, #196ca6); border-color: color-mix(in srgb, var(--op-blue, #196ca6) 36%, var(--op-border, #d7ded8)); background: var(--op-route-surface, #e0f0fb); }
+    .design-tool-icon { padding: 0; font-size: 20px; }
+    .design-tool-fit { min-width: 50px; }
+    .view-tools { padding: 3px; display: flex; gap: 2px; border: 1px solid var(--op-border, #d7ded8); border-radius: 13px; background: #fff; }
+    .tool-separator { width: 1px; height: 28px; margin: 0 3px; flex: none; background: var(--op-border, #d7ded8); }
+    .node-menu { margin-top: 6px; border: 1px solid var(--op-border, #d7ded8); background: #fff; box-shadow: 0 16px 42px rgb(21 32 25 / .16); color: var(--op-ink, #152019); }
+    .node-menu .menu-title { padding: 9px 9px 5px; color: var(--op-muted, #68756d); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .node-menu button { min-height: 40px; width: 100%; display: flex; align-items: center; gap: 9px; border-radius: 8px; font-size: 12px; text-align: left; }
+    .node-menu button:hover { background: var(--op-panel, #f3f6f2); }
+    .menu-icon { width: 26px; display: grid; place-items: center; flex: none; }
+    .design-stage { min-width: 0; min-height: 0; flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) clamp(18rem, 22vw, 21rem); overflow: hidden; }
     :host ::ng-deep .x6-graph { cursor: grab; }
     :host ::ng-deep .x6-graph:active { cursor: grabbing; }
-    .canvas-wrap { position: relative; overflow: hidden; min-height: 0; }
+    .canvas-wrap { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: var(--op-canvas, #edf2ee); }
     .legend {
-      position: absolute; bottom: 12px; left: 12px;
-      display: grid; grid-template-columns: 20px 1fr;
-      gap: 2px 8px; align-items: center;
-      padding: 8px 12px; background: rgba(15,23,42,0.92);
-      border: 1px solid #334155; border-radius: 6px;
-      font-size: 10px; font-family: ui-monospace, monospace;
-      color: #e2e8f0; pointer-events: none; z-index: 10;
+      position: absolute; bottom: 14px; left: 14px; max-width: calc(100% - 28px);
+      padding: 10px 12px 11px; background: rgb(255 255 255 / .92);
+      border: 1px solid var(--op-border, #d7ded8); border-radius: 11px;
+      box-shadow: 0 8px 24px rgb(21 32 25 / .09); backdrop-filter: blur(10px);
+      color: var(--op-ink, #152019); pointer-events: none; z-index: 10;
     }
-    .legend-item { display: contents; }
-    .legend-icon { display: flex; justify-content: center; align-items: center; }
-    .sidebar { font-size: 12px; }
+    .legend-title { display: block; margin-bottom: 7px; color: var(--op-muted, #68756d); font-size: 9px; line-height: 1; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .legend-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 15px; }
+    .legend-item { min-width: 0; display: flex; align-items: center; gap: 7px; color: var(--op-muted, #68756d); font: 600 10px/1.25 ui-monospace, monospace; white-space: nowrap; }
+    .legend-icon { width: 23px; min-height: 17px; display: flex; justify-content: center; align-items: center; flex: none; }
+    .sidebar { min-width: 0; min-height: 0; overflow-y: auto; border-left: 1px solid var(--op-border, #d7ded8); background: #fff; font-size: 12px; scrollbar-gutter: stable; }
+    .sidebar-intro { padding: 17px 16px 15px; border-bottom: 1px solid var(--op-border, #d7ded8); background: var(--op-shell, #fbfcfa); }
+    .sidebar-intro span { color: var(--op-blue, #196ca6); font-size: 9px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+    .sidebar-intro strong { display: block; margin-top: 5px; font-size: 15px; }
+    .sidebar-intro p { margin: 5px 0 0; color: var(--op-muted, #68756d); font-size: 11px; line-height: 1.45; }
     :host-context(.preview) .sidebar input,
     :host-context(.preview) .sidebar select,
     :host-context(.preview) .sidebar .toggle,
@@ -137,6 +194,25 @@ import { renderControllerOverlays } from '../../../shared/canvas/controller-over
     }
     .node-popup-backdrop { position: fixed; inset: 0; z-index: 50; }
     .node-popup { position: fixed; z-index: 51; }
+    @media (max-width: 980px) {
+      .design-stage { grid-template-columns: minmax(0, 1fr) 18rem; }
+      .toolbar-copy { min-width: 0; }
+      .toolbar-copy h2 { font-size: 15px; }
+    }
+    @media (max-width: 720px) {
+      .design-toolbar { min-height: 60px; padding: 8px; gap: 8px; }
+      .toolbar-copy { display: none; }
+      .toolbar-actions { flex: 1; justify-content: flex-start; }
+      .design-tool > span, :host ::ng-deep app-add-controller .design-tool > span { display: none; }
+      .design-tool, :host ::ng-deep app-add-controller .design-tool { padding: 0; }
+      .design-stage { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(24rem, 1fr) minmax(12rem, 38vh); overflow-y: auto; }
+      .sidebar { border-top: 1px solid var(--op-border, #d7ded8); border-left: 0; }
+      .legend-list { grid-template-columns: minmax(0, 1fr); }
+      .legend-item:nth-child(n+6) { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .design-tool, :host ::ng-deep app-add-controller .design-tool { transition: none; }
+    }
   `],
 })
 export class TopologyX6TabComponent {

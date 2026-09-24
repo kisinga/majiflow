@@ -35,14 +35,14 @@ export type { Selection };
     <!-- Pipe properties -->
     @if (selectedPipeData(); as pipeData) {
       <div class="sidebar-section">
-        <button class="sidebar-title w-full flex items-center justify-between" (click)="toggleSection('pipe')">
+        <button type="button" class="sidebar-title" (click)="toggleSection('pipe')">
           <span>Pipe</span>
-          <span class="text-[10px]">{{ isExpanded('pipe') ? '▼' : '▶' }}</span>
+          <svg class="section-chevron" [class.is-open]="isExpanded('pipe')" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 5 5 5-5 5"/></svg>
         </button>
         @if (isExpanded('pipe')) {
-        <div class="text-xs font-mono text-base-content/60 mb-2">{{ pipeData.pipe.from }} &rarr; {{ pipeData.pipe.to }}</div>
+        <div class="pipe-path" [title]="pipeData.pipe.from + ' to ' + pipeData.pipe.to">{{ pipeData.pipe.from }} &rarr; {{ pipeData.pipe.to }}</div>
         <fieldset [disabled]="editor.readonly()" class="contents">
-          <button class="btn btn-error btn-xs w-full" (click)="deletePipe.emit(pipeData.pipe.id)">Delete Pipe</button>
+          <button type="button" class="delete-action" (click)="deletePipe.emit(pipeData.pipe.id)">Delete pipe</button>
         </fieldset>
         }
       </div>
@@ -50,20 +50,20 @@ export type { Selection };
 
     <!-- Routes (always visible) -->
     <div class="sidebar-section">
-      <button class="sidebar-title w-full flex items-center justify-between" (click)="toggleSection('routes')">
+      <button type="button" class="sidebar-title" (click)="toggleSection('routes')">
         <span>Derived Routes</span>
-        <span class="text-[10px]">{{ isExpanded('routes') ? '▼' : '▶' }}</span>
+        <svg class="section-chevron" [class.is-open]="isExpanded('routes')" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 5 5 5-5 5"/></svg>
       </button>
       @if (isExpanded('routes')) {
       @if (derivedRoutes().length === 0) {
         <div class="text-base-content/40 text-center py-4 text-xs">No routes derived yet.<br>Connect nodes with pipes.</div>
       } @else {
         @for (route of derivedRoutes(); track route.key) {
-          <div class="route-row flex items-center justify-between py-1.5 border-b border-base-300/20 cursor-pointer hover:bg-base-200/50 px-2 -mx-1 rounded"
+          <button type="button" class="route-row"
             (click)="onRouteClick(route)">
-            <span class="font-mono text-xs flex items-center gap-1.5">
-              <span class="text-base-content/30 text-[9px]">&#x25B6;</span>
-              {{ route.key }}
+            <span class="route-key" [title]="route.key">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 4h4l2 4h6M11 5l3 3-3 3"/></svg>
+              <span>{{ route.key }}</span>
             </span>
             @if (hasErrorDiagnostics(route.key)) {
               <span class="badge badge-error badge-xs">Error</span>
@@ -76,7 +76,7 @@ export type { Selection };
             } @else {
               <span class="badge badge-success badge-xs">Valid</span>
             }
-          </div>
+          </button>
         }
       }
       }
@@ -84,9 +84,9 @@ export type { Selection };
 
     @if (!selection()) {
       <div class="sidebar-section">
-        <button class="sidebar-title w-full flex items-center justify-between" (click)="toggleSection('overrides')">
+        <button type="button" class="sidebar-title" (click)="toggleSection('overrides')">
           <span>Route Overrides</span>
-          <span class="text-[10px]">{{ isExpanded('overrides') ? '▼' : '▶' }}</span>
+          <svg class="section-chevron" [class.is-open]="isExpanded('overrides')" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 5 5 5-5 5"/></svg>
         </button>
         @if (isExpanded('overrides')) {
         @if (overrideEntries().length === 0) {
@@ -95,7 +95,7 @@ export type { Selection };
           @for (entry of overrideEntries(); track entry.key) {
             <div class="card bg-base-200/40 mb-2">
               <div class="card-body p-2 gap-1">
-                <span class="font-mono font-semibold text-xs">{{ entry.key }}</span>
+                <span class="override-key" [title]="entry.key">{{ entry.key }}</span>
                 <div class="flex items-center gap-2">
                   <label class="text-[10px] text-base-content/50">Default Max Runtime</label>
                   <!-- Operator-facing unit is minutes; storage stays in seconds
@@ -154,9 +154,9 @@ export type { Selection };
 
     <!-- Validation summary (always visible) -->
     <div class="sidebar-section">
-      <button class="sidebar-title w-full flex items-center justify-between" (click)="toggleSection('validation')">
+      <button type="button" class="sidebar-title" (click)="toggleSection('validation')">
         <span>Validation</span>
-        <span class="text-[10px]">{{ isExpanded('validation') ? '▼' : '▶' }}</span>
+        <svg class="section-chevron" [class.is-open]="isExpanded('validation')" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 5 5 5-5 5"/></svg>
       </button>
       @if (isExpanded('validation')) {
       <app-validation-panel
@@ -171,14 +171,30 @@ export type { Selection };
     :host {
       display: block;
       font-size: 12px;
+      color: var(--op-ink, #152019);
     }
-    .sidebar-section { padding: 12px; border-bottom: 1px solid oklch(var(--b3) / 0.3); }
+    button:focus-visible { outline: 3px solid color-mix(in srgb, var(--op-blue, #196ca6) 30%, transparent); outline-offset: 1px; }
+    .sidebar-section { min-width: 0; padding: 8px 12px 12px; border-bottom: 1px solid var(--op-border, #d7ded8); }
     .sidebar-title {
-      font-size: 10px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.05em; color: oklch(var(--bc) / 0.5); margin-bottom: 8px;
-      background: none; border: none; padding: 0; cursor: pointer;
+      min-height: 44px; width: 100%; display: flex; align-items: center; justify-content: space-between;
+      color: var(--op-muted, #68756d); background: none; border: none; padding: 0 3px;
+      font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; cursor: pointer;
+      transition: color var(--motion-press, 130ms) var(--ease-standard, ease);
     }
-    .sidebar-title:hover { color: oklch(var(--bc) / 0.7); }
+    .sidebar-title:hover { color: var(--op-ink, #152019); }
+    .section-chevron { width: 16px; height: 16px; flex: none; transition: transform var(--motion-selection, 170ms) var(--ease-standard, ease); }
+    .section-chevron.is-open { transform: rotate(90deg); }
+    .pipe-path { margin: 0 3px 10px; overflow: hidden; color: var(--op-muted, #68756d); font: 600 11px/1.4 ui-monospace, monospace; text-overflow: ellipsis; white-space: nowrap; }
+    .delete-action { min-height: 44px; width: 100%; border: 1px solid color-mix(in srgb, var(--op-red, #b42318) 52%, var(--op-border, #d7ded8)); border-radius: 9px; color: var(--op-red, #b42318); background: #fff; font-size: 12px; font-weight: 800; }
+    .delete-action:hover { background: color-mix(in srgb, var(--op-red, #b42318) 6%, #fff); }
+    .route-row { min-height: 48px; width: 100%; min-width: 0; padding: 6px 4px 6px 6px; display: flex; align-items: center; gap: 7px; border-bottom: 1px solid var(--op-border, #d7ded8); border-radius: 8px; text-align: left; transition: background var(--motion-press, 130ms) var(--ease-standard, ease); }
+    .route-row:hover { background: var(--op-panel, #f3f6f2); }
+    .route-key { min-width: 0; flex: 1; display: flex; align-items: center; gap: 7px; color: var(--op-ink, #152019); font: 650 11px/1.35 ui-monospace, monospace; }
+    .route-key svg { width: 16px; height: 16px; flex: none; color: var(--op-blue, #196ca6); }
+    .route-key span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .route-row .badge { flex: none; }
+    .override-key { display: block; max-width: 100%; overflow-wrap: anywhere; color: var(--op-ink, #152019); font: 700 11px/1.4 ui-monospace, monospace; }
+    @media (prefers-reduced-motion: reduce) { .sidebar-title, .section-chevron, .route-row { transition: none; } }
   `],
 })
 export class TopologySidebarComponent {

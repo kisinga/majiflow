@@ -22,11 +22,14 @@ interface PersonaOption {
   selector: 'app-persona-switcher',
   standalone: true,
   imports: [],
+  styles: [`
+    :host{display:block}.persona-inline{border-bottom:1px solid var(--op-border,#d7ded8)}.persona-summary{min-height:42px;padding:0 8px;display:flex;align-items:center;gap:8px;border-radius:9px;color:var(--op-ink,#152019);cursor:pointer;list-style:none;font-size:12px}.persona-summary::-webkit-details-marker{display:none}.persona-summary:hover{background:var(--op-panel,#f3f6f2)}.persona-summary svg{width:17px;height:17px;color:var(--op-muted,#68756d)}.persona-summary .loading{margin-left:auto}.persona-panel{display:grid;gap:6px;padding:4px 8px 10px}.persona-panel label{display:grid;gap:3px}.persona-panel label>span,.persona-label{color:var(--op-muted,#68756d);font-size:9px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}.persona-actions{display:grid;grid-template-columns:1fr 1fr;gap:4px}.persona-actions button{min-height:36px;padding:0 7px;border-radius:8px;background:var(--op-panel,#f3f6f2);text-align:left;font-size:10px}.persona-actions button:hover:not(:disabled){background:var(--op-blue-soft,#e0f2fe);color:var(--op-blue,#196ca6)}.persona-actions button:disabled{opacity:.45}
+  `],
   template: `
     @if (persona.enabled()) {
-    <details class="dropdown dropdown-end">
+    <details class="persona-inline">
       <summary
-        class="btn btn-ghost btn-sm gap-1.5 list-none"
+        class="persona-summary"
         title="Dev persona switcher"
         aria-label="Dev persona switcher"
         (click)="open()"
@@ -34,19 +37,18 @@ interface PersonaOption {
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
           <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
         </svg>
-        <span class="text-xs hidden sm:inline">Persona: {{ auth.role() }}</span>
+        <span>Developer persona · {{ auth.role() }}</span>
         @if (persona.switching()) {
           <span class="loading loading-spinner loading-xs"></span>
         }
       </summary>
 
-      <div class="dropdown-content z-50 mt-1 w-64 rounded-box bg-base-100 ring-1 ring-base-300/40 shadow-xl p-2">
-        <div class="px-1 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-base-content/40">Dev persona</div>
+      <div class="persona-panel">
 
         @if (orgs().length > 0) {
-          <label class="block px-1 pb-1">
-            <span class="text-[10px] uppercase tracking-wider text-base-content/40">Org (partner persona)</span>
-            <select class="select select-bordered select-xs w-full mt-0.5" (change)="orgId.set($any($event.target).value)">
+          <label>
+            <span>Partner organization</span>
+            <select class="select select-bordered select-xs w-full" (change)="orgId.set($any($event.target).value)">
               @for (o of orgs(); track o.id) {
                 <option [value]="o.id" [selected]="o.id === orgId()">{{ o.name }}</option>
               }
@@ -54,9 +56,9 @@ interface PersonaOption {
           </label>
         }
         @if (sites().length > 0) {
-          <label class="block px-1 pb-1">
-            <span class="text-[10px] uppercase tracking-wider text-base-content/40">Site (owner personas)</span>
-            <select class="select select-bordered select-xs w-full mt-0.5" (change)="siteId.set($any($event.target).value)">
+          <label>
+            <span>Owner site</span>
+            <select class="select select-bordered select-xs w-full" (change)="siteId.set($any($event.target).value)">
               @for (s of sites(); track s.id) {
                 <option [value]="s.id" [selected]="s.id === siteId()">{{ s.name }}</option>
               }
@@ -64,12 +66,12 @@ interface PersonaOption {
           </label>
         }
 
-        <ul class="menu menu-sm p-0">
-          <li><button [disabled]="persona.switching()" (click)="go({ role: 'admin' })">Admin</button></li>
-          <li><button [disabled]="persona.switching()" (click)="asPartner()">Partner</button></li>
-          <li><button [disabled]="persona.switching() || !siteId()" (click)="asSiteOwner()">Site owner (customer)</button></li>
-          <li><button [disabled]="persona.switching()" (click)="asCustomer()">Customer (no site)</button></li>
-        </ul>
+        <div class="persona-actions">
+          <button [disabled]="persona.switching()" (click)="go({ role: 'admin' })">Admin</button>
+          <button [disabled]="persona.switching()" (click)="asPartner()">Partner</button>
+          <button [disabled]="persona.switching() || !siteId()" (click)="asSiteOwner()">Site owner</button>
+          <button [disabled]="persona.switching()" (click)="asCustomer()">No-site customer</button>
+        </div>
       </div>
     </details>
     }

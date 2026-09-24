@@ -19,7 +19,7 @@ const LOGO_MAX_BYTES = 2 * 1024 * 1024;
   imports: [SectionHeaderComponent],
   host: { class: 'flex-1 overflow-auto' },
   template: `
-    <div class="content-pane space-y-6 max-w-2xl">
+    <div class="content-pane space-y-6">
       <app-section-header title="Organization" subtitle="Your brand, shown to every customer in your organization." />
 
       @if (loading()) {

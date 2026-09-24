@@ -18,27 +18,39 @@ import { AddControllerComponent } from '../topology-x6-tab/add-controller.compon
   selector: 'app-site-panel',
   standalone: true,
   imports: [DeploymentCardComponent, SectionHeaderComponent, AddControllerComponent],
+  host: { class: 'block min-h-full' },
+  styles: [`
+    :host{background:var(--op-shell,#fbfcfa)}
+    .system-overview{display:flex;flex-direction:column;gap:22px}
+    .overview-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .overview-stat{min-height:92px;padding:16px 18px;border:1px solid var(--op-border,#d7ded8);border-radius:15px;background:#fff;box-shadow:0 1px 2px rgb(21 32 25/.04)}
+    .controller-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+    :host .surface{border:1px solid var(--op-border,#d7ded8);border-radius:15px;background:#fff;background-image:none;box-shadow:0 1px 2px rgb(21 32 25/.05);--tw-ring-shadow:0 0 #0000}
+    :host .surface:hover{box-shadow:0 5px 16px rgb(21 32 25/.07)}
+    @media(max-width:900px){.overview-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:639.98px){.system-overview{gap:18px}.overview-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.overview-stat{min-height:82px;padding:13px}.controller-grid{grid-template-columns:1fr}}
+  `],
   template: `
-    <div class="content-pane space-y-6">
+    <div class="system-overview page-container">
       <app-section-header
         title="Overview"
         subtitle="How this site connects, its controllers, and the routes that move water between them." />
 
       <!-- At-a-glance stats -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div class="surface p-4">
+      <div class="overview-stats">
+        <div class="overview-stat">
           <div class="text-2xl font-semibold tabular-nums">{{ systemEntries().length }}</div>
           <div class="text-xs text-base-content/50 mt-0.5">Controllers</div>
         </div>
-        <div class="surface p-4">
+        <div class="overview-stat">
           <div class="text-2xl font-semibold tabular-nums">{{ workspace.siteRoutes().length }}</div>
           <div class="text-xs text-base-content/50 mt-0.5">Routes</div>
         </div>
-        <div class="surface p-4">
+        <div class="overview-stat">
           <div class="text-2xl font-semibold tabular-nums">{{ nodeCount() }}</div>
           <div class="text-xs text-base-content/50 mt-0.5">Nodes</div>
         </div>
-        <div class="surface p-4">
+        <div class="overview-stat">
           <div class="text-2xl font-semibold flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full" [class]="isLocal() ? 'bg-success' : 'bg-primary'"></span>
             {{ isLocal() ? 'On-site' : 'Cloud' }}
@@ -64,10 +76,10 @@ import { AddControllerComponent } from '../topology-x6-tab/add-controller.compon
             }
           </div>
         } @else {
-          <div class="grid sm:grid-cols-2 gap-3">
+          <div class="controller-grid">
             @for (entry of systemEntries(); track entry.id) {
               <div
-                class="surface p-4 flex items-start gap-3 cursor-pointer transition-all hover:ring-base-300/70 hover:shadow-lg hover:shadow-black/20 group relative overflow-hidden"
+                class="surface p-4 flex items-start gap-3 cursor-pointer transition-all group relative overflow-hidden"
                 (click)="focus(entry.id)">
                 <span class="absolute left-0 inset-y-0 w-1" [style.backgroundColor]="entry.color"></span>
                 <div class="flex-1 min-w-0 pl-1">

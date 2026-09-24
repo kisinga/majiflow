@@ -1,0 +1,674 @@
+<div id="majiflow-navigation-review">
+  <style>
+    #majiflow-navigation-review {
+      width: 100%;
+      color: #e2e8f0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    #majiflow-navigation-review * { box-sizing: border-box; }
+    #majiflow-navigation-review button { font: inherit; }
+
+    #majiflow-navigation-review .mf-review-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin: 0 0 14px;
+      color: light-dark(#0f172a, #e2e8f0);
+    }
+
+    #majiflow-navigation-review .mf-review-title {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+      letter-spacing: -0.025em;
+    }
+
+    #majiflow-navigation-review .mf-review-subtitle {
+      margin-top: 4px;
+      color: light-dark(#64748b, #94a3b8);
+      font-size: 12px;
+    }
+
+    #majiflow-navigation-review .mf-review-controls {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid light-dark(#cbd5e1, #334155);
+      border-radius: 10px;
+      background: light-dark(#f8fafc, #0f172a);
+    }
+
+    #majiflow-navigation-review .mf-review-control {
+      border: 0;
+      border-radius: 7px;
+      padding: 6px 10px;
+      color: light-dark(#64748b, #94a3b8);
+      background: transparent;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #majiflow-navigation-review .mf-review-control[aria-pressed="true"] {
+      color: #082f49;
+      background: #22d3ee;
+    }
+
+    #majiflow-navigation-review .mf-directions {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    #majiflow-navigation-review .mf-direction {
+      display: grid;
+      grid-template-columns: 78px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid light-dark(#cbd5e1, #334155);
+      border-radius: 12px;
+      color: light-dark(#334155, #cbd5e1);
+      background: light-dark(#ffffff, #111c2f);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    #majiflow-navigation-review .mf-direction[aria-pressed="true"] {
+      border-color: #22d3ee;
+      box-shadow: 0 0 0 2px rgb(34 211 238 / 0.12);
+    }
+
+    #majiflow-navigation-review .mf-direction-map {
+      position: relative;
+      width: 78px;
+      height: 52px;
+      overflow: hidden;
+      border-radius: 7px;
+      background: #0f172a;
+      box-shadow: inset 0 0 0 1px #334155;
+    }
+
+    #majiflow-navigation-review .mf-map-top,
+    #majiflow-navigation-review .mf-map-side,
+    #majiflow-navigation-review .mf-map-context,
+    #majiflow-navigation-review .mf-map-body,
+    #majiflow-navigation-review .mf-map-panel { position: absolute; }
+    #majiflow-navigation-review .mf-map-top { inset: 0 0 auto; height: 10px; background: #1e293b; border-bottom: 1px solid #334155; }
+    #majiflow-navigation-review .mf-map-side { inset: 0 auto 0 0; width: 18px; background: #111c2f; border-right: 1px solid #334155; }
+    #majiflow-navigation-review .mf-map-context { left: 18px; right: 0; top: 0; height: 13px; background: #1e293b; border-bottom: 1px solid #334155; }
+    #majiflow-navigation-review .mf-map-body { inset: 15px 5px 5px 23px; border-radius: 3px; background: #1e293b; }
+    #majiflow-navigation-review .mf-map-panel { left: 24px; right: 7px; top: 19px; height: 8px; border-radius: 2px; background: #155e75; }
+    #majiflow-navigation-review .mf-direction[data-model="a"] .mf-map-side { display: none; }
+    #majiflow-navigation-review .mf-direction[data-model="a"] .mf-map-body { inset: 17px 5px 5px; }
+    #majiflow-navigation-review .mf-direction[data-model="a"] .mf-map-panel { left: 7px; }
+    #majiflow-navigation-review .mf-direction[data-model="c"] .mf-map-side { width: 9px; }
+    #majiflow-navigation-review .mf-direction[data-model="c"] .mf-map-context { left: 9px; }
+    #majiflow-navigation-review .mf-direction[data-model="c"] .mf-map-body { left: 14px; }
+    #majiflow-navigation-review .mf-direction[data-model="c"] .mf-map-panel { left: 15px; right: 11px; top: 16px; height: 23px; background: #172554; box-shadow: inset 0 0 0 1px #38bdf8; }
+
+    #majiflow-navigation-review .mf-direction-copy { min-width: 0; }
+    #majiflow-navigation-review .mf-direction-name { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: light-dark(#0f172a, #f1f5f9); }
+    #majiflow-navigation-review .mf-direction-note { margin-top: 4px; font-size: 10px; line-height: 1.35; color: light-dark(#64748b, #94a3b8); }
+    #majiflow-navigation-review .mf-recommended { padding: 2px 5px; border-radius: 999px; background: rgb(34 211 238 / 0.13); color: #22d3ee; font-size: 8px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+    #majiflow-navigation-review .mf-product {
+      position: relative;
+      display: grid;
+      grid-template-columns: 226px minmax(0, 1fr);
+      width: 100%;
+      min-height: 650px;
+      overflow: hidden;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      color: #e2e8f0;
+      background: #0f172a;
+      box-shadow: 0 24px 70px rgb(2 6 23 / 0.38);
+    }
+
+    #majiflow-navigation-review .mf-product[data-model="a"] {
+      grid-template-columns: minmax(0, 1fr);
+      padding-top: 56px;
+    }
+
+    #majiflow-navigation-review .mf-product[data-model="c"] {
+      grid-template-columns: 64px minmax(0, 1fr);
+    }
+
+    #majiflow-navigation-review .mf-rail {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 14px 12px;
+      border-right: 1px solid #334155;
+      background: #111c2f;
+    }
+
+    #majiflow-navigation-review .mf-product[data-model="a"] .mf-rail {
+      position: absolute;
+      inset: 0 0 auto;
+      width: auto;
+      height: 56px;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-right: 0;
+      border-bottom: 1px solid #334155;
+    }
+
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-rail {
+      align-items: center;
+      padding: 13px 8px;
+    }
+
+    #majiflow-navigation-review .mf-brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      height: 34px;
+      margin: 0 5px 15px;
+      color: #f8fafc;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    #majiflow-navigation-review .mf-brand-mark {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      flex: 0 0 auto;
+      border-radius: 9px;
+      color: #083344;
+      background: linear-gradient(135deg, #67e8f9, #38bdf8);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    #majiflow-navigation-review .mf-product[data-model="a"] .mf-brand { margin: 0 12px 0 0; }
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-brand { margin: 0 0 17px; }
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-brand-name { display: none; }
+
+    #majiflow-navigation-review .mf-site-picker {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      margin-bottom: 13px;
+      padding: 10px;
+      border: 1px solid #334155;
+      border-radius: 11px;
+      color: #f1f5f9;
+      background: #172033;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    #majiflow-navigation-review .mf-site-dot { width: 9px; height: 9px; flex: 0 0 auto; border-radius: 50%; background: #34d399; box-shadow: 0 0 0 4px rgb(52 211 153 / 0.12); }
+    #majiflow-navigation-review .mf-site-picker-copy { min-width: 0; flex: 1; }
+    #majiflow-navigation-review .mf-site-picker-name { display: block; overflow: hidden; color: #f8fafc; font-size: 11px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+    #majiflow-navigation-review .mf-site-picker-state { display: block; margin-top: 2px; color: #94a3b8; font-size: 9px; }
+    #majiflow-navigation-review .mf-product[data-model="a"] .mf-site-picker { width: 166px; margin: 0 8px 0 0; padding: 7px 9px; }
+    #majiflow-navigation-review .mf-product[data-model="a"] .mf-site-picker-state { display: none; }
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-site-picker { width: 40px; height: 40px; justify-content: center; margin: 0 0 14px; padding: 0; }
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-site-picker-copy,
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-site-picker-chevron { display: none; }
+
+    #majiflow-navigation-review .mf-nav-scroll { min-height: 0; overflow: auto; }
+    #majiflow-navigation-review .mf-product[data-model="a"] .mf-nav-scroll { display: flex; align-items: center; gap: 2px; overflow: hidden; }
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-nav-scroll { width: 100%; overflow: visible; }
+
+    #majiflow-navigation-review .mf-nav-label {
+      margin: 14px 9px 5px;
+      color: #64748b;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    #majiflow-navigation-review .mf-product[data-model="a"] .mf-nav-label { display: none; }
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-nav-label { width: 22px; height: 1px; margin: 10px auto 7px; overflow: hidden; background: #334155; color: transparent; }
+
+    #majiflow-navigation-review .mf-nav-action {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 36px;
+      margin: 2px 0;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 8px;
+      color: #94a3b8;
+      background: transparent;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    #majiflow-navigation-review .mf-nav-action:hover { color: #f1f5f9; background: #172033; }
+    #majiflow-navigation-review .mf-nav-action[aria-current="page"] { color: #cffafe; background: #164e63; }
+    #majiflow-navigation-review .mf-nav-action[aria-current="page"]::before { content: ""; position: absolute; inset: 7px auto 7px -12px; width: 3px; border-radius: 0 4px 4px 0; background: #22d3ee; }
+    #majiflow-navigation-review .mf-nav-icon { display: grid; place-items: center; width: 17px; height: 17px; flex: 0 0 auto; color: inherit; font-size: 14px; }
+    #majiflow-navigation-review .mf-nav-text { flex: 1; white-space: nowrap; }
+    #majiflow-navigation-review .mf-nav-count { display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; color: #fecaca; background: #7f1d1d; font-size: 9px; }
+    #majiflow-navigation-review .mf-product[data-model="a"] .mf-nav-action { width: auto; min-height: 34px; margin: 0; padding: 7px 9px; }
+    #majiflow-navigation-review .mf-product[data-model="a"] .mf-nav-action[aria-current="page"]::before { inset: auto 8px -11px; width: auto; height: 2px; border-radius: 2px 2px 0 0; }
+    #majiflow-navigation-review .mf-product[data-model="a"] .mf-nav-icon { display: none; }
+    #majiflow-navigation-review .mf-product[data-model="a"] .mf-setup-child { display: none; }
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-nav-action { justify-content: center; min-height: 40px; padding: 8px; }
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-nav-action[aria-current="page"]::before { inset: 8px auto 8px -8px; }
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-nav-text,
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-nav-count { display: none; }
+
+    #majiflow-navigation-review .mf-setup-child { padding-left: 26px; }
+    #majiflow-navigation-review .mf-setup-child .mf-nav-icon { width: 10px; font-size: 10px; }
+    #majiflow-navigation-review .mf-rail-foot { margin-top: auto; padding-top: 12px; border-top: 1px solid #25334a; }
+    #majiflow-navigation-review .mf-product[data-model="a"] .mf-rail-foot { display: flex; gap: 2px; margin: 0 0 0 auto; padding: 0 0 0 10px; border-top: 0; border-left: 1px solid #334155; }
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-rail-foot { width: 100%; }
+
+    #majiflow-navigation-review .mf-user-action { display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px; border: 0; border-radius: 9px; color: #cbd5e1; background: transparent; text-align: left; cursor: pointer; }
+    #majiflow-navigation-review .mf-user-avatar { display: grid; place-items: center; width: 28px; height: 28px; flex: 0 0 auto; border-radius: 50%; color: #082f49; background: #67e8f9; font-size: 9px; font-weight: 900; }
+    #majiflow-navigation-review .mf-user-copy { min-width: 0; }
+    #majiflow-navigation-review .mf-user-name { display: block; overflow: hidden; color: #f1f5f9; font-size: 10px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    #majiflow-navigation-review .mf-user-role { display: block; margin-top: 1px; color: #64748b; font-size: 9px; }
+    #majiflow-navigation-review .mf-product[data-model="a"] .mf-user-copy,
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-user-copy { display: none; }
+    #majiflow-navigation-review .mf-product[data-model="a"] .mf-user-action { width: 36px; padding: 4px; }
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-user-action { justify-content: center; padding: 6px; }
+
+    #majiflow-navigation-review .mf-stage { min-width: 0; overflow: auto; background: #0f172a; }
+    #majiflow-navigation-review .mf-context-bar {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 54px;
+      padding: 8px 22px;
+      border-bottom: 1px solid #334155;
+      background: rgb(15 23 42 / 0.96);
+      backdrop-filter: blur(10px);
+    }
+
+    #majiflow-navigation-review .mf-breadcrumb { min-width: 0; flex: 1; overflow: hidden; color: #64748b; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    #majiflow-navigation-review .mf-breadcrumb strong { color: #cbd5e1; font-weight: 650; }
+    #majiflow-navigation-review .mf-command {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: min(235px, 34%);
+      padding: 7px 9px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #64748b;
+      background: #111c2f;
+      font-size: 10px;
+      cursor: pointer;
+    }
+    #majiflow-navigation-review .mf-key { margin-left: auto; padding: 1px 5px; border: 1px solid #475569; border-radius: 4px; color: #94a3b8; font-size: 8px; }
+    #majiflow-navigation-review .mf-context-status { display: flex; align-items: center; gap: 5px; color: #86efac; font-size: 9px; font-weight: 700; }
+    #majiflow-navigation-review .mf-context-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #34d399; }
+
+    #majiflow-navigation-review .mf-page { padding: 24px 26px 78px; }
+    #majiflow-navigation-review .mf-page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+    #majiflow-navigation-review .mf-page-title { margin: 0; color: #f8fafc; font-size: 21px; line-height: 1.2; letter-spacing: -0.025em; }
+    #majiflow-navigation-review .mf-page-subtitle { margin-top: 4px; color: #94a3b8; font-size: 11px; line-height: 1.45; }
+    #majiflow-navigation-review .mf-local-actions { display: flex; gap: 7px; flex: 0 0 auto; }
+    #majiflow-navigation-review .mf-local-action { border: 1px solid #334155; border-radius: 8px; padding: 7px 10px; color: #cbd5e1; background: #172033; font-size: 10px; font-weight: 700; cursor: pointer; }
+    #majiflow-navigation-review .mf-local-action-primary { border-color: #22d3ee; color: #083344; background: #22d3ee; }
+
+    #majiflow-navigation-review .mf-attention {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding: 10px 12px;
+      border: 1px solid rgb(251 191 36 / 0.32);
+      border-radius: 10px;
+      color: #fde68a;
+      background: rgb(120 53 15 / 0.22);
+      font-size: 10px;
+    }
+    #majiflow-navigation-review .mf-attention strong { color: #fef3c7; }
+    #majiflow-navigation-review .mf-attention-link { margin-left: auto; color: #fcd34d; font-weight: 800; }
+
+    #majiflow-navigation-review .mf-dashboard-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 11px; }
+    #majiflow-navigation-review .mf-panel { min-width: 0; overflow: hidden; border: 1px solid #334155; border-radius: 13px; background: #1e293b; box-shadow: 0 10px 28px rgb(2 6 23 / 0.22); }
+    #majiflow-navigation-review .mf-panel-map { grid-column: span 7; min-height: 234px; }
+    #majiflow-navigation-review .mf-panel-routes { grid-column: span 5; min-height: 234px; }
+    #majiflow-navigation-review .mf-panel-stat { grid-column: span 4; min-height: 126px; }
+    #majiflow-navigation-review .mf-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 13px; border-bottom: 1px solid #334155; }
+    #majiflow-navigation-review .mf-panel-title { color: #f1f5f9; font-size: 11px; font-weight: 800; }
+    #majiflow-navigation-review .mf-panel-meta { color: #64748b; font-size: 9px; }
+    #majiflow-navigation-review .mf-map-area { position: relative; height: 190px; background: radial-gradient(circle at 24% 30%, rgb(34 211 238 / 0.08), transparent 28%), #162033; }
+    #majiflow-navigation-review .mf-map-line { position: absolute; height: 3px; border-radius: 3px; background: #38bdf8; transform-origin: left center; }
+    #majiflow-navigation-review .mf-map-line-one { left: 25%; top: 48%; width: 39%; transform: rotate(-8deg); }
+    #majiflow-navigation-review .mf-map-line-two { left: 57%; top: 43%; width: 24%; transform: rotate(33deg); background: #34d399; }
+    #majiflow-navigation-review .mf-water-node { position: absolute; display: grid; place-items: center; width: 42px; height: 42px; border: 2px solid #38bdf8; border-radius: 12px; color: #bae6fd; background: #0f2f46; font-size: 9px; font-weight: 800; box-shadow: 0 0 0 5px rgb(56 189 248 / 0.08); }
+    #majiflow-navigation-review .mf-water-node-one { left: 18%; top: 35%; }
+    #majiflow-navigation-review .mf-water-node-two { right: 15%; bottom: 20%; border-color: #34d399; background: #123a38; box-shadow: 0 0 0 5px rgb(52 211 153 / 0.08); }
+    #majiflow-navigation-review .mf-water-pump { position: absolute; left: 53%; top: 34%; display: grid; place-items: center; width: 31px; height: 31px; border: 1px solid #475569; border-radius: 50%; color: #e2e8f0; background: #1e293b; font-size: 12px; }
+    #majiflow-navigation-review .mf-route-list { padding: 5px 12px; }
+    #majiflow-navigation-review .mf-route-row { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; gap: 9px; align-items: center; padding: 11px 1px; border-bottom: 1px solid #334155; }
+    #majiflow-navigation-review .mf-route-row:last-child { border-bottom: 0; }
+    #majiflow-navigation-review .mf-route-dot { width: 7px; height: 7px; border-radius: 50%; background: #34d399; }
+    #majiflow-navigation-review .mf-route-name { color: #e2e8f0; font-size: 10px; font-weight: 700; }
+    #majiflow-navigation-review .mf-route-detail { margin-top: 2px; color: #64748b; font-size: 9px; }
+    #majiflow-navigation-review .mf-route-action { border: 1px solid #475569; border-radius: 7px; padding: 5px 8px; color: #bae6fd; background: #172033; font-size: 9px; }
+    #majiflow-navigation-review .mf-stat-body { padding: 14px; }
+    #majiflow-navigation-review .mf-stat-value { color: #f8fafc; font-size: 25px; font-weight: 800; letter-spacing: -0.03em; }
+    #majiflow-navigation-review .mf-stat-unit { color: #94a3b8; font-size: 10px; font-weight: 600; }
+    #majiflow-navigation-review .mf-stat-caption { margin-top: 8px; color: #64748b; font-size: 9px; }
+    #majiflow-navigation-review .mf-mini-chart { display: flex; align-items: end; gap: 4px; height: 27px; margin-top: 10px; }
+    #majiflow-navigation-review .mf-mini-chart span { flex: 1; min-width: 3px; border-radius: 2px 2px 0 0; background: #155e75; }
+    #majiflow-navigation-review .mf-mini-chart span:nth-child(2n) { background: #0891b2; }
+
+    #majiflow-navigation-review .mf-firmware-layout { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 14px; }
+    #majiflow-navigation-review .mf-stepper { display: flex; gap: 0; margin: 0 0 15px; overflow: hidden; border: 1px solid #334155; border-radius: 11px; background: #111c2f; }
+    #majiflow-navigation-review .mf-step { position: relative; display: flex; align-items: center; gap: 7px; min-width: 0; flex: 1; padding: 10px 9px; color: #64748b; font-size: 9px; font-weight: 700; }
+    #majiflow-navigation-review .mf-step + .mf-step { border-left: 1px solid #334155; }
+    #majiflow-navigation-review .mf-step-index { display: grid; place-items: center; width: 17px; height: 17px; flex: 0 0 auto; border: 1px solid #475569; border-radius: 50%; font-size: 8px; }
+    #majiflow-navigation-review .mf-step-done { color: #86efac; }
+    #majiflow-navigation-review .mf-step-done .mf-step-index { border-color: #34d399; color: #052e16; background: #34d399; }
+    #majiflow-navigation-review .mf-step-active { color: #cffafe; background: #164e63; }
+    #majiflow-navigation-review .mf-step-active .mf-step-index { border-color: #22d3ee; color: #083344; background: #22d3ee; }
+    #majiflow-navigation-review .mf-deploy-main { overflow: hidden; border: 1px solid #334155; border-radius: 13px; background: #1e293b; }
+    #majiflow-navigation-review .mf-deploy-hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 18px; border-bottom: 1px solid #334155; background: linear-gradient(135deg, rgb(6 182 212 / 0.12), transparent 55%); }
+    #majiflow-navigation-review .mf-deploy-kicker { color: #22d3ee; font-size: 9px; font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; }
+    #majiflow-navigation-review .mf-deploy-title { margin-top: 5px; color: #f8fafc; font-size: 15px; font-weight: 800; }
+    #majiflow-navigation-review .mf-deploy-text { max-width: 460px; margin-top: 5px; color: #94a3b8; font-size: 10px; line-height: 1.5; }
+    #majiflow-navigation-review .mf-ready { display: flex; align-items: center; gap: 6px; color: #86efac; font-size: 9px; font-weight: 800; white-space: nowrap; }
+    #majiflow-navigation-review .mf-ready::before { content: "✓"; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; color: #052e16; background: #34d399; }
+    #majiflow-navigation-review .mf-paths { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; padding: 14px; }
+    #majiflow-navigation-review .mf-path { padding: 13px; border: 1px solid #334155; border-radius: 11px; background: #172033; }
+    #majiflow-navigation-review .mf-path-tag { display: inline-block; margin-bottom: 7px; padding: 3px 6px; border-radius: 999px; color: #bae6fd; background: #0c4a6e; font-size: 8px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+    #majiflow-navigation-review .mf-path-title { color: #f1f5f9; font-size: 11px; font-weight: 800; }
+    #majiflow-navigation-review .mf-path-note { min-height: 30px; margin-top: 4px; color: #94a3b8; font-size: 9px; line-height: 1.45; }
+    #majiflow-navigation-review .mf-path-action { display: block; width: 100%; margin-top: 11px; border: 1px solid #22d3ee; border-radius: 8px; padding: 7px 9px; color: #083344; background: #22d3ee; font-size: 9px; font-weight: 850; }
+    #majiflow-navigation-review .mf-path-action-secondary { border-color: #475569; color: #cbd5e1; background: #1e293b; }
+    #majiflow-navigation-review .mf-readiness { overflow: hidden; border: 1px solid #334155; border-radius: 13px; background: #1e293b; }
+    #majiflow-navigation-review .mf-readiness-head { padding: 12px 13px; border-bottom: 1px solid #334155; color: #f1f5f9; font-size: 11px; font-weight: 800; }
+    #majiflow-navigation-review .mf-check-list { padding: 5px 12px 10px; }
+    #majiflow-navigation-review .mf-check { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; align-items: start; padding: 9px 0; border-bottom: 1px solid #334155; }
+    #majiflow-navigation-review .mf-check:last-child { border-bottom: 0; }
+    #majiflow-navigation-review .mf-check-icon { display: grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; color: #052e16; background: #34d399; font-size: 8px; font-weight: 900; }
+    #majiflow-navigation-review .mf-check-name { color: #e2e8f0; font-size: 9px; font-weight: 700; }
+    #majiflow-navigation-review .mf-check-note { margin-top: 2px; color: #64748b; font-size: 8px; }
+    #majiflow-navigation-review .mf-release { margin: 0 12px 12px; padding: 10px; border-radius: 9px; background: #111c2f; }
+    #majiflow-navigation-review .mf-release-label { color: #64748b; font-size: 8px; text-transform: uppercase; letter-spacing: 0.07em; }
+    #majiflow-navigation-review .mf-release-value { margin-top: 4px; color: #cbd5e1; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 9px; }
+
+    #majiflow-navigation-review .mf-context-launcher {
+      display: none;
+      position: absolute;
+      z-index: 20;
+      inset: 74px auto auto 50%;
+      width: min(520px, calc(100% - 40px));
+      transform: translateX(-50%);
+      overflow: hidden;
+      border: 1px solid #475569;
+      border-radius: 14px;
+      background: #111c2f;
+      box-shadow: 0 26px 80px rgb(2 6 23 / 0.8);
+    }
+    #majiflow-navigation-review .mf-product[data-model="c"] .mf-context-launcher { display: block; }
+    #majiflow-navigation-review .mf-launch-input { padding: 14px 16px; border-bottom: 1px solid #334155; color: #94a3b8; font-size: 12px; }
+    #majiflow-navigation-review .mf-launch-label { padding: 11px 16px 5px; color: #64748b; font-size: 8px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    #majiflow-navigation-review .mf-launch-row { display: flex; align-items: center; gap: 10px; margin: 3px 8px; padding: 10px 9px; border-radius: 8px; color: #cbd5e1; font-size: 10px; }
+    #majiflow-navigation-review .mf-launch-row:first-of-type { color: #cffafe; background: #164e63; }
+    #majiflow-navigation-review .mf-launch-shortcut { margin-left: auto; color: #64748b; font-size: 8px; }
+
+    #majiflow-navigation-review .mf-mobile-nav { display: none; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] {
+      grid-template-columns: minmax(0, 1fr);
+      width: 390px;
+      min-height: 760px;
+      margin-inline: auto;
+      border-radius: 26px;
+    }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-rail { display: none; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-stage { padding-bottom: 66px; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-context-bar { min-height: 61px; padding: 8px 14px; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-breadcrumb { color: #f1f5f9; font-size: 11px; font-weight: 800; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-breadcrumb span { display: none; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-command { width: 33px; height: 33px; justify-content: center; padding: 0; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-command-text,
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-key { display: none; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-page { padding: 18px 14px 34px; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-page-head { align-items: center; margin-bottom: 14px; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-page-title { font-size: 19px; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-page-subtitle { max-width: 245px; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-local-action:not(.mf-local-action-primary) { display: none; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-local-action-primary { width: 34px; height: 34px; overflow: hidden; padding: 0; color: transparent; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-local-action-primary::after { content: "•••"; display: grid; place-items: center; height: 100%; color: #083344; letter-spacing: 1px; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-attention { align-items: flex-start; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-attention-link { display: none; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-dashboard-grid { grid-template-columns: 1fr; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-panel-map,
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-panel-routes,
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-panel-stat { grid-column: span 1; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-panel-map { min-height: 214px; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-map-area { height: 170px; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-firmware-layout { grid-template-columns: 1fr; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-stepper { overflow-x: auto; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-step { min-width: 112px; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-paths { grid-template-columns: 1fr; }
+    #majiflow-navigation-review .mf-product[data-viewport="mobile"] .mf-mobile-nav {
+      position: absolute;
+      z-index: 30;
+      inset: auto 0 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      min-height: 63px;
+      padding: 5px 6px max(5px, env(safe-area-inset-bottom));
+      border-top: 1px solid #334155;
+      background: rgb(17 28 47 / 0.98);
+      backdrop-filter: blur(12px);
+    }
+    #majiflow-navigation-review .mf-mobile-action { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: 0; border-radius: 8px; color: #64748b; background: transparent; font-size: 8px; font-weight: 700; }
+    #majiflow-navigation-review .mf-mobile-action[aria-current="page"] { color: #67e8f9; background: rgb(8 145 178 / 0.13); }
+    #majiflow-navigation-review .mf-mobile-icon { font-size: 15px; line-height: 1; }
+    #majiflow-navigation-review .mf-mobile-count { position: absolute; margin: -16px 0 0 17px; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 999px; color: #fee2e2; background: #991b1b; font-size: 8px; line-height: 15px; }
+
+    #majiflow-navigation-review .mf-hidden { display: none !important; }
+
+    @media (max-width: 760px) {
+      #majiflow-navigation-review .mf-review-head { align-items: flex-start; flex-direction: column; }
+      #majiflow-navigation-review .mf-directions { grid-template-columns: 1fr; }
+      #majiflow-navigation-review .mf-product:not([data-viewport="mobile"]) { grid-template-columns: 64px minmax(0, 1fr); }
+      #majiflow-navigation-review .mf-product:not([data-viewport="mobile"]) .mf-brand-name,
+      #majiflow-navigation-review .mf-product:not([data-viewport="mobile"]) .mf-site-picker-copy,
+      #majiflow-navigation-review .mf-product:not([data-viewport="mobile"]) .mf-site-picker-chevron,
+      #majiflow-navigation-review .mf-product:not([data-viewport="mobile"]) .mf-nav-label,
+      #majiflow-navigation-review .mf-product:not([data-viewport="mobile"]) .mf-nav-text,
+      #majiflow-navigation-review .mf-product:not([data-viewport="mobile"]) .mf-nav-count,
+      #majiflow-navigation-review .mf-product:not([data-viewport="mobile"]) .mf-user-copy { display: none; }
+      #majiflow-navigation-review .mf-product:not([data-viewport="mobile"]) .mf-rail { align-items: center; padding-inline: 8px; }
+      #majiflow-navigation-review .mf-product:not([data-viewport="mobile"]) .mf-site-picker { width: 40px; height: 40px; justify-content: center; padding: 0; }
+      #majiflow-navigation-review .mf-product:not([data-viewport="mobile"]) .mf-nav-action { justify-content: center; padding: 8px; }
+      #majiflow-navigation-review .mf-product:not([data-viewport="mobile"]) .mf-page { padding-inline: 16px; }
+      #majiflow-navigation-review .mf-product:not([data-viewport="mobile"]) .mf-firmware-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <div class="mf-review-head">
+    <div>
+      <h2 class="mf-review-title">MajiFlow navigation directions</h2>
+      <div class="mf-review-subtitle">Compare the information architecture, then inspect the recommended shell on a real workflow.</div>
+    </div>
+    <div class="mf-review-controls" aria-label="Preview controls">
+      <button class="mf-review-control" type="button" data-viewport-choice="desktop" aria-pressed="true">Desktop</button>
+      <button class="mf-review-control" type="button" data-viewport-choice="mobile" aria-pressed="false">Mobile</button>
+      <button class="mf-review-control" type="button" data-role-choice="manager" aria-pressed="true">Manager</button>
+      <button class="mf-review-control" type="button" data-role-choice="operator" aria-pressed="false">Operator</button>
+    </div>
+  </div>
+
+  <div class="mf-directions" aria-label="Navigation model alternatives">
+    <button class="mf-direction" type="button" data-model="a" aria-pressed="false">
+      <span class="mf-direction-map" aria-hidden="true"><span class="mf-map-top"></span><span class="mf-map-side"></span><span class="mf-map-context"></span><span class="mf-map-body"></span><span class="mf-map-panel"></span></span>
+      <span class="mf-direction-copy"><span class="mf-direction-name">A · Clean top bar</span><span class="mf-direction-note">Lowest migration cost. Familiar, but width pressure returns as modules grow.</span></span>
+    </button>
+    <button class="mf-direction" type="button" data-model="b" aria-pressed="true">
+      <span class="mf-direction-map" aria-hidden="true"><span class="mf-map-top"></span><span class="mf-map-side"></span><span class="mf-map-context"></span><span class="mf-map-body"></span><span class="mf-map-panel"></span></span>
+      <span class="mf-direction-copy"><span class="mf-direction-name">B · Adaptive rail <span class="mf-recommended">Recommended</span></span><span class="mf-direction-note">Global and site context stay visible. Scales cleanly across roles and modules.</span></span>
+    </button>
+    <button class="mf-direction" type="button" data-model="c" aria-pressed="false">
+      <span class="mf-direction-map" aria-hidden="true"><span class="mf-map-top"></span><span class="mf-map-side"></span><span class="mf-map-context"></span><span class="mf-map-body"></span><span class="mf-map-panel"></span></span>
+      <span class="mf-direction-copy"><span class="mf-direction-name">C · Context hub</span><span class="mf-direction-note">Fastest for experts. Too much navigation becomes recall-driven for installers.</span></span>
+    </button>
+  </div>
+
+  <section class="mf-product" data-model="b" data-viewport="desktop" aria-label="MajiFlow adaptive navigation mockup">
+    <aside class="mf-rail">
+      <div class="mf-brand"><span class="mf-brand-mark">M</span><span class="mf-brand-name">MajiFlow</span></div>
+      <button class="mf-site-picker" type="button" aria-label="Switch site">
+        <span class="mf-site-dot"></span>
+        <span class="mf-site-picker-copy"><span class="mf-site-picker-name">Riverside Farm</span><span class="mf-site-picker-state">3 of 3 controllers online</span></span>
+        <span class="mf-site-picker-chevron">⌄</span>
+      </button>
+
+      <div class="mf-nav-scroll">
+        <div class="mf-nav-label">Workspace</div>
+        <button class="mf-nav-action mf-manager-only" type="button" data-screen="sites" title="All sites"><span class="mf-nav-icon">◇</span><span class="mf-nav-text">Sites</span></button>
+        <button class="mf-nav-action mf-manager-only" type="button" data-screen="customers" title="Customers"><span class="mf-nav-icon">♙</span><span class="mf-nav-text">Customers</span></button>
+        <button class="mf-nav-action mf-manager-only" type="button" data-screen="devices" title="Device fleet"><span class="mf-nav-icon">▣</span><span class="mf-nav-text">Device fleet</span></button>
+
+        <div class="mf-nav-label">Riverside Farm</div>
+        <button class="mf-nav-action" type="button" data-screen="dashboard" aria-current="page" title="Live dashboard"><span class="mf-nav-icon">⌁</span><span class="mf-nav-text">Live dashboard</span></button>
+        <button class="mf-nav-action" type="button" data-screen="automations" title="Automations"><span class="mf-nav-icon">◷</span><span class="mf-nav-text">Automations</span></button>
+        <button class="mf-nav-action" type="button" data-screen="billing" title="Billing"><span class="mf-nav-icon">◫</span><span class="mf-nav-text">Billing</span></button>
+        <button class="mf-nav-action" type="button" data-screen="docs" title="Documentation"><span class="mf-nav-icon">▤</span><span class="mf-nav-text">Documentation</span></button>
+
+        <div class="mf-nav-label mf-manager-only">Design &amp; deploy</div>
+        <button class="mf-nav-action mf-manager-only mf-setup-child" type="button" data-screen="design" title="System design"><span class="mf-nav-icon">•</span><span class="mf-nav-text">System design</span></button>
+        <button class="mf-nav-action mf-manager-only mf-setup-child" type="button" data-screen="hardware" title="Hardware and safety"><span class="mf-nav-icon">•</span><span class="mf-nav-text">Hardware &amp; safety</span></button>
+        <button class="mf-nav-action mf-manager-only mf-setup-child" type="button" data-screen="sharing" title="Controller sharing"><span class="mf-nav-icon">•</span><span class="mf-nav-text">Controller sharing</span></button>
+        <button class="mf-nav-action mf-manager-only mf-setup-child" type="button" data-screen="firmware" title="Firmware and deployment"><span class="mf-nav-icon">•</span><span class="mf-nav-text">Firmware &amp; deploy</span></button>
+      </div>
+
+      <div class="mf-rail-foot">
+        <button class="mf-nav-action" type="button" title="Alerts"><span class="mf-nav-icon">♢</span><span class="mf-nav-text">Alerts</span><span class="mf-nav-count">3</span></button>
+        <button class="mf-user-action" type="button" title="Account and developer tools"><span class="mf-user-avatar">AM</span><span class="mf-user-copy"><span class="mf-user-name">admin@maji.local</span><span class="mf-user-role">Admin · Developer tools</span></span></button>
+      </div>
+    </aside>
+
+    <main class="mf-stage">
+      <div class="mf-context-bar">
+        <div class="mf-breadcrumb"><span>Sites&nbsp; / &nbsp;</span><strong>Riverside Farm</strong><span class="mf-crumb-leaf">&nbsp; / &nbsp;Live dashboard</span></div>
+        <button class="mf-command" type="button" aria-label="Search and quick actions"><span>⌕</span><span class="mf-command-text">Search or jump to…</span><span class="mf-key">⌘ K</span></button>
+        <span class="mf-context-status">Live</span>
+      </div>
+
+      <div class="mf-context-launcher" aria-label="Context launcher preview">
+        <div class="mf-launch-input">⌕ &nbsp; Go to or run an action…</div>
+        <div class="mf-launch-label">Riverside Farm</div>
+        <div class="mf-launch-row">⌁ <span>Open live dashboard</span><span class="mf-launch-shortcut">↵</span></div>
+        <div class="mf-launch-row">◷ <span>Manage automations</span><span class="mf-launch-shortcut">A</span></div>
+        <div class="mf-launch-row">⇧ <span>Generate firmware for Borehole controller</span><span class="mf-launch-shortcut">F</span></div>
+        <div class="mf-launch-label">Workspace</div>
+        <div class="mf-launch-row">◇ <span>Switch site…</span><span class="mf-launch-shortcut">S</span></div>
+      </div>
+
+      <div class="mf-page mf-dashboard-page">
+        <div class="mf-page-head">
+          <div><h3 class="mf-page-title">Riverside Farm</h3><div class="mf-page-subtitle">Monitor routes, storage, and controller health in one place.</div></div>
+          <div class="mf-local-actions"><button class="mf-local-action" type="button">Customize</button><button class="mf-local-action mf-local-action-primary" type="button">Site actions</button></div>
+        </div>
+        <div class="mf-attention"><span>△</span><span><strong>1 controller needs attention.</strong> Orchard controller last reported 18 minutes ago.</span><span class="mf-attention-link">Review health →</span></div>
+        <div class="mf-dashboard-grid">
+          <section class="mf-panel mf-panel-map"><div class="mf-panel-head"><span class="mf-panel-title">Live system map</span><span class="mf-panel-meta">Updated just now</span></div><div class="mf-map-area"><span class="mf-map-line mf-map-line-one"></span><span class="mf-map-line mf-map-line-two"></span><span class="mf-water-node mf-water-node-one">Borehole</span><span class="mf-water-pump">P</span><span class="mf-water-node mf-water-node-two">Tank A</span></div></section>
+          <section class="mf-panel mf-panel-routes"><div class="mf-panel-head"><span class="mf-panel-title">Routes</span><span class="mf-panel-meta">1 running</span></div><div class="mf-route-list"><div class="mf-route-row"><span class="mf-route-dot"></span><span><div class="mf-route-name">Borehole → Tank A</div><div class="mf-route-detail">Running · 64% · 23 L/min</div></span><button class="mf-route-action" type="button">Stop</button></div><div class="mf-route-row"><span class="mf-route-dot" style="background:#64748b"></span><span><div class="mf-route-name">Tank A → Orchard</div><div class="mf-route-detail">Ready · scheduled 18:00</div></span><button class="mf-route-action" type="button">Run</button></div><div class="mf-route-row"><span class="mf-route-dot" style="background:#64748b"></span><span><div class="mf-route-name">Tank A → Greenhouse</div><div class="mf-route-detail">Ready · manual</div></span><button class="mf-route-action" type="button">Run</button></div></div></section>
+          <section class="mf-panel mf-panel-stat"><div class="mf-panel-head"><span class="mf-panel-title">Tank A</span><span class="mf-panel-meta">Healthy</span></div><div class="mf-stat-body"><span class="mf-stat-value">78</span><span class="mf-stat-unit">%</span><div class="mf-mini-chart"><span style="height:42%"></span><span style="height:48%"></span><span style="height:55%"></span><span style="height:52%"></span><span style="height:66%"></span><span style="height:72%"></span><span style="height:78%"></span></div></div></section>
+          <section class="mf-panel mf-panel-stat"><div class="mf-panel-head"><span class="mf-panel-title">Flow today</span><span class="mf-panel-meta">+8%</span></div><div class="mf-stat-body"><span class="mf-stat-value">18.4</span><span class="mf-stat-unit">m³</span><div class="mf-stat-caption">Across 7 completed runs</div></div></section>
+          <section class="mf-panel mf-panel-stat"><div class="mf-panel-head"><span class="mf-panel-title">System health</span><span class="mf-panel-meta">2 healthy · 1 stale</span></div><div class="mf-stat-body"><span class="mf-stat-value">99.4</span><span class="mf-stat-unit">%</span><div class="mf-stat-caption">30-day controller availability</div></div></section>
+        </div>
+      </div>
+
+      <div class="mf-page mf-firmware-page mf-hidden">
+        <div class="mf-page-head">
+          <div><h3 class="mf-page-title">Firmware &amp; deployment</h3><div class="mf-page-subtitle">Borehole controller · KC868-A16 · Riverside Farm</div></div>
+          <div class="mf-local-actions"><button class="mf-local-action" type="button">View device</button><button class="mf-local-action mf-local-action-primary" type="button">Generate build</button></div>
+        </div>
+        <div class="mf-stepper" aria-label="Commissioning progress"><div class="mf-step mf-step-done"><span class="mf-step-index">✓</span><span>Design</span></div><div class="mf-step mf-step-done"><span class="mf-step-index">✓</span><span>Configure</span></div><div class="mf-step mf-step-done"><span class="mf-step-index">✓</span><span>Validate</span></div><div class="mf-step mf-step-active"><span class="mf-step-index">4</span><span>Build</span></div><div class="mf-step"><span class="mf-step-index">5</span><span>Install &amp; verify</span></div></div>
+        <div class="mf-firmware-layout">
+          <section class="mf-deploy-main">
+            <div class="mf-deploy-hero"><div><div class="mf-deploy-kicker">Next step</div><div class="mf-deploy-title">Generate a controller-specific build</div><div class="mf-deploy-text">Creates the ESPHome bundle, C++ headers, and stable device credentials. Wi-Fi stays on the controller and is never baked into the download.</div></div><div class="mf-ready">Ready to build</div></div>
+            <div class="mf-paths">
+              <div class="mf-path"><span class="mf-path-tag">First installation</span><div class="mf-path-title">Download build package</div><div class="mf-path-note">Generate the ZIP, compile it locally, then flash over USB or the controller setup network.</div><button class="mf-path-action" type="button">Generate &amp; download ZIP</button></div>
+              <div class="mf-path"><span class="mf-path-tag">Existing controller</span><div class="mf-path-title">Deploy an OTA update</div><div class="mf-path-note">Upload a compiled image, choose a version, then track delivery and device confirmation.</div><button class="mf-path-action mf-path-action-secondary" type="button">Start OTA release</button></div>
+            </div>
+          </section>
+          <aside class="mf-readiness"><div class="mf-readiness-head">Build readiness</div><div class="mf-check-list"><div class="mf-check"><span class="mf-check-icon">✓</span><span><div class="mf-check-name">Topology valid</div><div class="mf-check-note">No blocking errors</div></span></div><div class="mf-check"><span class="mf-check-icon">✓</span><span><div class="mf-check-name">Board configured</div><div class="mf-check-note">Pins and buses assigned</div></span></div><div class="mf-check"><span class="mf-check-icon">✓</span><span><div class="mf-check-name">Device registered</div><div class="mf-check-note">Stable controller identity</div></span></div><div class="mf-check"><span class="mf-check-icon">✓</span><span><div class="mf-check-name">Documentation current</div><div class="mf-check-note">Generated 2 hours ago</div></span></div></div><div class="mf-release"><div class="mf-release-label">Last confirmed release</div><div class="mf-release-value">v2026.09.18 · online</div></div></aside>
+        </div>
+      </div>
+
+      <nav class="mf-mobile-nav" aria-label="Mobile primary navigation">
+        <button class="mf-mobile-action" type="button" data-screen="dashboard" aria-current="page"><span class="mf-mobile-icon">⌁</span><span>Dashboard</span></button>
+        <button class="mf-mobile-action" type="button" data-screen="automations"><span class="mf-mobile-icon">◷</span><span>Automations</span></button>
+        <button class="mf-mobile-action" type="button"><span class="mf-mobile-icon">♢</span><span>Alerts</span><span class="mf-mobile-count">3</span></button>
+        <button class="mf-mobile-action" type="button" data-screen="firmware"><span class="mf-mobile-icon">•••</span><span>More</span></button>
+      </nav>
+    </main>
+  </section>
+
+  <script>
+    (() => {
+      const root = document.getElementById('majiflow-navigation-review');
+      const product = root.querySelector('.mf-product');
+      const state = { model: 'b', viewport: 'desktop', role: 'manager', screen: 'dashboard' };
+
+      const screenLabel = (screen) => screen === 'firmware' ? 'Firmware & deployment' : screen === 'dashboard' ? 'Live dashboard' : screen.charAt(0).toUpperCase() + screen.slice(1);
+
+      function render() {
+        product.dataset.model = state.model;
+        product.dataset.viewport = state.viewport;
+        root.querySelectorAll('[data-model]').forEach((el) => {
+          if (el.classList.contains('mf-direction')) el.setAttribute('aria-pressed', String(el.dataset.model === state.model));
+        });
+        root.querySelectorAll('[data-viewport-choice]').forEach((el) => el.setAttribute('aria-pressed', String(el.dataset.viewportChoice === state.viewport)));
+        root.querySelectorAll('[data-role-choice]').forEach((el) => el.setAttribute('aria-pressed', String(el.dataset.roleChoice === state.role)));
+        root.querySelectorAll('.mf-manager-only').forEach((el) => el.classList.toggle('mf-hidden', state.role !== 'manager'));
+        root.querySelectorAll('[data-screen]').forEach((el) => el.removeAttribute('aria-current'));
+        root.querySelectorAll(`[data-screen="${state.screen}"]`).forEach((el) => el.setAttribute('aria-current', 'page'));
+        const firmware = state.screen === 'firmware';
+        root.querySelector('.mf-dashboard-page').classList.toggle('mf-hidden', firmware);
+        root.querySelector('.mf-firmware-page').classList.toggle('mf-hidden', !firmware);
+        root.querySelector('.mf-crumb-leaf').textContent = ` / ${screenLabel(state.screen)}`;
+        if (!firmware && state.screen !== 'dashboard') {
+          state.screen = 'dashboard';
+          root.querySelectorAll('[data-screen]').forEach((el) => el.removeAttribute('aria-current'));
+          root.querySelectorAll('[data-screen="dashboard"]').forEach((el) => el.setAttribute('aria-current', 'page'));
+          root.querySelector('.mf-crumb-leaf').textContent = ' / Live dashboard';
+        }
+      }
+
+      root.querySelectorAll('.mf-direction').forEach((el) => el.addEventListener('click', () => { state.model = el.dataset.model; render(); }));
+      root.querySelectorAll('[data-viewport-choice]').forEach((el) => el.addEventListener('click', () => { state.viewport = el.dataset.viewportChoice; render(); }));
+      root.querySelectorAll('[data-role-choice]').forEach((el) => el.addEventListener('click', () => { state.role = el.dataset.roleChoice; if (state.role === 'operator' && state.screen === 'firmware') state.screen = 'dashboard'; render(); }));
+      root.querySelectorAll('[data-screen]').forEach((el) => el.addEventListener('click', () => { if (el.dataset.screen === 'firmware' || el.dataset.screen === 'dashboard') { state.screen = el.dataset.screen; render(); } }));
+
+      render();
+      if (globalThis.Tweak) {
+        const tweak = new Tweak({ container: product, onChange: render });
+        tweak.addSelect(state, 'model', { label: 'Navigation model', options: [{ label: 'Clean top bar', value: 'a' }, { label: 'Adaptive rail', value: 'b' }, { label: 'Context hub', value: 'c' }], reference: 'navigation.model' });
+        tweak.addSelect(state, 'viewport', { label: 'Viewport', options: ['desktop', 'mobile'], reference: 'navigation.viewport' });
+        tweak.addSelect(state, 'role', { label: 'Role', options: ['manager', 'operator'], reference: 'navigation.role' });
+        tweak.addSelect(state, 'screen', { label: 'Workflow', options: [{ label: 'Live dashboard', value: 'dashboard' }, { label: 'Firmware & deployment', value: 'firmware' }], reference: 'navigation.workflow' });
+      }
+    })();
+  </script>
+</div>

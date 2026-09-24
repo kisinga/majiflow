@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal, type OnDestroy, type Signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { buildDashboardSpec, createEmptySiteTopology, parseTopology, routeLabel, describeState, FAULT_MEANINGS, STOP_REASON_MEANINGS, COMMAND_TTL_S, type CommandAction, type CommandPhase, type DashboardWidget, type ActuatorControl, type RuntimeState } from '@core';
+import { buildDashboardSpec, createEmptySiteTopology, parseTopology, routeLabel, describeState, listAutomatableRoutes, FAULT_MEANINGS, STOP_REASON_MEANINGS, COMMAND_TTL_S, type CommandAction, type CommandPhase, type DashboardWidget, type ActuatorControl, type RuntimeState } from '@core';
 import { BackendService } from '../../core/services/backend.service';
 import { AuthStore } from '../../core/services/auth.store';
 import { FeatureFlagsService } from '../../core/services/feature-flags.service';
@@ -9,14 +9,12 @@ import { TelemetryStore } from './telemetry.store';
 import { CommandLifecycleStore } from './command-lifecycle.store';
 import { runProgress, type RunProgress } from './run-progress';
 import { DashboardCardComponent } from './widgets/dashboard-card.component';
-import { RouteCardComponent } from './widgets/route-card.component';
 import { UsageTotalsComponent } from './widgets/usage-totals.component';
 import { SiteControlsComponent } from './widgets/site-controls.component';
 import { ControllerHealthComponent } from './widgets/controller-health.component';
 import { HealthHistoryComponent } from './widgets/health-history.component';
 import { BillingOutstandingComponent } from './widgets/billing-outstanding.component';
 import { MeterValveComponent } from './widgets/meter-valve.component';
-import { LiveMapComponent } from './canvas/live-map.component';
 import { CONTROLLER_PALETTE } from '../../core/util/site-colors';
 import { DEVICE_MODE } from '../../core/tokens/device-mode';
 import type { SiteTopology } from '../../core/models/topology.model';
@@ -29,10 +27,20 @@ import { DashboardLayoutService } from '../../widgets/layout.service';
 import { WIDGET_DEFS } from './widget-defs';
 import { buildDefaultLayout, WIDGET_ZONE } from './default-layout';
 import { resolveRender, type WidgetRender } from './widgets';
+import {
+  OperatorWorkspaceComponent,
+  type OperatorEntityView,
+  type OperatorRouteAction,
+  type OperatorRouteRun,
+  type OperatorRouteView,
+} from './operator-workspace.component';
+import { AutomationsService, type AutomationRecord } from '../automations/automations.service';
 
 /**
  * The site dashboard shell (`/site/:name/dashboard`): the runtime stores
- * and widget components laid out as a widget grid. The layout is
+ * and widget components. The fixed operator workspace owns routes, topology and
+ * direct entity control; reporting/diagnostic widgets remain in the customizable
+ * grid below it. The secondary layout is
  * `resolveLayout(stored, buildDefaultLayout(spec))` — the stored layout (when
  * one exists) wins on order/width/visibility, the auto-derived default fills
  * the rest. Edit mode (the Customize toggle, ≥640px only) stages
@@ -41,14 +49,8 @@ import { resolveRender, type WidgetRender } from './widgets';
  *
  * The presentation is state-driven: an attention banner surfaces faults,
  * offline controllers and a live safety override above the grid (absent when
- * the system is calm), and the derived default orders zones Routes → Map →
- * Status & controls → Usage → System → Trends (default-layout.ts): the daily
- * reporting questions (consumption, activity) outrank live trend charts,
- * which are diagnostics — default-hidden like the old dashboard's collapsed
- * flow section. The map is desktop-only; on phone the node cards
- * (tanks/valves/pumps) stand in for it, while on desktop they're hidden —
- * the map already shows their state (the old MAP_ABSORBS rule, now a picker
- * toggle).
+ * the system is calm). The X6 topology is the same renderer at every breakpoint:
+ * mobile changes composition and camera framing, not the graph implementation.
  *
  * One shell serves both builds. The device build (served from the controller's
  * flash) swaps the network surfaces via device.providers.ts (realtime/backend/
@@ -60,80 +62,61 @@ import { resolveRender, type WidgetRender } from './widgets';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, WidgetGridComponent, DashboardCardComponent, RouteCardComponent, UsageTotalsComponent, SiteControlsComponent, ControllerHealthComponent, HealthHistoryComponent, LiveMapComponent, BillingOutstandingComponent, MeterValveComponent],
+  imports: [RouterLink, WidgetGridComponent, DashboardCardComponent, UsageTotalsComponent, SiteControlsComponent, ControllerHealthComponent, HealthHistoryComponent, OperatorWorkspaceComponent, BillingOutstandingComponent, MeterValveComponent],
   providers: [DashboardStore, TelemetryStore, CommandLifecycleStore],
-  host: { class: 'flex-1 overflow-auto' },
+  host: { class: 'flex-1 min-h-0 min-w-0 flex overflow-hidden' },
+  styles: [`
+    :host{--op-shell:#fbfcfa;--op-panel:#f3f6f2;--op-panel-strong:#e8eee9;--op-canvas:#edf2ee;--op-border:#d7ded8;--op-ink:#152019;--op-muted:#68756d;--op-green:#147448;--op-green-surface:#e0f2e8;--op-blue:#196ca6;--op-blue-surface:#e0f0fb;--op-amber:#a85c0e;--op-red:#b42318}
+    .dashboard-page{display:flex;flex:1;min-width:0;min-height:0;flex-direction:column;overflow:hidden;background:var(--op-shell);color:var(--op-ink)}
+    .site-context-header{height:64px;min-height:64px;padding:0 24px;display:flex;align-items:center;gap:20px;border-bottom:1px solid var(--op-border);background:rgb(251 252 250/.96)}
+    .site-context-copy{min-width:0}.site-context-copy h1{margin:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:18px;line-height:1.25;font-weight:800}.site-context-copy p{margin:3px 0 0;color:var(--op-muted);font-size:11px}.site-context-actions{margin-left:auto;display:flex;align-items:center;gap:8px}.online-summary{min-height:44px;padding:0 8px;display:flex;align-items:center;gap:8px;color:var(--op-green);font-size:12px;font-weight:700;white-space:nowrap}.online-summary i{width:8px;height:8px;border-radius:50%;background:var(--op-muted)}.online-summary i.is-online{background:var(--op-green);box-shadow:0 0 0 5px var(--op-green-surface)}
+    .context-chip{padding:5px 8px;border-radius:999px;background:var(--op-panel-strong);color:var(--op-muted);font-size:10px;font-weight:800}.context-chip.is-warning{background:#fff1df;color:var(--op-amber)}.context-button{min-height:44px;padding:0 14px;border:1px solid var(--op-border);border-radius:11px;background:#fff;font-size:12px;font-weight:750}.context-button:hover{border-color:var(--op-blue);color:var(--op-blue)}
+    .site-more{position:relative}.site-more summary{width:44px;height:44px;display:grid;place-items:center;border-radius:11px;cursor:pointer;list-style:none;font-weight:800}.site-more summary::-webkit-details-marker{display:none}.site-more summary:hover{background:var(--op-panel)}.site-more-menu{position:absolute;z-index:50;top:calc(100% + 6px);right:0;width:190px;padding:6px;border:1px solid var(--op-border);border-radius:11px;background:#fff;box-shadow:0 16px 38px rgb(21 32 25/.14);transform-origin:right top;animation:op-popover-enter var(--motion-panel) var(--ease-enter) both}.site-more-menu a,.site-more-menu button{width:100%;min-height:40px;padding:0 10px;display:flex;align-items:center;border-radius:8px;text-align:left;font-size:12px}.site-more-menu a:hover,.site-more-menu button:hover{background:var(--op-panel)}
+    .page-state{margin:auto;color:var(--op-muted)}.operate-region{display:flex;flex:1;min-height:0;flex-direction:column}.admin-strip,.attention-strip{min-height:42px;padding:7px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--op-border);font-size:12px;animation:op-attention-enter var(--motion-mode,200ms) var(--ease-enter,ease) both}.admin-strip{background:#fff7ed;color:var(--op-amber)}.attention-strip.is-error{background:#fef3f2;color:var(--op-red)}.attention-strip.is-warning{background:#fff7ed;color:var(--op-amber)}.attention-strip.is-info{background:var(--op-panel);color:var(--op-muted)}.strip-spacer{flex:1}.strip-button{min-height:32px;padding:0 10px;border:1px solid currentColor;border-radius:8px;font-weight:750}.note-strip{padding:6px 18px;border-bottom:1px solid var(--op-border);color:var(--op-muted);font-size:10px;animation:op-attention-enter var(--motion-mode,200ms) var(--ease-enter,ease) both}
+    .insights-scroll,.settings-scroll{flex:1;min-height:0;overflow:auto}.section-intro{margin-bottom:20px}.section-intro h2{margin:0;font-size:20px;font-weight:800}.section-intro p{margin:5px 0 0;color:var(--op-muted);font-size:13px}.customize-panel{margin-bottom:18px;padding:14px;border:1px solid var(--op-border);border-radius:15px;background:var(--op-panel)}.customize-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.customize-actions h2{margin:0;font-size:14px}.customize-actions .grow{flex:1}.save-message{margin-bottom:12px;color:var(--op-green);font-size:12px}.settings-docs{margin-top:16px;min-height:52px;padding:0 16px;display:inline-flex;align-items:center;border:1px solid var(--op-border);border-radius:11px;background:#fff;font-size:13px;font-weight:750}
+    @media(max-width:767.98px){.site-context-header{display:none}.dashboard-page{height:100%}.operate-region{min-height:0}.admin-strip,.attention-strip{padding-inline:14px}.attention-strip span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+  `],
   template: `
-    <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-5 sm:py-6">
-      <!-- Top bar: site name + online count on the left; on the right the health
-           pill (expands to the full per-controller panel) and the quiet utility
-           actions — Automations, Setup (operator-gated), Billing and Docs. -->
-      <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-5 sm:mb-6">
-        <div class="flex items-baseline gap-2 min-w-0 flex-1">
-          <h1 class="app-title text-lg sm:text-xl font-bold leading-tight truncate min-w-0">{{ siteName() || 'Dashboard' }}</h1>
-          @if (showController()) {
-            <span class="text-xs text-base-content/50 shrink-0 whitespace-nowrap">{{ onlineCount() }}/{{ totalControllers() }} online</span>
+    <div class="dashboard-page" [class.is-operate]="workspaceView === 'operate'">
+      <header class="site-context-header">
+        <div class="site-context-copy">
+          <h1>{{ siteName() || 'Site' }}</h1>
+          <p>{{ viewSubtitle() }}</p>
+        </div>
+        <div class="site-context-actions">
+          @if (adminViewing()) { <span class="context-chip" [class.is-warning]="controlEnabled()">{{ controlEnabled() ? 'Controlling' : 'Read-only' }}</span> }
+          <span class="online-summary"><i [class.is-online]="onlineCount() > 0"></i>{{ onlineCount() }}/{{ totalControllers() }} online</span>
+          <app-controller-health />
+          @if (workspaceView === 'insights' && !editing()) {
+            <button class="context-button" type="button" (click)="startCustomize()">Customize</button>
+          }
+          @if (!deviceMode) {
+            <details class="site-more">
+              <summary aria-label="Site actions" title="Site actions">•••</summary>
+              <div class="site-more-menu">
+                <button type="button" (click)="openDocs()" [disabled]="docBusy()">{{ docBusy() ? 'Preparing documentation…' : 'Site documentation' }}</button>
+                @if (billingEnabled()) { <a [routerLink]="['/site', siteId, 'billing']">Billing</a> }
+                <a [routerLink]="['/site', siteId, 'settings']">Site settings</a>
+              </div>
+            </details>
           }
         </div>
-        <div class="flex items-center gap-2 shrink-0">
-        @if (adminViewing()) {
-          <span class="badge badge-sm gap-1 shrink-0" [class]="controlEnabled() ? 'badge-warning' : 'badge-info'">{{ controlEnabled() ? 'Controlling' : 'Read-only' }}</span>
-        }
-        <app-controller-health />
-        @if (siteId) {
-          <app-site-controls [siteId]="siteId" [canControl]="canControl()" />
-        }
-        <!-- Billing + Docs are cloud-backed (PocketBase collections / doc
-             builder) — hidden in the device build. -->
-        @if (!deviceMode) {
-          @if (billingEnabled()) {
-            <a class="btn btn-sm btn-ghost gap-1.5 shrink-0" [routerLink]="['/site', siteId, 'billing']"
-               title="Tenant billing — meters, invoices, payments" aria-label="Billing">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              <span class="hidden sm:inline">Billing</span>
-            </a>
-          }
-          <button class="btn btn-sm btn-ghost gap-1.5 shrink-0" (click)="openDocs()" [disabled]="docBusy()"
-                  title="Open this site's documentation" aria-label="Open documentation">
-            @if (docBusy()) { <span class="loading loading-spinner loading-xs"></span> }
-            @else {
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            }
-            <span class="hidden sm:inline">Docs</span>
-          </button>
-        }
-        <!-- Customize: enters layout edit mode. Per-user layouts are self-service,
-             so any signed-in viewer gets it; hidden below sm — phone is read-only. -->
-        @if (!editing()) {
-          <button class="btn btn-sm btn-ghost gap-1.5 shrink-0 hidden sm:inline-flex" (click)="startCustomize()"
-                  title="Reorder, resize and hide widgets" aria-label="Customize dashboard layout">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-            </svg>
-            <span class="hidden md:inline">Customize</span>
-          </button>
-        }
-        </div>
-      </div>
-
-      @if (saveMsg()) { <div class="text-xs text-success mb-3">{{ saveMsg() }}</div> }
+      </header>
 
       @if (store.loading()) {
-        <div class="flex items-center justify-center py-24"><span class="loading loading-spinner loading-lg"></span></div>
+        <div class="page-state"><span class="loading loading-spinner loading-lg"></span></div>
       } @else if (store.error()) {
         <div class="alert alert-error text-sm">{{ store.error() }}</div>
       } @else if (loadError()) {
         <div class="alert alert-error text-sm">{{ loadError() }}</div>
       } @else {
-        <!-- Admin-viewing-a-customer-site banner: read-only by default, with an
-             explicit Take control. Commands sent after taking control are
-             recorded against the admin's account (issued_role audit). -->
-        @if (adminViewing()) {
-          <div class="alert mb-4 text-sm" [class]="controlEnabled() ? 'alert-warning' : 'alert-info'">
+        <!-- Managers who do not own this site stay read-only until they explicitly
+             take control. Keep this gate beside every command-bearing workspace;
+             sibling routes recreate the component, so Settings cannot borrow the
+             Operate page's transient grant. -->
+        @if (adminViewing() && workspaceView !== 'insights') {
+          <div class="admin-strip">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               @if (controlEnabled()) {
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
@@ -141,7 +124,7 @@ import { resolveRender, type WidgetRender } from './widgets';
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.46 12C3.73 7.94 7.52 5 12 5c4.48 0 8.27 2.94 9.54 7-1.27 4.06-5.06 7-9.54 7-4.48 0-8.27-2.94-9.54-7z"/>
               }
             </svg>
-            <span class="flex-1">
+            <span class="strip-spacer">
               @if (controlEnabled()) {
                 You have control of <strong>{{ siteName() }}</strong> (a customer's site). Commands you send are recorded against your account.
               } @else {
@@ -149,34 +132,62 @@ import { resolveRender, type WidgetRender } from './widgets';
               }
             </span>
             @if (controlEnabled()) {
-              <button class="btn btn-xs btn-ghost" (click)="controlEnabled.set(false)">Release control</button>
+              <button class="strip-button" (click)="controlEnabled.set(false)">Release control</button>
             } @else {
-              <button class="btn btn-xs btn-warning" (click)="controlEnabled.set(true)">Take control</button>
+              <button class="strip-button" (click)="controlEnabled.set(true)">Take control</button>
             }
           </div>
         }
 
+        @if (workspaceView === 'operate') {
+        <div class="operate-region">
         <!-- Attention: the state-driven "needs your eyes NOW" signals — faults,
              offline controllers, a live safety override. Absent when calm. -->
-        @for (a of attention(); track a.text) {
-          <div class="alert mb-3 text-sm py-2" role="alert"
-               [class]="a.tone === 'error' ? 'alert-error' : a.tone === 'warning' ? 'alert-warning' : 'alert-info'">
+        @if (attention()[0]; as a) {
+          <div class="attention-strip" role="alert" [class.is-error]="a.tone === 'error'" [class.is-warning]="a.tone === 'warning'" [class.is-info]="a.tone === 'info'">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
             </svg>
             <span class="flex-1">{{ a.text }}</span>
+            @if (attention().length > 1) { <strong>+{{ attention().length - 1 }} more</strong> }
           </div>
         }
 
-        @if (note()) { <div class="text-xs text-base-content/50 mb-3">{{ note() }}</div> }
+        @if (note()) { <div class="note-strip" role="status" aria-live="polite">{{ note() }}</div> }
+
+        <!-- The fixed operational core: route touch targets on the left, the same
+             live X6 topology at every breakpoint, and armed inline manual controls.
+             Map selection only locates a control; it never issues a command. This
+             surface is not layout-customizable because
+             moving/hiding primary controls is an operational regression. -->
+        <app-operator-workspace
+          [siteId]="siteId"
+          [topology]="topology()"
+          [runtime]="store.nodeRuntime()"
+          [activePath]="store.activePath()"
+          [routes]="operatorRoutes()"
+          [entities]="operatorEntities()"
+          [fillMs]="fillMs()"
+          [canControl]="canControl()"
+          [stopBusy]="stopAllBusy()"
+          (routeAction)="onOperatorRouteAction($event)"
+          (routeRun)="onOperatorRouteRun($event)"
+          (automationChanged)="onAutomationsChanged()"
+          (entityToggle)="onOperatorEntityToggle($event)"
+          (stopAll)="stopAllRoutes()"
+        />
+        </div>
+        } @else if (workspaceView === 'insights') {
+        <div class="insights-scroll"><div class="insights-inner page-container">
+        @if (saveMsg()) { <div class="save-message">{{ saveMsg() }}</div> }
 
         <!-- Edit mode: toolbar (save / site default / reset / cancel) above the
              widget picker, which lists every layout item by name — hidden ones
              included — and toggles visibility. The grid itself does drag-reorder,
              width cycling and hiding. Edits stage in the draft signal until Save. -->
         @if (editing()) {
-          <div class="mb-4 rounded-box ring-1 ring-base-300/40 bg-base-200/30 p-3">
-            <div class="flex flex-wrap items-center gap-2 mb-3">
+          <div class="customize-panel">
+            <div class="customize-actions">
               <h2 class="section-label">Customize dashboard</h2>
               <span class="grow"></span>
               <button class="btn btn-xs btn-primary" [disabled]="saveBusy()" (click)="saveLayout('user')">
@@ -192,7 +203,7 @@ import { resolveRender, type WidgetRender } from './widgets';
               <button class="btn btn-xs btn-ghost" [disabled]="saveBusy()" (click)="cancelEdit()">Cancel</button>
             </div>
             @if (saveError()) { <div class="alert alert-error text-sm mb-3">{{ saveError() }}</div> }
-            <p class="text-xs text-base-content/50 mb-2">Drag widgets to reorder them; use the width and hide buttons on each widget. Select a greyed-out widget below to bring it back.</p>
+            <p class="text-xs text-base-content/50 my-2">Reorder reporting and diagnostic widgets. Operational controls stay in Operate.</p>
             <div class="flex flex-wrap gap-1.5">
               @for (item of gridItems(); track item.instanceId) {
                 <button type="button" class="btn btn-xs" [class.btn-outline]="!item.hidden" [class.opacity-40]="item.hidden"
@@ -209,28 +220,12 @@ import { resolveRender, type WidgetRender } from './widgets';
         <!-- The widget grid: items render in layout order at their layout width;
              hidden items are skipped (edit mode manages them via the picker
              above). The parent template below owns what each instance renders. -->
+        <div>
         <app-widget-grid [items]="gridItems()" [itemTemplate]="cell" [editing]="editing()" (itemsChange)="onItemsChange($event)" />
+        </div>
         <ng-template #cell let-item>
           @if (renderFor(item); as r) {
             @switch (r.kind) {
-              @case ('map') {
-                <app-live-map [topology]="topology()" [runtime]="store.nodeRuntime()" [activePath]="store.activePath()" />
-              }
-              @case ('route') {
-                <app-route-card
-                  [route]="r.route"
-                  [state]="routeState(r.controller.controller, r.route.routeId)"
-                  [flowRate]="routeFlow(r.controller.controller, r.route)"
-                  [progress]="routeProgress(r.controller.controller, r.route)"
-                  [fillMs]="fillMs()"
-                  [online]="store.presence(r.controller.controller).online"
-                  [phase]="routePhase(r.controller.controller, r.route.routeId)?.phase ?? null"
-                  [phaseReason]="routePhase(r.controller.controller, r.route.routeId)?.reason ?? ''"
-                  [controllable]="canControl()"
-                  (action)="routeCmd(r.controller.controller, $event, r.route)"
-                  (run)="routeRun(r.controller.controller, $event, r.route)"
-                />
-              }
               @case ('telemetry') {
                 <app-dashboard-card
                   [widget]="r.widget"
@@ -242,7 +237,7 @@ import { resolveRender, type WidgetRender } from './widgets';
                   [series]="telemetry.seriesFor(r.widget)"
                   [span]="telemetry.spanFor(r.widget)"
                   [items]="store.activityFor(r.widget.controller)"
-                  [actuatable]="isActuatable(r.widget)"
+                  [actuatable]="false"
                   [held]="actuatorHeld(r.widget)"
                   [phase]="actuatorPhase(r.widget)?.phase ?? null"
                   [phaseReason]="actuatorPhase(r.widget)?.reason ?? ''"
@@ -268,6 +263,14 @@ import { resolveRender, type WidgetRender } from './widgets';
             }
           }
         </ng-template>
+        </div></div>
+        } @else {
+          <div class="settings-scroll"><div class="settings-inner page-container">
+            <div class="section-intro"><h2>Site settings</h2><p>Operational defaults, equipment calibration and safety controls for this site.</p></div>
+            <app-site-controls [siteId]="siteId" [canControl]="canControl()" mode="page" />
+            @if (!deviceMode) { <button type="button" class="settings-docs" (click)="openDocs()" [disabled]="docBusy()">{{ docBusy() ? 'Preparing documentation…' : 'Open site documentation' }}</button> }
+          </div></div>
+        }
       }
     </div>
   `,
@@ -282,6 +285,16 @@ export class DashboardComponent implements OnDestroy {
   protected lifecycle = inject(CommandLifecycleStore);
   private capabilitiesService = inject(CapabilitiesService);
   private layouts = inject(DashboardLayoutService);
+
+  /** Operate, Insights and Settings share the loaded site/runtime context but
+   *  expose purpose-built surfaces. The route data is the single view switch. */
+  protected readonly workspaceView = (this.route.snapshot.data['workspaceView'] ?? 'operate') as 'operate' | 'insights' | 'settings';
+  protected viewSubtitle(): string {
+    const controllers = this.store.spec().controllers;
+    const controller = controllers.length === 1 ? controllers[0]?.name : `${controllers.length} controllers`;
+    const view = this.workspaceView === 'operate' ? 'Operator workspace' : this.workspaceView === 'insights' ? 'Insights' : 'Settings';
+    return controller ? `${view} · ${controller}` : view;
+  }
 
   /** Device-mode build (served from the controller's flash): the cloud-only
    *  surfaces — history charts, water usage, health history, billing, docs,
@@ -300,6 +313,24 @@ export class DashboardComponent implements OnDestroy {
 
   /** Parsed topology, kept for the live map (the card spec is derived separately). */
   protected topology = signal<SiteTopology | null>(null);
+  /** Route automation rows are lightweight operator metadata: they feed the count
+   *  on each route card and refresh in realtime without coupling commands to CRUD. */
+  private automationRows = signal<AutomationRecord[]>([]);
+  private automationUnsub: (() => void | Promise<void>) | null = null;
+  private automatableRouteMap = computed(() => {
+    const map = new Map<string, { routeKey: string }>();
+    const topology = this.topology();
+    if (!topology) return map;
+    for (const route of listAutomatableRoutes(topology)) {
+      map.set(`${route.controllerId}/${route.routeIndex}`, { routeKey: route.routeKey });
+    }
+    return map;
+  });
+  private automationCounts = computed(() => {
+    const counts = new Map<string, number>();
+    for (const row of this.automationRows()) counts.set(row.route_key, (counts.get(row.route_key) ?? 0) + 1);
+    return counts;
+  });
   /** Fill glide for the route progress bar ~ the snapshot interval (held on the
    *  topology), so the bar moves continuously between updates instead of stepping. */
   protected fillMs = computed(() => {
@@ -393,8 +424,10 @@ export class DashboardComponent implements OnDestroy {
   protected editing = signal(false);
   /** The in-progress layout while editing; null outside edit mode. */
   protected draft = signal<LayoutItem[] | null>(null);
-  /** What the grid renders: the draft while editing, else the resolved layout. */
-  protected gridItems = computed<LayoutItem[]>(() => this.draft() ?? this.layout());
+  /** What the secondary grid renders. The operational map/routes are fixed in the
+   *  workspace above, so stale saved instances are deliberately filtered here. */
+  protected gridItems = computed<LayoutItem[]>(() =>
+    (this.draft() ?? this.layout()).filter((i) => i.widgetId !== 'live-map' && i.widgetId !== 'route-card'));
   /** Site co-owner ids from the site record — gates "Set as site default"
    *  (the collection rules enforce it server-side too). */
   private siteOwners = signal<string[]>([]);
@@ -548,6 +581,107 @@ export class DashboardComponent implements OnDestroy {
   );
   protected totalControllers = computed(() => this.store.spec().controllers.length);
 
+  // --- Operator workspace ---------------------------------------------------
+  /** Route view models for the fixed left-hand control dock. Keeping the live
+   *  derivation here means the workspace remains presentational and every command
+   *  still passes through this page's established lifecycle methods. */
+  protected operatorRoutes = computed<OperatorRouteView[]>(() =>
+    this.store.spec().controllers.flatMap((controller) =>
+      controller.routes.map((route) => {
+        const phase = this.routePhase(controller.controller, route.routeId);
+        const automationKey = this.automatableRouteMap().get(`${controller.controller}/${route.routeId}`)?.routeKey ?? '';
+        return {
+          controller: controller.controller,
+          controllerName: controller.name,
+          route,
+          automationKey,
+          automationCount: automationKey ? this.automationCounts().get(automationKey) ?? 0 : 0,
+          state: this.routeState(controller.controller, route.routeId),
+          flowRate: this.routeFlow(controller.controller, route),
+          progress: this.routeProgress(controller.controller, route),
+          online: this.store.presence(controller.controller).online,
+          phase: phase?.phase ?? null,
+          phaseReason: phase?.reason ?? '',
+        };
+      }),
+    ));
+
+  /** Directly controllable valves/pumps. Node id is the shared selection anchor
+   *  used by the topology, telemetry projection and firmware claim registry. */
+  protected operatorEntities = computed<OperatorEntityView[]>(() =>
+    this.store.spec().controllers.flatMap((controller) => {
+      const online = this.store.presence(controller.controller).online;
+      return controller.actuators.map((actuator) => {
+        const runtime = this.store.nodeRuntime().get(actuator.id);
+        const phase = this.lifecycle.phaseFor(this.nodeKey(controller.controller, actuator.id));
+        return {
+          id: actuator.id,
+          controller: controller.controller,
+          controllerName: controller.name,
+          name: actuator.name,
+          kind: actuator.kind,
+          state: runtime?.state ?? 'unknown',
+          value: runtime?.value ?? null,
+          unit: runtime?.unit ?? null,
+          online,
+          held: this.lifecycle.isHeld(this.nodeKey(controller.controller, actuator.id)),
+          // A direct claim is additive, not an override. Mark an actuator already
+          // owned by a live route so the manual surface never implies it can stop it.
+          routeControlled: controller.routes.some((route) =>
+            ['PREPARING', 'RUNNING', 'STOPPING'].includes(this.routeState(controller.controller, route.routeId).token)
+            && (route.pathNodeIds ?? []).includes(actuator.id)),
+          phase: phase?.phase ?? null,
+          phaseReason: phase?.reason ?? '',
+        };
+      });
+    }));
+
+  private stopAllKey(controller: string): string { return `${controller}/routes/stop-all`; }
+  private stopAllPending = signal(false);
+  protected stopAllBusy = computed(() =>
+    this.stopAllPending() || this.store.spec().controllers.some((c) => this.lifecycle.isBusy(this.stopAllKey(c.controller))));
+
+  protected onOperatorRouteAction(event: OperatorRouteAction): void {
+    void this.routeCmd(event.controller, event.action, event.route);
+  }
+  protected onOperatorRouteRun(event: OperatorRouteRun): void {
+    void this.routeRun(event.controller, event.stopSpec, event.route);
+  }
+  protected onOperatorEntityToggle(entity: OperatorEntityView): void {
+    if (!this.canControl()) return;
+    const actuator = this.store.spec().controllers
+      .find((c) => c.controller === entity.controller)?.actuators
+      .find((a) => a.id === entity.id);
+    if (!actuator) return;
+    void this.lifecycle.toggleClaim(this.nodeKey(entity.controller, entity.id), entity.controller, actuator);
+    this.offlineNote(entity.controller);
+  }
+  protected async stopAllRoutes(): Promise<void> {
+    if (!this.canControl() || this.stopAllBusy()) return;
+    const controllers = this.store.spec().controllers;
+    this.stopAllPending.set(true);
+    try {
+      // Firmware `stop_all` stops route slots only. Pair it with an explicit
+      // release for every local actuator so this workspace action is truthful:
+      // routes stop and browser-held/manual claims cannot keep outputs energized.
+      const results = await Promise.all(controllers.map(async (controller) => {
+        const stop = this.lifecycle.dispatch(this.stopAllKey(controller.controller), controller.controller, 'stop_all');
+        const releases = controller.actuators.map((actuator) =>
+          this.lifecycle.dispatch(this.nodeKey(controller.controller, actuator.id), controller.controller, 'node_set', { actuator, on: false }));
+        const accepted = await Promise.all([stop, ...releases]);
+        return accepted.every(Boolean);
+      }));
+      const accepted = results.filter(Boolean).length;
+      this.note.set(accepted === controllers.length
+        ? `Stop All accepted by ${accepted} ${accepted === 1 ? 'controller' : 'controllers'}; routes and manual controls are releasing.`
+        : accepted === 0
+          ? 'Stop All failed on every controller. No stop command was accepted.'
+          : `Stop All partially completed: ${accepted} of ${controllers.length} controllers accepted every stop and release command.`);
+    } finally {
+      this.stopAllPending.set(false);
+    }
+  }
+
   // --- Routes (the live control surface) ------------------------------------
   /** A route's live state for its card (token + reason + origin; empty when never seen). */
   protected routeState(controller: string, routeId: number): { token: string; reason: string; origin?: string; initiator?: { label: string; support: boolean; title: string } } {
@@ -645,6 +779,8 @@ export class DashboardComponent implements OnDestroy {
 
   private paramSub: { unsubscribe(): void } | null = null;
 
+  private automations = inject(AutomationsService);
+
   constructor() {
     // Route REUSE: navigating /site/A/dashboard → /site/B/dashboard keeps this
     // component alive, so the site id comes from the param observable, and
@@ -654,6 +790,7 @@ export class DashboardComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.paramSub?.unsubscribe();
+    if (this.automationUnsub) void this.automationUnsub();
     clearTimeout(this.saveMsgTimer);
   }
 
@@ -673,6 +810,9 @@ export class DashboardComponent implements OnDestroy {
     this.siteName.set('');
     this.note.set(null);
     this.topology.set(null);
+    this.automationRows.set([]);
+    if (this.automationUnsub) void this.automationUnsub();
+    this.automationUnsub = null;
     this.loadError.set(null);
     this.adminViewing.set(false);
     this.controlEnabled.set(false);
@@ -705,6 +845,7 @@ export class DashboardComponent implements OnDestroy {
       this.siteOwners.set(site.owners ?? []);
       const topo = topology ? parseTopology(topology) : createEmptySiteTopology();
       this.topology.set(topo);
+      void this.loadAutomationRows(gen);
       const spec = buildDashboardSpec(topo);
       await this.store.init(this.siteId, spec, { update_interval: topo.timing.update_interval }, site.owners ?? [], site.people ?? []);
       if (gen !== this.gen) return;
@@ -725,6 +866,30 @@ export class DashboardComponent implements OnDestroy {
       this.loadError.set(e instanceof Error ? e.message : String(e));
     }
   }
+
+  private async loadAutomationRows(gen: number): Promise<void> {
+    try {
+      const rows = await this.automations.list(this.siteId);
+      if (gen !== this.gen) return;
+      this.automationRows.set(rows);
+      const unsub = await this.automations.subscribe(this.siteId, () => void this.refreshAutomationRows(gen));
+      if (gen !== this.gen) { void unsub(); return; }
+      this.automationUnsub = unsub;
+    } catch {
+      // Automation metadata must never block the live operator surface. The route
+      // button remains available with a zero count and the manager owns its errors.
+      if (gen === this.gen) this.automationRows.set([]);
+    }
+  }
+
+  private async refreshAutomationRows(gen: number): Promise<void> {
+    try {
+      const rows = await this.automations.list(this.siteId);
+      if (gen === this.gen) this.automationRows.set(rows);
+    } catch { /* transient; retain the last truthful count */ }
+  }
+
+  protected onAutomationsChanged(): void { void this.refreshAutomationRows(this.gen); }
 
   /** Operator picked a new timescale for a chart — reload it at that span. */
   protected onSpanChange(w: DashboardWidget, hours: number): void {

@@ -17,7 +17,7 @@ import { docCatColor } from './doc-colors';
   imports: [DocsImportComponent],
   host: { class: 'flex-1 overflow-auto' },
   template: `
-    <div class="max-w-6xl mx-auto w-full px-6 py-6">
+    <div class="page-container">
       <!-- Hero -->
       <div class="relative overflow-hidden rounded-2xl mb-6 ring-1 ring-white/10
                   bg-gradient-to-br from-cyan-500/15 via-sky-500/10 to-base-100">

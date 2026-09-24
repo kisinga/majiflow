@@ -17,7 +17,7 @@ import type { SiteListEntry } from '../../core/models/backend-api';
   imports: [RouterLink],
   host: { class: 'flex-1 overflow-auto' },
   template: `
-    <div class="max-w-4xl mx-auto w-full px-6 py-8">
+    <div class="page-container">
       @if (loading()) {
         <div class="flex items-center justify-center py-24"><span class="loading loading-spinner loading-lg text-primary"></span></div>
       } @else if (error()) {

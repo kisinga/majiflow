@@ -24,6 +24,9 @@ import { BuildService } from '../../../core/services/build.service';
   selector: 'app-deployment-card',
   standalone: true,
   imports: [FormsModule],
+  styles: [`
+    :host{display:block}.surface{border:1px solid var(--op-border,#d7ded8);border-radius:15px;background:#fff;background-image:none;box-shadow:0 1px 2px rgb(21 32 25/.05);--tw-ring-shadow:0 0 #0000}
+  `],
   template: `
     <div class="surface p-4">
       <div class="flex items-center gap-2 mb-3">

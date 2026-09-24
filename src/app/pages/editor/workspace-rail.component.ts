@@ -13,7 +13,9 @@ interface Section {
 }
 
 /**
- * The site workspace's primary navigation — a vertical left rail. One control
+ * The system workflow control — a compact segmented stepper inside the System
+ * page header. The invariant global site rail owns destination navigation; this only moves
+ * through the ordered firmware-design workflow.
  * for "which part of this site am I working on": Overview (site-wide), then the
  * per-controller sections. Each row is a real browser link
  * (`/site/:name/system/:config/:section`), so sections are bookmarkable and the
@@ -26,37 +28,22 @@ interface Section {
   standalone: true,
   imports: [RouterLink],
   host: { class: 'shrink-0' },
+  styles: [`
+    :host{display:block;width:min(100%,620px);min-width:0}.workflow-nav{min-height:44px;padding:3px;display:flex;align-items:center;gap:2px;overflow-x:auto;scrollbar-width:none;border:1px solid var(--op-border,#d7ded8);border-radius:12px;background:var(--op-panel-strong,#e8eee9)}.workflow-nav::-webkit-scrollbar{display:none}.workflow-link{position:relative;min-height:36px;padding:0 11px;display:flex;align-items:center;gap:7px;flex:none;border-radius:9px;color:var(--op-muted,#68756d);font-size:11px;font-weight:700;transition:background var(--motion-press,130ms) var(--ease-standard,ease),color var(--motion-press,130ms) var(--ease-standard,ease),box-shadow var(--motion-selection,170ms) var(--ease-standard,ease),transform var(--motion-press,130ms) var(--ease-standard,ease)}.workflow-link:hover{background:rgb(255 255 255/.65);color:var(--op-ink,#152019)}.workflow-link:active:not(.is-disabled){transform:scale(.985)}.workflow-link.is-active{background:#fff;color:var(--op-blue,#196ca6);box-shadow:0 1px 3px rgb(21 32 25/.1)}.workflow-link.is-disabled{opacity:.35;pointer-events:none}.workflow-link svg{width:16px;height:16px;flex:none}.complete-dot{width:6px;height:6px;border-radius:50%;background:#147448}.preview-badge{margin-left:4px;padding:4px 7px;border-radius:999px;background:#e0f2fe;color:#0369a1;font:700 9px ui-sans-serif,sans-serif}@media(max-width:767.98px){:host{width:100%}.workflow-nav{width:100%}.workflow-link{min-width:42px;flex:1;justify-content:center;padding-inline:8px}.workflow-link span:not(.complete-dot){display:none}}
+  `],
   template: `
-    <nav class="w-48 h-full bg-base-100 border-r border-base-300/40 flex flex-col py-2">
+    <nav class="workflow-nav" aria-label="System workflow">
       @for (s of sections; track s.id) {
         @let disabled = isDisabled(s.id);
-        <a
-          [routerLink]="disabled ? null : linkFor(s.id)"
-          [attr.aria-disabled]="disabled"
-          [title]="disabled ? disabledHint(s.id) : s.hint"
-          class="relative flex items-center gap-3 px-4 py-2.5 text-sm transition-colors"
-          [class]="rowClass(s.id, disabled)">
-          @if (state(s.id) === 'active') {
-            <span class="absolute left-0 inset-y-1 w-0.5 rounded-r bg-primary"></span>
-          }
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+        <a [routerLink]="disabled ? null : linkFor(s.id)" [attr.aria-disabled]="disabled" [title]="disabled ? disabledHint(s.id) : s.hint" class="workflow-link" [class.is-active]="state(s.id)==='active'" [class.is-disabled]="disabled">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
             <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="s.icon" />
           </svg>
-          <span class="flex-1 truncate">{{ labels[s.id] }}</span>
-          @if (!disabled && state(s.id) === 'complete') {
-            <span class="w-1.5 h-1.5 rounded-full bg-success/70 shrink-0" title="Set up"></span>
-          }
+          <span>{{ labels[s.id] }}</span>
+          @if (!disabled && state(s.id) === 'complete') { <span class="complete-dot" title="Set up"></span> }
         </a>
       }
-
-      <div class="flex-1"></div>
-
-      @if (editor.readonly()) {
-        <div class="mx-3 mb-2 text-center"><span class="badge badge-info badge-sm">Preview</span></div>
-      }
-      <div class="px-4 py-1.5 text-[10px] text-base-content/30 font-mono truncate" [title]="editor.controllerId() ?? ''">
-        {{ editor.controllerId() }}
-      </div>
+      @if (editor.readonly()) { <span class="preview-badge">Preview</span> }
     </nav>
   `,
 })
@@ -121,10 +108,4 @@ export class WorkspaceRailComponent {
     return this.states().get(id) ?? 'untouched';
   }
 
-  protected rowClass(id: EditorPanel, disabled: boolean): string {
-    if (disabled) return 'opacity-30 cursor-not-allowed pointer-events-none';
-    return this.state(id) === 'active'
-      ? 'bg-base-200 text-primary font-medium'
-      : 'text-base-content/70 hover:bg-base-200/60 hover:text-base-content';
-  }
 }

@@ -1,0 +1,30 @@
+import { resolveNavigation, type NavigationContext } from '../src/app/core/navigation';
+import { readFileSync } from 'node:fs';
+
+let passed=0;let failed=0;
+function assert(ok:unknown,name:string){if(ok){console.log(`  ✓ ${name}`);passed++;}else{console.log(`  ✗ ${name}`);failed++;}}
+const base:NavigationContext={workspace:'site',siteId:'hillcrest',role:'customer',deviceMode:false,features:new Set(),capabilities:new Set()};
+const ids=(ctx:NavigationContext)=>resolveNavigation(ctx).map(i=>i.id);
+console.log('Navigation resolver\n===================');
+assert(ids(base).join(',')==='operate,insights,automations,settings','customer site navigation is operational');
+assert(ids({...base,role:'admin'}).includes('system'),'manager sees system workflow');
+assert(!ids({...base,role:'customer'}).includes('system'),'customer cannot see system workflow');
+assert(ids({...base,role:'admin',features:new Set(['billing_module']),capabilities:new Set(['tenant_billing'])}).includes('billing'),'billing requires feature and capability');
+assert(!ids({...base,role:'admin',features:new Set(['billing_module'])}).includes('billing'),'feature alone does not expose billing');
+const device=resolveNavigation({...base,role:null,deviceMode:true});
+assert(device.find(i=>i.id==='insights')?.label==='Activity','device labels local insights as Activity');
+assert(!device.some(i=>i.id==='system'||i.id==='billing'),'device excludes cloud system and billing');
+assert(ids({workspace:'platform',role:'admin',deviceMode:false,features:new Set(),capabilities:new Set()}).includes('boards'),'admin platform navigation includes boards');
+assert(ids({workspace:'platform',role:'customer',deviceMode:false,features:new Set(),capabilities:new Set()}).join(',')==='sites','customer platform navigation has one sites entry');
+const appTs=readFileSync('src/app/app.ts','utf8');
+const appHtml=readFileSync('src/app/app.html','utf8');
+const appCss=readFileSync('src/app/app.css','utf8');
+assert(appTs.includes('railExpanded = signal(false)'),'desktop site rail defaults collapsed');
+assert(appHtml.includes('class="rail-link rail-toggle"')&&appHtml.includes('rail-brand-copy'),'rail exposes one expandable label/context control');
+assert(appCss.includes('.authenticated-shell.rail-expanded')&&appCss.includes('--site-rail-width: 244px'),'expanded rail uses a single shell width token');
+assert(appCss.includes('grid-template-rows: minmax(0, 1fr)')&&appCss.includes('height: 100%;'),'site rail/footer geometry cannot collapse to page content height');
+assert(appCss.includes('.global-rail:not(.is-expanded) .rail-link')&&appCss.includes('width: 48px'),'collapsed rail destinations keep one exact 48px footprint');
+assert(appHtml.includes('class="mobile-bottom-nav"')&&appTs.includes('mobileBottomNavigation'),'mobile restores persistent high-frequency navigation');
+assert(appHtml.includes('<app-navigation-icon [icon]="item.icon"/>'),'every navigation surface uses one icon vocabulary');
+assert(appTs.includes("replaceAll('mf1', 'mf1-mobile')")&&appHtml.includes('[innerHTML]="mobileLogoSvg"'),'mobile brand mark uses collision-free gradient ids');
+console.log(`\n${passed} passed, ${failed} failed`);process.exit(failed?1:0);

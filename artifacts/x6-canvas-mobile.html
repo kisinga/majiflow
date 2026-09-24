@@ -1,0 +1,1017 @@
+<div id="maji-x6-responsive-canvas" aria-label="One responsive X6 canvas shown on phone and tablet">
+  <style>
+    #maji-x6-responsive-canvas {
+      width: 100%;
+      color: light-dark(#102033, #e7eef8);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    #maji-x6-responsive-canvas * { box-sizing: border-box; }
+    #maji-x6-responsive-canvas button { font: inherit; }
+
+    #maji-x6-responsive-canvas .xr-review-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    #maji-x6-responsive-canvas .xr-review-title {
+      margin: 0;
+      color: light-dark(#102033, #f8fafc);
+      font-size: 17px;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+    }
+
+    #maji-x6-responsive-canvas .xr-review-subtitle {
+      margin-top: 4px;
+      color: light-dark(#64748b, #94a3b8);
+      font-size: 12px;
+    }
+
+    #maji-x6-responsive-canvas .xr-scene-key {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 30px;
+      padding: 5px 9px;
+      border: 1px solid light-dark(#cbd5e1, #334155);
+      border-radius: 9px;
+      color: light-dark(#475569, #a8b6ca);
+      background: light-dark(#ffffff, #111c2f);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    #maji-x6-responsive-canvas .xr-scene-key::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 0 3px rgb(34 211 238 / 0.14);
+    }
+
+    #maji-x6-responsive-canvas .xr-comparison {
+      display: grid;
+      grid-template-columns: minmax(304px, 0.68fr) minmax(520px, 1.32fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    #maji-x6-responsive-canvas .xr-study {
+      min-width: 0;
+    }
+
+    #maji-x6-responsive-canvas .xr-study-label {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 3px 8px;
+      color: light-dark(#475569, #a8b6ca);
+      font-size: 11px;
+    }
+
+    #maji-x6-responsive-canvas .xr-study-label strong {
+      color: light-dark(#0f172a, #f1f5f9);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    #maji-x6-responsive-canvas .xr-device {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 660px;
+      overflow: hidden;
+      border: 1px solid #2c3d54;
+      color: #e6edf7;
+      background: #0b1424;
+      box-shadow: 0 22px 58px rgb(2 6 23 / 0.34);
+    }
+
+    #maji-x6-responsive-canvas .xr-phone {
+      max-width: 374px;
+      margin-inline: auto;
+      border-radius: 28px;
+      box-shadow: 0 0 0 5px #162238, 0 25px 60px rgb(2 6 23 / 0.38);
+    }
+
+    #maji-x6-responsive-canvas .xr-tablet { border-radius: 18px; }
+
+    #maji-x6-responsive-canvas .xr-topbar {
+      z-index: 15;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 54px;
+      padding: 8px 11px;
+      border-bottom: 1px solid #263750;
+      background: #0e192a;
+    }
+
+    #maji-x6-responsive-canvas .xr-mark {
+      display: grid;
+      place-items: center;
+      width: 31px;
+      height: 31px;
+      flex: 0 0 auto;
+      border-radius: 9px;
+      color: #083344;
+      background: linear-gradient(135deg, #67e8f9, #38bdf8);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    #maji-x6-responsive-canvas .xr-site-copy { min-width: 0; flex: 1; }
+    #maji-x6-responsive-canvas .xr-site-name { overflow: hidden; color: #f8fafc; font-size: 12px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+    #maji-x6-responsive-canvas .xr-site-meta { display: flex; align-items: center; gap: 5px; margin-top: 2px; color: #8fa1b9; font-size: 10px; }
+    #maji-x6-responsive-canvas .xr-site-meta::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #34d399; }
+
+    #maji-x6-responsive-canvas .xr-safety {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 44px;
+      min-height: 40px;
+      border: 1px solid #7f3240;
+      border-radius: 9px;
+      padding: 7px 10px;
+      color: #fecdd3;
+      background: #31131d;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #maji-x6-responsive-canvas .xr-safety-dot {
+      width: 9px;
+      height: 9px;
+      border: 2px solid currentColor;
+      border-radius: 2px;
+    }
+
+    #maji-x6-responsive-canvas .xr-phone .xr-safety span:last-child { display: none; }
+
+    #maji-x6-responsive-canvas .xr-mode-tabs {
+      z-index: 14;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 6px 9px;
+      border-bottom: 1px solid #263750;
+      background: #0e192a;
+    }
+
+    #maji-x6-responsive-canvas .xr-mode-tab {
+      min-height: 40px;
+      border: 0;
+      border-radius: 8px;
+      color: #8fa1b9;
+      background: transparent;
+      font-size: 11px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    #maji-x6-responsive-canvas .xr-mode-tab[aria-selected="true"] {
+      color: #cffafe;
+      background: #15354a;
+      box-shadow: inset 0 0 0 1px #1f5268;
+    }
+
+    #maji-x6-responsive-canvas .xr-phone-content { position: relative; min-height: 0; flex: 1; }
+    #maji-x6-responsive-canvas .xr-phone-panel { position: absolute; inset: 0; }
+    #maji-x6-responsive-canvas .xr-phone-panel[hidden] { display: none; }
+
+    #maji-x6-responsive-canvas .xr-map-stage {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      background: #0a1423;
+      touch-action: none;
+      user-select: none;
+    }
+
+    #maji-x6-responsive-canvas .xr-map-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .52;
+      background-image: radial-gradient(circle, #203149 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events: none;
+    }
+
+    #maji-x6-responsive-canvas .xr-phone-map { inset: 0; }
+
+    #maji-x6-responsive-canvas .xr-map-svg {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      outline: none;
+      cursor: grab;
+    }
+
+    #maji-x6-responsive-canvas .xr-map-svg.is-dragging { cursor: grabbing; }
+
+    #maji-x6-responsive-canvas .xr-pipe {
+      fill: none;
+      stroke: #4d6078;
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    #maji-x6-responsive-canvas .xr-pipe-route {
+      stroke: #22d3ee;
+      stroke-dasharray: 12 9;
+      animation: xr-route-flow 7s linear infinite;
+    }
+
+    #maji-x6-responsive-canvas [data-routes-running="false"] .xr-pipe-route {
+      stroke: #4d6078;
+      stroke-dasharray: none;
+      animation: none;
+    }
+
+    #maji-x6-responsive-canvas .xr-node-shell {
+      fill: #111d30;
+      stroke: #63768e;
+      stroke-width: 3;
+      vector-effect: non-scaling-stroke;
+    }
+
+    #maji-x6-responsive-canvas .xr-node-detail {
+      fill: none;
+      stroke: #92a4b9;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    #maji-x6-responsive-canvas .xr-water { fill: #0e7490; opacity: .56; }
+    #maji-x6-responsive-canvas .xr-actuator .xr-node-shell { stroke: #22d3ee; }
+    #maji-x6-responsive-canvas .xr-running .xr-node-shell { stroke: #34d399; }
+    #maji-x6-responsive-canvas .xr-node-select-ring { fill: none; stroke: transparent; stroke-width: 8; vector-effect: non-scaling-stroke; }
+    #maji-x6-responsive-canvas .xr-node.is-selected .xr-node-select-ring { stroke: #f8fafc; stroke-dasharray: 4 5; }
+    #maji-x6-responsive-canvas .xr-node-hit { fill: transparent; cursor: pointer; }
+
+    #maji-x6-responsive-canvas .xr-node-label {
+      fill: #eef5fd;
+      font-size: 28px;
+      font-weight: 650;
+      paint-order: stroke;
+      stroke: #0a1423;
+      stroke-width: 8px;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+
+    #maji-x6-responsive-canvas .xr-node-value {
+      fill: #9db0c8;
+      font-size: 23px;
+      font-weight: 550;
+      paint-order: stroke;
+      stroke: #0a1423;
+      stroke-width: 7px;
+      pointer-events: none;
+    }
+
+    #maji-x6-responsive-canvas .xr-map-svg[data-density="priority"] .xr-context-label { display: none; }
+    #maji-x6-responsive-canvas .xr-map-svg:not(.is-close) .xr-detail-label { display: none; }
+
+    #maji-x6-responsive-canvas .xr-map-toolbar {
+      position: absolute;
+      z-index: 8;
+      top: 10px;
+      right: 10px;
+      display: grid;
+      gap: 5px;
+    }
+
+    #maji-x6-responsive-canvas .xr-map-tool {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border: 1px solid #344761;
+      border-radius: 10px;
+      color: #d9e4f1;
+      background: rgb(14 25 42 / .94);
+      box-shadow: 0 6px 16px rgb(2 6 23 / .25);
+      font-size: 17px;
+      cursor: pointer;
+    }
+
+    #maji-x6-responsive-canvas .xr-map-tool-fit { font-size: 10px; font-weight: 750; letter-spacing: .03em; }
+
+    #maji-x6-responsive-canvas .xr-camera-hint {
+      position: absolute;
+      z-index: 7;
+      left: 10px;
+      bottom: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 28px;
+      border: 1px solid #31435c;
+      border-radius: 8px;
+      padding: 5px 8px;
+      color: #9eb0c5;
+      background: rgb(10 20 35 / .88);
+      font-size: 10px;
+      pointer-events: none;
+    }
+
+    #maji-x6-responsive-canvas .xr-route-chip {
+      position: absolute;
+      z-index: 7;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 34px;
+      border: 1px solid #24566a;
+      border-radius: 9px;
+      padding: 6px 9px;
+      color: #cffafe;
+      background: rgb(8 47 73 / .9);
+      font-size: 10px;
+      font-weight: 650;
+      pointer-events: none;
+    }
+
+    #maji-x6-responsive-canvas .xr-route-chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #22d3ee; }
+    #maji-x6-responsive-canvas [data-routes-running="false"] .xr-route-chip { border-color: #344761; color: #a4b5ca; background: rgb(14 25 42 / .92); }
+    #maji-x6-responsive-canvas [data-routes-running="false"] .xr-route-chip::before { background: #64748b; }
+
+    #maji-x6-responsive-canvas .xr-sheet {
+      position: absolute;
+      z-index: 12;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      min-height: 188px;
+      border-top: 1px solid #3b4d66;
+      border-radius: 18px 18px 0 0;
+      padding: 8px 14px 14px;
+      background: #111c2f;
+      box-shadow: 0 -16px 42px rgb(2 6 23 / .52);
+      transform: translateY(0);
+      transition: transform 240ms cubic-bezier(.2, 0, 0, 1);
+    }
+
+    #maji-x6-responsive-canvas .xr-sheet[hidden] { display: block; transform: translateY(calc(100% + 4px)); pointer-events: none; }
+    #maji-x6-responsive-canvas .xr-sheet-handle { width: 38px; height: 4px; margin: 0 auto 10px; border-radius: 99px; background: #50617a; }
+    #maji-x6-responsive-canvas .xr-sheet-head, #maji-x6-responsive-canvas .xr-drawer-head { display: flex; align-items: start; gap: 10px; }
+    #maji-x6-responsive-canvas .xr-entity-copy { min-width: 0; flex: 1; }
+    #maji-x6-responsive-canvas .xr-entity-kicker { color: #8fa1b9; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    #maji-x6-responsive-canvas .xr-entity-name { margin-top: 3px; color: #f8fafc; font-size: 14px; font-weight: 700; }
+    #maji-x6-responsive-canvas .xr-entity-state { display: flex; align-items: center; gap: 6px; margin-top: 5px; color: #9fb0c5; font-size: 10px; }
+    #maji-x6-responsive-canvas .xr-entity-state::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #64748b; }
+    #maji-x6-responsive-canvas .xr-entity-state.is-running { color: #6ee7b7; }
+    #maji-x6-responsive-canvas .xr-entity-state.is-running::before { background: #34d399; }
+    #maji-x6-responsive-canvas .xr-entity-state.is-pending { color: #fcd34d; }
+    #maji-x6-responsive-canvas .xr-entity-state.is-pending::before { background: #f59e0b; animation: xr-pulse 1s ease-in-out infinite; }
+
+    #maji-x6-responsive-canvas .xr-icon-button {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      flex: 0 0 auto;
+      border: 0;
+      border-radius: 10px;
+      color: #9eb0c5;
+      background: transparent;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    #maji-x6-responsive-canvas .xr-action-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 14px; }
+    #maji-x6-responsive-canvas .xr-primary-action, #maji-x6-responsive-canvas .xr-secondary-action {
+      min-height: 48px;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 11px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    #maji-x6-responsive-canvas .xr-primary-action { border: 0; color: #083344; background: #22d3ee; }
+    #maji-x6-responsive-canvas .xr-primary-action.is-stop { color: #fff1f2; background: #be123c; }
+    #maji-x6-responsive-canvas .xr-primary-action:disabled { color: #fde68a; background: #66420b; cursor: wait; }
+    #maji-x6-responsive-canvas .xr-secondary-action { min-width: 74px; border: 1px solid #3d4f68; color: #cbd5e1; background: transparent; }
+
+    #maji-x6-responsive-canvas .xr-controls-view {
+      overflow: auto;
+      padding: 12px;
+      background: #0b1424;
+    }
+
+    #maji-x6-responsive-canvas .xr-controls-section + .xr-controls-section { margin-top: 16px; }
+    #maji-x6-responsive-canvas .xr-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; color: #8fa1b9; font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
+    #maji-x6-responsive-canvas .xr-route-card, #maji-x6-responsive-canvas .xr-device-row {
+      width: 100%;
+      min-height: 60px;
+      margin-bottom: 8px;
+      border: 1px solid #2d4059;
+      border-radius: 11px;
+      padding: 10px 11px;
+      color: #e7eef8;
+      background: #111c2f;
+      text-align: left;
+    }
+    #maji-x6-responsive-canvas .xr-route-card { cursor: pointer; }
+    #maji-x6-responsive-canvas .xr-route-card.is-active { border-color: #1d7f9d; background: #10344a; }
+    #maji-x6-responsive-canvas .xr-route-name { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 650; }
+    #maji-x6-responsive-canvas .xr-route-state { display: flex; align-items: center; gap: 6px; margin-top: 6px; color: #8fa1b9; font-size: 10px; }
+    #maji-x6-responsive-canvas .xr-route-card.is-active .xr-route-state { color: #67e8f9; }
+    #maji-x6-responsive-canvas .xr-route-progress { height: 3px; margin-top: 8px; overflow: hidden; border-radius: 99px; background: #26384f; }
+    #maji-x6-responsive-canvas .xr-route-progress span { display: block; width: 62%; height: 100%; border-radius: inherit; background: #22d3ee; }
+    #maji-x6-responsive-canvas .xr-device-row { display: flex; align-items: center; gap: 10px; min-height: 58px; border: 0; background: #111c2f; cursor: pointer; }
+    #maji-x6-responsive-canvas .xr-device-symbol { display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 auto; border: 1px solid #3b4f69; border-radius: 10px; color: #67e8f9; background: #14233a; font-size: 15px; }
+    #maji-x6-responsive-canvas .xr-device-copy { min-width: 0; flex: 1; }
+    #maji-x6-responsive-canvas .xr-device-name { color: #e7eef8; font-size: 11px; font-weight: 650; }
+    #maji-x6-responsive-canvas .xr-device-meta { margin-top: 3px; color: #8fa1b9; font-size: 10px; }
+    #maji-x6-responsive-canvas .xr-chevron { color: #6f829a; font-size: 18px; }
+
+    #maji-x6-responsive-canvas .xr-tablet-workspace {
+      display: grid;
+      grid-template-columns: 168px minmax(0, 1fr);
+      min-height: 0;
+      flex: 1;
+    }
+
+    #maji-x6-responsive-canvas .xr-route-dock {
+      position: relative;
+      z-index: 6;
+      overflow: auto;
+      padding: 12px 10px;
+      border-right: 1px solid #263750;
+      background: #101b2d;
+    }
+
+    #maji-x6-responsive-canvas .xr-route-dock .xr-route-card { min-height: 67px; padding: 10px; }
+    #maji-x6-responsive-canvas .xr-tablet-map { min-width: 0; min-height: 0; }
+
+    #maji-x6-responsive-canvas .xr-drawer {
+      position: absolute;
+      z-index: 11;
+      top: 10px;
+      right: 10px;
+      width: 218px;
+      border: 1px solid #3b4d66;
+      border-radius: 13px;
+      padding: 12px;
+      background: rgb(17 28 47 / .97);
+      box-shadow: 0 18px 44px rgb(2 6 23 / .48);
+      transform: translateX(0);
+      transition: transform 220ms cubic-bezier(.2, 0, 0, 1), opacity 160ms ease;
+    }
+
+    #maji-x6-responsive-canvas .xr-drawer[hidden] { display: block; opacity: 0; transform: translateX(calc(100% + 18px)); pointer-events: none; }
+    #maji-x6-responsive-canvas .xr-drawer .xr-action-row { grid-template-columns: 1fr; }
+    #maji-x6-responsive-canvas .xr-drawer .xr-secondary-action { min-height: 42px; }
+
+    #maji-x6-responsive-canvas .xr-tablet .xr-map-toolbar { right: auto; left: 10px; top: 54px; display: flex; }
+    #maji-x6-responsive-canvas .xr-tablet .xr-camera-hint { left: 10px; }
+    #maji-x6-responsive-canvas .xr-tablet .xr-route-chip { left: 10px; }
+
+    #maji-x6-responsive-canvas .xr-sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @keyframes xr-route-flow { to { stroke-dashoffset: -42; } }
+    @keyframes xr-pulse { 50% { opacity: .38; } }
+
+    @media (max-width: 880px) {
+      #maji-x6-responsive-canvas .xr-comparison { grid-template-columns: 1fr; }
+      #maji-x6-responsive-canvas .xr-study:first-child { order: 1; }
+      #maji-x6-responsive-canvas .xr-study:last-child { order: 2; }
+      #maji-x6-responsive-canvas .xr-tablet { height: 600px; }
+    }
+
+    @media (max-width: 520px) {
+      #maji-x6-responsive-canvas .xr-review-head { align-items: start; }
+      #maji-x6-responsive-canvas .xr-scene-key { display: none; }
+      #maji-x6-responsive-canvas .xr-device { height: 640px; }
+      #maji-x6-responsive-canvas .xr-tablet-workspace { grid-template-columns: 138px minmax(0, 1fr); }
+      #maji-x6-responsive-canvas .xr-drawer { width: 198px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #maji-x6-responsive-canvas *, #maji-x6-responsive-canvas *::before, #maji-x6-responsive-canvas *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+      #maji-x6-responsive-canvas .xr-pipe-route { stroke-dasharray: none; }
+    }
+  </style>
+
+  <div class="xr-review-head">
+    <div>
+      <h2 class="xr-review-title">One canvas, responsive composition</h2>
+      <div class="xr-review-subtitle">Identical topology and route state; camera, labels, and controls adapt.</div>
+    </div>
+    <div class="xr-scene-key">Scene 01 · North field</div>
+  </div>
+
+  <div class="xr-comparison" data-routes-running="true">
+    <section class="xr-study" aria-labelledby="xr-phone-title">
+      <div class="xr-study-label"><strong id="xr-phone-title">Phone · dedicated Map mode</strong><span>360 × 780</span></div>
+      <div class="xr-device xr-phone" data-device="phone">
+        <header class="xr-topbar">
+          <div class="xr-mark" aria-hidden="true">F</div>
+          <div class="xr-site-copy">
+            <div class="xr-site-name">North Field</div>
+            <div class="xr-site-meta">Online · 4 controllers</div>
+          </div>
+          <button class="xr-safety" type="button" data-stop-all aria-label="Stop all routes">
+            <span class="xr-safety-dot" aria-hidden="true"></span><span>Stop all routes</span>
+          </button>
+        </header>
+
+        <div class="xr-mode-tabs" role="tablist" aria-label="Dashboard view">
+          <button class="xr-mode-tab" type="button" role="tab" aria-selected="false" data-phone-tab="controls">Controls</button>
+          <button class="xr-mode-tab" type="button" role="tab" aria-selected="true" data-phone-tab="map">Map</button>
+        </div>
+
+        <div class="xr-phone-content">
+          <div class="xr-phone-panel xr-controls-view" role="tabpanel" data-phone-panel="controls" hidden>
+            <section class="xr-controls-section" aria-labelledby="xr-phone-routes">
+              <div class="xr-section-head"><span id="xr-phone-routes">Routes</span><span>3 available</span></div>
+              <button class="xr-route-card is-active" type="button" data-active-route-card>
+                <span class="xr-route-name"><span>West orchard</span><span>•••</span></span>
+                <span class="xr-route-state" data-route-state>Running · 18 min left</span>
+                <span class="xr-route-progress"><span></span></span>
+              </button>
+              <button class="xr-route-card" type="button">
+                <span class="xr-route-name"><span>North beds</span><span>•••</span></span>
+                <span class="xr-route-state">Ready · 32 min</span>
+              </button>
+              <button class="xr-route-card" type="button">
+                <span class="xr-route-name"><span>Greenhouse</span><span>•••</span></span>
+                <span class="xr-route-state">Ready · 12 min</span>
+              </button>
+            </section>
+            <section class="xr-controls-section" aria-labelledby="xr-phone-manual">
+              <div class="xr-section-head"><span id="xr-phone-manual">Manual controls</span><span>Select to inspect</span></div>
+              <button class="xr-device-row" type="button" data-select-node="pump2">
+                <span class="xr-device-symbol" aria-hidden="true">P</span>
+                <span class="xr-device-copy"><span class="xr-device-name">Irrigation pump P-02</span><span class="xr-device-meta" data-device-row-state>Available · 2.4 bar</span></span>
+                <span class="xr-chevron" aria-hidden="true">›</span>
+              </button>
+              <button class="xr-device-row" type="button" data-select-node="valve3">
+                <span class="xr-device-symbol" aria-hidden="true">V</span>
+                <span class="xr-device-copy"><span class="xr-device-name">West valve V-03</span><span class="xr-device-meta">Open · route controlled</span></span>
+                <span class="xr-chevron" aria-hidden="true">›</span>
+              </button>
+            </section>
+          </div>
+
+          <div class="xr-phone-panel xr-map-stage xr-phone-map" role="tabpanel" data-phone-panel="map">
+            <svg class="xr-map-svg" data-canvas="phone" data-density="priority" viewBox="0 0 1000 600" role="img" aria-label="North Field water topology. West orchard route is active. Pan with one finger, pinch or use zoom controls.">
+              <g class="xr-world">
+                <g aria-hidden="true">
+                  <path class="xr-pipe xr-pipe-route" d="M150 295 H260 V180 H430 V300 H625 V205 H810" />
+                  <path class="xr-pipe" d="M430 300 V455 H640" />
+                  <path class="xr-pipe" d="M625 205 V420 H820" />
+                </g>
+                <g class="xr-node xr-priority" data-node="tank1" transform="translate(76 215)">
+                  <rect class="xr-node-select-ring" x="-8" y="-8" width="156" height="176" rx="34" />
+                  <rect class="xr-node-shell" x="0" y="0" width="140" height="160" rx="28" />
+                  <path class="xr-water" d="M10 80H130V132Q130 150 112 150H28Q10 150 10 132Z" />
+                  <path class="xr-node-detail" d="M16 35H124M16 80H124M16 124H124" />
+                  <rect class="xr-node-hit" x="-24" y="-24" width="188" height="208" rx="45" />
+                  <text class="xr-node-label" x="70" y="205" text-anchor="middle">Main tank</text>
+                  <text class="xr-node-value xr-detail-label" x="70" y="235" text-anchor="middle">72%</text>
+                </g>
+                <g class="xr-node xr-actuator xr-priority" data-node="pump2" transform="translate(354 238)" role="button" tabindex="0" aria-label="Select irrigation pump P-02">
+                  <circle class="xr-node-select-ring" cx="76" cy="62" r="82" />
+                  <circle class="xr-node-shell" cx="76" cy="62" r="58" />
+                  <path class="xr-node-detail" d="M46 75A34 34 0 1 1 107 45L120 33M86 36L120 33L117 67" />
+                  <circle class="xr-node-hit" cx="76" cy="62" r="84" />
+                  <text class="xr-node-label" x="76" y="158" text-anchor="middle">Pump P-02</text>
+                  <text class="xr-node-value xr-detail-label" x="76" y="188" text-anchor="middle">2.4 bar</text>
+                </g>
+                <g class="xr-node xr-actuator" data-node="valve3" transform="translate(570 148)" role="button" tabindex="0" aria-label="Select west valve V-03">
+                  <circle class="xr-node-select-ring" cx="55" cy="57" r="67" />
+                  <circle class="xr-node-shell" cx="55" cy="57" r="45" />
+                  <path class="xr-node-detail" d="M25 34L55 57L25 80ZM85 34L55 57L85 80Z" />
+                  <circle class="xr-node-hit" cx="55" cy="57" r="72" />
+                  <text class="xr-node-label xr-context-label" x="55" y="139" text-anchor="middle">Valve V-03</text>
+                  <text class="xr-node-value xr-detail-label" x="55" y="168" text-anchor="middle">Open</text>
+                </g>
+                <g class="xr-node" data-node="zonewest" transform="translate(772 145)">
+                  <rect class="xr-node-shell" x="0" y="0" width="145" height="120" rx="24" />
+                  <path class="xr-node-detail" d="M24 82C42 49 58 64 73 34C92 66 106 52 121 82" />
+                  <text class="xr-node-label" x="72" y="158" text-anchor="middle">West orchard</text>
+                  <text class="xr-node-value xr-detail-label" x="72" y="188" text-anchor="middle">18 min left</text>
+                </g>
+                <g class="xr-node" data-node="zonegreen" transform="translate(590 410)">
+                  <rect class="xr-node-shell" x="0" y="0" width="145" height="104" rx="24" />
+                  <path class="xr-node-detail" d="M25 72V34H120V72M48 72V45M73 72V45M97 72V45" />
+                  <text class="xr-node-label xr-context-label" x="72" y="142" text-anchor="middle">Greenhouse</text>
+                </g>
+                <g class="xr-node" data-node="zonenorth" transform="translate(785 370)">
+                  <rect class="xr-node-shell" x="0" y="0" width="145" height="104" rx="24" />
+                  <path class="xr-node-detail" d="M22 75L45 42L65 68L89 33L123 75" />
+                  <text class="xr-node-label xr-context-label" x="72" y="142" text-anchor="middle">North beds</text>
+                </g>
+              </g>
+            </svg>
+            <div class="xr-route-chip"><span data-route-chip>West orchard · 18 min</span></div>
+            <div class="xr-map-toolbar" aria-label="Map camera controls">
+              <button class="xr-map-tool" type="button" data-zoom="in" aria-label="Zoom in">+</button>
+              <button class="xr-map-tool" type="button" data-zoom="out" aria-label="Zoom out">−</button>
+              <button class="xr-map-tool xr-map-tool-fit" type="button" data-fit aria-label="Fit topology to view">FIT</button>
+            </div>
+            <div class="xr-camera-hint">Drag to pan · pinch to zoom</div>
+            <section class="xr-sheet" data-entity-surface="phone" aria-label="Selected entity controls">
+              <div class="xr-sheet-handle" aria-hidden="true"></div>
+              <div class="xr-sheet-head">
+                <div class="xr-entity-copy">
+                  <div class="xr-entity-kicker">Selected on map</div>
+                  <div class="xr-entity-name" data-selected-name>Irrigation pump P-02</div>
+                  <div class="xr-entity-state" data-selected-state>Available · 2.4 bar</div>
+                </div>
+                <button class="xr-icon-button" type="button" data-close-selection aria-label="Close entity controls">×</button>
+              </div>
+              <div class="xr-action-row">
+                <button class="xr-primary-action" type="button" data-manual-action>Run pump</button>
+                <button class="xr-secondary-action" type="button" data-cancel-selection>Cancel</button>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="xr-study" aria-labelledby="xr-tablet-title">
+      <div class="xr-study-label"><strong id="xr-tablet-title">Tablet · persistent routes + adaptive canvas</strong><span>768 × 1024</span></div>
+      <div class="xr-device xr-tablet" data-device="tablet">
+        <header class="xr-topbar">
+          <div class="xr-mark" aria-hidden="true">F</div>
+          <div class="xr-site-copy">
+            <div class="xr-site-name">North Field</div>
+            <div class="xr-site-meta">Online · 4 controllers · Updated now</div>
+          </div>
+          <button class="xr-safety" type="button" data-stop-all aria-label="Stop all routes">
+            <span class="xr-safety-dot" aria-hidden="true"></span><span>Stop all routes</span>
+          </button>
+        </header>
+        <div class="xr-tablet-workspace">
+          <aside class="xr-route-dock" aria-label="Route controls">
+            <div class="xr-section-head"><span>Routes</span><span>3</span></div>
+            <button class="xr-route-card is-active" type="button" data-active-route-card>
+              <span class="xr-route-name"><span>West orchard</span><span>•••</span></span>
+              <span class="xr-route-state" data-route-state>Running · 18 min left</span>
+              <span class="xr-route-progress"><span></span></span>
+            </button>
+            <button class="xr-route-card" type="button">
+              <span class="xr-route-name"><span>North beds</span><span>•••</span></span>
+              <span class="xr-route-state">Ready · 32 min</span>
+            </button>
+            <button class="xr-route-card" type="button">
+              <span class="xr-route-name"><span>Greenhouse</span><span>•••</span></span>
+              <span class="xr-route-state">Ready · 12 min</span>
+            </button>
+          </aside>
+          <div class="xr-map-stage xr-tablet-map">
+            <svg class="xr-map-svg" data-canvas="tablet" data-density="normal" viewBox="0 0 1000 600" role="img" aria-label="North Field water topology. West orchard route is active. Pan with one finger, pinch or use zoom controls.">
+              <g class="xr-world">
+                <g aria-hidden="true">
+                  <path class="xr-pipe xr-pipe-route" d="M150 295 H260 V180 H430 V300 H625 V205 H810" />
+                  <path class="xr-pipe" d="M430 300 V455 H640" />
+                  <path class="xr-pipe" d="M625 205 V420 H820" />
+                </g>
+                <g class="xr-node xr-priority" data-node="tank1" transform="translate(76 215)">
+                  <rect class="xr-node-select-ring" x="-8" y="-8" width="156" height="176" rx="34" />
+                  <rect class="xr-node-shell" x="0" y="0" width="140" height="160" rx="28" />
+                  <path class="xr-water" d="M10 80H130V132Q130 150 112 150H28Q10 150 10 132Z" />
+                  <path class="xr-node-detail" d="M16 35H124M16 80H124M16 124H124" />
+                  <rect class="xr-node-hit" x="-24" y="-24" width="188" height="208" rx="45" />
+                  <text class="xr-node-label" x="70" y="205" text-anchor="middle">Main tank</text>
+                  <text class="xr-node-value xr-detail-label" x="70" y="235" text-anchor="middle">72%</text>
+                </g>
+                <g class="xr-node xr-actuator xr-priority" data-node="pump2" transform="translate(354 238)" role="button" tabindex="0" aria-label="Select irrigation pump P-02">
+                  <circle class="xr-node-select-ring" cx="76" cy="62" r="82" />
+                  <circle class="xr-node-shell" cx="76" cy="62" r="58" />
+                  <path class="xr-node-detail" d="M46 75A34 34 0 1 1 107 45L120 33M86 36L120 33L117 67" />
+                  <circle class="xr-node-hit" cx="76" cy="62" r="84" />
+                  <text class="xr-node-label" x="76" y="158" text-anchor="middle">Pump P-02</text>
+                  <text class="xr-node-value xr-detail-label" x="76" y="188" text-anchor="middle">2.4 bar</text>
+                </g>
+                <g class="xr-node xr-actuator" data-node="valve3" transform="translate(570 148)" role="button" tabindex="0" aria-label="Select west valve V-03">
+                  <circle class="xr-node-select-ring" cx="55" cy="57" r="67" />
+                  <circle class="xr-node-shell" cx="55" cy="57" r="45" />
+                  <path class="xr-node-detail" d="M25 34L55 57L25 80ZM85 34L55 57L85 80Z" />
+                  <circle class="xr-node-hit" cx="55" cy="57" r="72" />
+                  <text class="xr-node-label xr-context-label" x="55" y="139" text-anchor="middle">Valve V-03</text>
+                  <text class="xr-node-value xr-detail-label" x="55" y="168" text-anchor="middle">Open</text>
+                </g>
+                <g class="xr-node" data-node="zonewest" transform="translate(772 145)">
+                  <rect class="xr-node-shell" x="0" y="0" width="145" height="120" rx="24" />
+                  <path class="xr-node-detail" d="M24 82C42 49 58 64 73 34C92 66 106 52 121 82" />
+                  <text class="xr-node-label" x="72" y="158" text-anchor="middle">West orchard</text>
+                  <text class="xr-node-value xr-detail-label" x="72" y="188" text-anchor="middle">18 min left</text>
+                </g>
+                <g class="xr-node" data-node="zonegreen" transform="translate(590 410)">
+                  <rect class="xr-node-shell" x="0" y="0" width="145" height="104" rx="24" />
+                  <path class="xr-node-detail" d="M25 72V34H120V72M48 72V45M73 72V45M97 72V45" />
+                  <text class="xr-node-label xr-context-label" x="72" y="142" text-anchor="middle">Greenhouse</text>
+                </g>
+                <g class="xr-node" data-node="zonenorth" transform="translate(785 370)">
+                  <rect class="xr-node-shell" x="0" y="0" width="145" height="104" rx="24" />
+                  <path class="xr-node-detail" d="M22 75L45 42L65 68L89 33L123 75" />
+                  <text class="xr-node-label xr-context-label" x="72" y="142" text-anchor="middle">North beds</text>
+                </g>
+              </g>
+            </svg>
+            <div class="xr-route-chip"><span data-route-chip>West orchard · 18 min</span></div>
+            <div class="xr-map-toolbar" aria-label="Map camera controls">
+              <button class="xr-map-tool" type="button" data-zoom="in" aria-label="Zoom in">+</button>
+              <button class="xr-map-tool" type="button" data-zoom="out" aria-label="Zoom out">−</button>
+              <button class="xr-map-tool xr-map-tool-fit" type="button" data-fit aria-label="Fit topology to view">FIT</button>
+            </div>
+            <div class="xr-camera-hint">Drag to pan · pinch to zoom</div>
+            <aside class="xr-drawer" data-entity-surface="tablet" aria-label="Selected entity controls">
+              <div class="xr-drawer-head">
+                <div class="xr-entity-copy">
+                  <div class="xr-entity-kicker">Selected on map</div>
+                  <div class="xr-entity-name" data-selected-name>Irrigation pump P-02</div>
+                  <div class="xr-entity-state" data-selected-state>Available · 2.4 bar</div>
+                </div>
+                <button class="xr-icon-button" type="button" data-close-selection aria-label="Close entity controls">×</button>
+              </div>
+              <div class="xr-action-row">
+                <button class="xr-primary-action" type="button" data-manual-action>Run pump</button>
+                <button class="xr-secondary-action" type="button" data-cancel-selection>Cancel</button>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="xr-sr-only" aria-live="polite" data-announcer></div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('maji-x6-responsive-canvas');
+      if (!root || root.dataset.ready === 'true') return;
+      root.dataset.ready = 'true';
+
+      const comparison = root.querySelector('.xr-comparison');
+      const announcer = root.querySelector('[data-announcer]');
+      const entityData = {
+        pump2: { name: 'Irrigation pump P-02', idle: 'Available · 2.4 bar', action: 'Run pump', running: 'Running manually · 2.4 bar' },
+        valve3: { name: 'West valve V-03', idle: 'Open · route controlled', action: 'Hold valve open', running: 'Held open manually' }
+      };
+      const state = { selected: 'pump2', action: 'idle', routesRunning: true, density: 'Auto' };
+      let commandVersion = 0;
+
+      function setPhoneMode(mode) {
+        root.querySelectorAll('[data-phone-tab]').forEach((button) => {
+          const selected = button.dataset.phoneTab === mode;
+          button.setAttribute('aria-selected', selected ? 'true' : 'false');
+        });
+        root.querySelectorAll('[data-phone-panel]').forEach((panel) => {
+          panel.hidden = panel.dataset.phonePanel !== mode;
+        });
+      }
+
+      function renderSelection() {
+        const selected = entityData[state.selected];
+        root.querySelectorAll('.xr-node[data-node]').forEach((node) => {
+          node.classList.toggle('is-selected', node.dataset.node === state.selected);
+          node.classList.toggle('xr-running', node.dataset.node === state.selected && state.action === 'running');
+        });
+        root.querySelectorAll('[data-entity-surface]').forEach((surface) => {
+          surface.hidden = !selected;
+        });
+        if (!selected) return;
+
+        root.querySelectorAll('[data-selected-name]').forEach((element) => { element.textContent = selected.name; });
+        root.querySelectorAll('[data-selected-state]').forEach((element) => {
+          element.classList.toggle('is-pending', state.action === 'pending');
+          element.classList.toggle('is-running', state.action === 'running');
+          element.textContent = state.action === 'pending' ? 'Command pending…' : state.action === 'running' ? selected.running : selected.idle;
+        });
+        root.querySelectorAll('[data-manual-action]').forEach((button) => {
+          button.disabled = state.action === 'pending';
+          button.classList.toggle('is-stop', state.action === 'running');
+          button.textContent = state.action === 'pending' ? 'Sending…' : state.action === 'running' ? (state.selected === 'valve3' ? 'Release valve' : 'Stop pump') : selected.action;
+        });
+        root.querySelectorAll('[data-device-row-state]').forEach((element) => {
+          element.textContent = state.action === 'running' && state.selected === 'pump2' ? selected.running : entityData.pump2.idle;
+        });
+      }
+
+      function selectNode(nodeId) {
+        if (!entityData[nodeId]) return;
+        commandVersion += 1;
+        state.selected = nodeId;
+        state.action = 'idle';
+        renderSelection();
+        announcer.textContent = `${entityData[nodeId].name} selected. No command has been sent.`;
+      }
+
+      root.querySelectorAll('[data-phone-tab]').forEach((button) => {
+        button.addEventListener('click', () => setPhoneMode(button.dataset.phoneTab));
+      });
+
+      root.querySelectorAll('[data-select-node]').forEach((button) => {
+        button.addEventListener('click', () => {
+          selectNode(button.dataset.selectNode);
+          setPhoneMode('map');
+        });
+      });
+
+      root.querySelectorAll('.xr-node[role="button"]').forEach((node) => {
+        node.addEventListener('click', (event) => {
+          event.stopPropagation();
+          selectNode(node.dataset.node);
+        });
+        node.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            selectNode(node.dataset.node);
+          }
+        });
+      });
+
+      root.querySelectorAll('[data-close-selection], [data-cancel-selection]').forEach((button) => {
+        button.addEventListener('click', () => {
+          commandVersion += 1;
+          state.selected = '';
+          state.action = 'idle';
+          renderSelection();
+          announcer.textContent = 'Entity controls closed.';
+        });
+      });
+
+      root.querySelectorAll('[data-manual-action]').forEach((button) => {
+        button.addEventListener('click', () => {
+          if (!state.selected || state.action === 'pending') return;
+          if (state.action === 'running') {
+            commandVersion += 1;
+            state.action = 'idle';
+            renderSelection();
+            announcer.textContent = 'Manual control stopped.';
+            return;
+          }
+          const targetId = state.selected;
+          const version = ++commandVersion;
+          state.action = 'pending';
+          renderSelection();
+          window.setTimeout(() => {
+            if (version !== commandVersion || state.selected !== targetId) return;
+            state.action = 'running';
+            renderSelection();
+            announcer.textContent = `${entityData[targetId].name} is now running manually.`;
+          }, 700);
+        });
+      });
+
+      root.querySelectorAll('[data-stop-all]').forEach((button) => {
+        button.addEventListener('click', () => {
+          state.routesRunning = false;
+          comparison.dataset.routesRunning = 'false';
+          root.querySelectorAll('[data-active-route-card]').forEach((route) => route.classList.remove('is-active'));
+          root.querySelectorAll('[data-route-state]').forEach((label) => { label.textContent = 'Stopped safely'; });
+          root.querySelectorAll('[data-route-chip]').forEach((label) => { label.textContent = 'All routes stopped'; });
+          announcer.textContent = 'All routes stopped. Manual entity controls are unchanged.';
+        });
+      });
+
+      function attachCamera(svg) {
+        const world = svg.querySelector('.xr-world');
+        const surface = svg.closest('.xr-map-stage');
+        const pointers = new Map();
+        const camera = { scale: 1, x: 0, y: 0, dragX: 0, dragY: 0, pinchDistance: 0, pinchScale: 1, pinchCenterX: 0, pinchCenterY: 0 };
+
+        function applyCamera() {
+          world.setAttribute('transform', `matrix(${camera.scale} 0 0 ${camera.scale} ${camera.x} ${camera.y})`);
+          svg.classList.toggle('is-close', camera.scale >= 1.22);
+        }
+
+        function pointInView(clientX, clientY) {
+          const rect = svg.getBoundingClientRect();
+          return {
+            x: (clientX - rect.left) * 1000 / rect.width,
+            y: (clientY - rect.top) * 600 / rect.height
+          };
+        }
+
+        function zoomAt(nextScale, clientX, clientY) {
+          const next = Math.max(.72, Math.min(2.35, nextScale));
+          const anchor = pointInView(clientX, clientY);
+          const localX = (anchor.x - camera.x) / camera.scale;
+          const localY = (anchor.y - camera.y) / camera.scale;
+          camera.x = anchor.x - localX * next;
+          camera.y = anchor.y - localY * next;
+          camera.scale = next;
+          applyCamera();
+        }
+
+        function fit() {
+          camera.scale = 1;
+          camera.x = 0;
+          camera.y = 0;
+          applyCamera();
+        }
+
+        svg.addEventListener('pointerdown', (event) => {
+          if (event.target.closest && event.target.closest('.xr-node[role="button"]')) return;
+          svg.setPointerCapture(event.pointerId);
+          pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+          svg.classList.add('is-dragging');
+          if (pointers.size === 1) {
+            camera.dragX = event.clientX;
+            camera.dragY = event.clientY;
+          } else if (pointers.size === 2) {
+            const pair = Array.from(pointers.values());
+            camera.pinchDistance = Math.hypot(pair[1].x - pair[0].x, pair[1].y - pair[0].y);
+            camera.pinchScale = camera.scale;
+            camera.pinchCenterX = (pair[0].x + pair[1].x) / 2;
+            camera.pinchCenterY = (pair[0].y + pair[1].y) / 2;
+          }
+        });
+
+        svg.addEventListener('pointermove', (event) => {
+          if (!pointers.has(event.pointerId)) return;
+          const previous = pointers.get(event.pointerId);
+          pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+          if (pointers.size === 1) {
+            const rect = svg.getBoundingClientRect();
+            camera.x += (event.clientX - previous.x) * 1000 / rect.width;
+            camera.y += (event.clientY - previous.y) * 600 / rect.height;
+            applyCamera();
+          } else if (pointers.size === 2) {
+            const pair = Array.from(pointers.values());
+            const distance = Math.hypot(pair[1].x - pair[0].x, pair[1].y - pair[0].y);
+            if (camera.pinchDistance > 0) zoomAt(camera.pinchScale * distance / camera.pinchDistance, camera.pinchCenterX, camera.pinchCenterY);
+          }
+        });
+
+        function endPointer(event) {
+          pointers.delete(event.pointerId);
+          if (pointers.size < 2) camera.pinchDistance = 0;
+          if (pointers.size === 0) svg.classList.remove('is-dragging');
+        }
+
+        svg.addEventListener('pointerup', endPointer);
+        svg.addEventListener('pointercancel', endPointer);
+        svg.addEventListener('wheel', (event) => {
+          event.preventDefault();
+          zoomAt(camera.scale * (event.deltaY < 0 ? 1.12 : .89), event.clientX, event.clientY);
+        }, { passive: false });
+
+        surface.querySelector('[data-zoom="in"]').addEventListener('click', () => {
+          const rect = svg.getBoundingClientRect();
+          zoomAt(camera.scale * 1.2, rect.left + rect.width / 2, rect.top + rect.height / 2);
+        });
+        surface.querySelector('[data-zoom="out"]').addEventListener('click', () => {
+          const rect = svg.getBoundingClientRect();
+          zoomAt(camera.scale / 1.2, rect.left + rect.width / 2, rect.top + rect.height / 2);
+        });
+        surface.querySelector('[data-fit]').addEventListener('click', fit);
+        applyCamera();
+
+        return { setDensity(value) { svg.dataset.density = value === 'Priority' ? 'priority' : value === 'All' ? 'normal' : (svg.dataset.canvas === 'phone' ? 'priority' : 'normal'); } };
+      }
+
+      const cameras = Array.from(root.querySelectorAll('.xr-map-svg')).map(attachCamera);
+      renderSelection();
+
+      if (globalThis.Tweak) {
+        const tweak = new Tweak({ container: root, onChange: () => cameras.forEach((camera) => camera.setDensity(state.density)) });
+        tweak.addSelect(state, 'density', { label: 'Label density', options: ['Auto', 'Priority', 'All'], reference: 'canvas.semantic_density' });
+      }
+    })();
+  </script>
+</div>

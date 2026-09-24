@@ -15,6 +15,24 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: 'site/:name/dashboard',
+    data: { workspaceView: 'operate' },
+    loadComponent: () =>
+      import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+  },
+  {
+    path: 'site/:name/insights',
+    data: { workspaceView: 'insights' },
+    loadComponent: () =>
+      import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+  },
+  {
+    path: 'site/:name/automations',
+    loadComponent: () =>
+      import('./pages/automations/automations.component').then((m) => m.AutomationsComponent),
+  },
+  {
+    path: 'site/:name/settings',
+    data: { workspaceView: 'settings' },
     loadComponent: () =>
       import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
   },

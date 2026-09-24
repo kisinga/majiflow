@@ -1,4 +1,5 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import type { UnsubscribeFunc } from 'pocketbase';
 import {
   parseTopology, listAutomatableRoutes, buildDashboardSpec, MAX_AUTOMATIONS,
@@ -79,16 +80,20 @@ function blankDraft(): NewAutomationRow & { id?: string } {
  *
  * Self-contained: give it a {@link siteId} and it loads the topology (for routes
  * and route-default tunables) and the automation rows itself. Hosted both by the
- * standalone `/site/:name/automations` page and by the dashboard's Automations
- * modal, so the two share one editor. Provides its own DashboardStore so it works
- * outside the dashboard injector.
+ * standalone `/site/:name/automations` page. Provides its own DashboardStore so
+ * cloud and on-device builds use the same editor and persistence seam.
  */
 @Component({
   selector: 'app-automations-manager',
   standalone: true,
-  imports: [TunableNumbersComponent],
+  imports: [RouterLink, TunableNumbersComponent],
   providers: [DashboardStore, CommandLifecycleStore],
   host: { class: 'block' },
+  styles: [`
+    :host{display:block;container-type:inline-size}.automation-editor-grid{padding:16px;display:grid;grid-template-columns:minmax(0,1fr);column-gap:24px;row-gap:20px}.automation-editor-footer{padding-top:12px;border-top:1px solid color-mix(in srgb,currentColor 12%,transparent)}
+    @container(min-width:700px){.automation-editor-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.automation-editor-footer{grid-column:1/-1}}
+    @container(max-width:520px){.automation-row{align-items:flex-start;flex-wrap:wrap}.automation-row-actions{width:calc(100% - 2.75rem);margin-left:2.75rem;justify-content:flex-end}.automation-route-focus{flex-wrap:wrap}.automation-route-focus .all-routes{margin-left:3.25rem}}
+  `],
   template: `
     <div class="flex flex-col gap-4">
       @if (error()) { <div role="alert" class="alert alert-error text-sm py-2">{{ error() }}</div> }
@@ -96,7 +101,10 @@ function blankDraft(): NewAutomationRow & { id?: string } {
       <!-- Top actions: count vs cap + New. -->
       @if (canEdit()) {
         <div class="flex items-center justify-between gap-2">
-          <span class="text-[11px] text-base-content/40">{{ rows().length }}/{{ maxAutomations }} automations</span>
+          <span class="text-[11px] text-base-content/40">
+            @if(focusRoute()){ {{visibleRows().length}} on this route · {{rows().length}}/{{maxAutomations}} total }
+            @else { {{rows().length}}/{{maxAutomations}} automations }
+          </span>
           <button class="btn btn-sm btn-primary gap-1 shrink-0" (click)="startNew()"
                   [disabled]="!routes().length || atCap() || !!draft()"
                   [title]="atCap() ? 'Limit reached (' + maxAutomations + ')' : ''">
@@ -105,10 +113,25 @@ function blankDraft(): NewAutomationRow & { id?: string } {
         </div>
       }
 
+      @if (showRouteFocus()) {
+        @if (focusRoute(); as route) {
+          <section class="automation-route-focus rounded-2xl ring-1 ring-primary/30 bg-primary/5 px-4 py-3 flex items-center gap-3" aria-label="Selected route">
+            <span class="w-10 h-10 rounded-xl bg-primary/10 text-primary grid place-items-center shrink-0">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6M12 2v3"/></svg>
+            </span>
+            <div class="min-w-0 flex-1">
+              <span class="block text-[10px] uppercase tracking-wider font-bold text-primary/70">Route automations</span>
+              <strong class="block text-sm truncate mt-0.5">{{route.routeName}}</strong>
+            </div>
+            <span class="badge badge-primary badge-outline shrink-0">{{visibleRows().length}}</span>
+            <a [routerLink]="[]" [queryParams]="{}" class="all-routes btn btn-ghost btn-sm shrink-0">All routes</a>
+          </section>
+        }
+      }
+
       <!-- Route defaults: the per-route values an automation inherits unless it
-           overrides them. Collapsed by default, edit-gated. Hidden on the dashboard
-           (its Setup modal owns these, grouped with safety timings); shown on the
-           standalone page, which has no Setup surface beside it. -->
+           overrides them. Collapsed by default; the canonical editor also lives in
+           Site settings → Routes. -->
       @if (showRouteDefaults() && hasRouteTuning()) {
         <details class="group rounded-2xl ring-1 ring-base-300/40 bg-base-100 overflow-hidden">
           <summary class="cursor-pointer list-none flex items-center justify-between gap-3 px-4 h-12 hover:bg-base-200/30 transition-colors">
@@ -132,7 +155,7 @@ function blankDraft(): NewAutomationRow & { id?: string } {
             <button class="btn btn-ghost btn-xs btn-circle" (click)="cancel()" title="Cancel" aria-label="Cancel">✕</button>
           </div>
 
-          <div class="p-4 grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-5">
+          <div class="automation-editor-grid">
             <!-- Left: identity + trigger -->
             <div class="flex flex-col gap-4">
               <label class="flex flex-col gap-1">
@@ -141,7 +164,7 @@ function blankDraft(): NewAutomationRow & { id?: string } {
               </label>
               <label class="flex flex-col gap-1">
                 <span class="text-[11px] font-medium text-base-content/50">Route</span>
-                <select class="select select-sm select-bordered" [value]="d.route_key" (change)="onRoute($any($event.target).value)">
+                <select class="select select-sm select-bordered" [class.select-primary]="!!focusRoute()" [disabled]="!!focusRoute()" [value]="d.route_key" (change)="onRoute($any($event.target).value)">
                   <option value="" disabled>Select a route…</option>
                   @if (multiController()) {
                     @for (g of routeGroups(); track g.controller) {
@@ -185,7 +208,7 @@ function blankDraft(): NewAutomationRow & { id?: string } {
             <!-- Right: run settings -->
             <div class="flex flex-col gap-2">
               <span class="text-[11px] font-semibold uppercase tracking-wider text-base-content/40">Run settings</span>
-              <p class="text-[11px] text-base-content/40 -mt-1">A field left off uses this route's default (set under Route defaults, in Setup).</p>
+              <p class="text-[11px] text-base-content/40 -mt-1">A field left off uses this route's default from Site settings → Routes.</p>
               <div class="rounded-xl ring-1 ring-base-300/40 px-3 divide-y divide-base-300/40">
                 @for (f of overrideFields(); track f.key) {
                   <div class="flex items-center gap-3 py-2">
@@ -207,7 +230,7 @@ function blankDraft(): NewAutomationRow & { id?: string } {
             </div>
 
             <!-- Footer -->
-            <div class="lg:col-span-2 pt-3 border-t border-base-300/40">
+            <div class="automation-editor-footer">
               @if (draftIssues().length) {
                 <ul class="mb-3 text-[11px] text-error/90 list-disc pl-4 space-y-0.5">
                   @for (e of draftIssues(); track e) { <li>{{ e }}</li> }
@@ -240,8 +263,8 @@ function blankDraft(): NewAutomationRow & { id?: string } {
         </div>
       } @else {
         <ul class="flex flex-col gap-2">
-          @for (a of rows(); track a.id) {
-            <li class="rounded-2xl ring-1 ring-base-300/40 bg-base-100 px-4 py-3 flex items-center gap-3 transition-opacity"
+          @for (a of visibleRows(); track a.id) {
+            <li class="automation-row rounded-2xl ring-1 ring-base-300/40 bg-base-100 px-4 py-3 flex items-center gap-3 transition-opacity"
                 [class.opacity-55]="!a.enabled">
               <span class="w-2 h-2 rounded-full shrink-0" [class]="a.enabled ? 'bg-success' : 'bg-base-content/25'"></span>
               <div class="min-w-0 flex-1">
@@ -261,7 +284,7 @@ function blankDraft(): NewAutomationRow & { id?: string } {
                 <p class="text-xs text-base-content/50 truncate mt-0.5">{{ routeName(a.route_key) }} · {{ triggerSummary(a) }}{{ overrideSummary(a) }}</p>
               </div>
               @if (canEdit()) {
-                <div class="flex items-center gap-1 shrink-0">
+                <div class="automation-row-actions flex items-center gap-1 shrink-0">
                   <input type="checkbox" class="toggle toggle-sm toggle-success" [checked]="a.enabled" (change)="toggleEnabled(a)" [title]="a.enabled ? 'Pause' : 'Resume'" />
                   <button class="btn btn-ghost btn-sm" (click)="startEdit(a)">Edit</button>
                   <button class="btn btn-ghost btn-sm text-error/70 hover:text-error hover:bg-error/10" (click)="remove(a)">Delete</button>
@@ -270,8 +293,8 @@ function blankDraft(): NewAutomationRow & { id?: string } {
             </li>
           } @empty {
             <li class="rounded-2xl ring-1 ring-base-300/40 border-dashed bg-base-100/60 px-4 py-10 text-center list-none">
-              <p class="text-sm text-base-content/50">No automations yet.</p>
-              @if (canEdit()) { <p class="text-xs text-base-content/40 mt-1">Create one to run a route by time or tank level.</p> }
+              <p class="text-sm text-base-content/50">{{focusRoute()?'No automations for this route yet.':'No automations yet.'}}</p>
+              @if (canEdit()) { <p class="text-xs text-base-content/40 mt-1">Create one to run {{focusRoute()?'this route':'a route'}} by time or tank level.</p> }
             </li>
           }
         </ul>
@@ -282,10 +305,15 @@ function blankDraft(): NewAutomationRow & { id?: string } {
 export class AutomationsManagerComponent {
   /** Site whose automations this manages. Drives the one-time load. */
   readonly siteId = input.required<string>();
-  /** Show the per-route "Route defaults" tuning inline. The dashboard hides it
-   *  (its Setup modal next door owns route defaults + safety timings); the
-   *  standalone /automations page keeps it (it has no Setup surface beside it). */
+  /** Show inherited route defaults as an optional disclosure. */
   readonly showRouteDefaults = input(true);
+  /** Optional route context from an operator route card. It filters the list and
+   *  preselects/locks that route for new rows, while the global page still shows all. */
+  readonly focusRouteKey = input('');
+  /** The full-page host shows its route context card. A modal supplies that
+   *  context in its own title bar and hides the duplicate surface. */
+  readonly showRouteFocus = input(true);
+  readonly changed = output<void>();
 
   private backend = inject(BackendService);
   private auth = inject(AuthStore);
@@ -325,6 +353,11 @@ export class AutomationsManagerComponent {
 
   protected canEdit = computed(() => this.deviceMode || this.isOwner() || this.auth.isManager());
   protected atCap = computed(() => this.rows().length >= MAX_AUTOMATIONS);
+  protected focusRoute = computed(() => this.routes().find((route) => route.routeKey === this.focusRouteKey()));
+  protected visibleRows = computed(() => {
+    const key = this.focusRouteKey();
+    return key ? this.rows().filter((row) => row.route_key === key) : this.rows();
+  });
   /** Any per-route tunable exists (drives the "Route defaults" disclosure). */
   protected hasRouteTuning = computed(() => this.dash.spec().controllers.some((c) => c.tunables.some((t) => t.scope === 'route')));
   protected selectedRoute = computed(() => this.routes().find((r) => r.routeKey === this.draft()?.route_key));
@@ -414,7 +447,12 @@ export class AutomationsManagerComponent {
   ngOnDestroy(): void { this.unsub?.(); }
 
   // --- editor state ---
-  protected startNew(): void { const d = blankDraft(); d.site = this.siteId(); this.draft.set(d); }
+  protected startNew(): void {
+    const d = blankDraft();
+    d.site = this.siteId();
+    const route = this.focusRoute();
+    this.draft.set(route ? this.stampRoute(d, route) : d);
+  }
   protected startEdit(a: AutomationRecord): void { this.draft.set({ ...a }); }
   protected cancel(): void { this.draft.set(null); }
 
@@ -430,10 +468,14 @@ export class AutomationsManagerComponent {
   protected onRoute(key: string): void {
     const r = this.routes().find((x) => x.routeKey === key); const d = this.draft();
     if (!r || !d) return;
+    this.draft.set(this.stampRoute(d, r));
+  }
+
+  private stampRoute(d: NewAutomationRow & { id?: string }, r: AutomatableRoute): NewAutomationRow & { id?: string } {
     const next = { ...d, route_key: r.routeKey, controller: r.controllerId, route_index: r.routeIndex, route_set_version: r.routeSetVersion };
     // A level trigger needs a level source; fall back to time if the new route lacks one.
     if (next.trigger_type === 'level' && !r.hasLevelSource) next.trigger_type = 'time';
-    this.draft.set(next);
+    return next;
   }
 
   /** Display a stored UTC `time_min` as local HH:MM. */
@@ -483,6 +525,7 @@ export class AutomationsManagerComponent {
       if (id) await this.svc.update(id, row); else await this.svc.create(row);
       this.draft.set(null);
       await this.refresh();
+      this.changed.emit();
     } catch (e) {
       this.error.set(e instanceof Error ? e.message : 'Save failed.');
     } finally {
@@ -497,7 +540,7 @@ export class AutomationsManagerComponent {
     const patch: Partial<NewAutomationRow> = { enabled: !a.enabled };
     const r = this.routes().find((x) => x.routeKey === a.route_key);
     if (r) { patch.route_index = r.routeIndex; patch.route_set_version = r.routeSetVersion; }
-    try { await this.svc.update(a.id, patch); await this.refresh(); }
+    try { await this.svc.update(a.id, patch); await this.refresh(); this.changed.emit(); }
     catch (e) { this.error.set(e instanceof Error ? e.message : 'Update failed.'); }
   }
 
@@ -509,7 +552,7 @@ export class AutomationsManagerComponent {
       variant: 'error',
     });
     if (!ok) return;
-    try { await this.svc.remove(a.id); await this.refresh(); }
+    try { await this.svc.remove(a.id); await this.refresh(); this.changed.emit(); }
     catch (e) { this.error.set(e instanceof Error ? e.message : 'Delete failed.'); }
   }
 

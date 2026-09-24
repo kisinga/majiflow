@@ -10,18 +10,17 @@ import { Component, input } from '@angular/core';
 @Component({
   selector: 'app-section-header',
   standalone: true,
+  styles: [`
+    :host{display:block}.section-heading{display:flex;align-items:center;gap:11px}.section-mark{width:5px;height:28px;flex:none;border-radius:999px;background:linear-gradient(180deg,#22d3ee,#0284c7)}h1{margin:0;color:var(--op-ink,#152019);font-size:24px;font-weight:800;letter-spacing:-.025em}p{max-width:700px;margin:7px 0 0 16px;color:var(--op-muted,#68756d);font-size:13px;line-height:1.5}@media(max-width:639.98px){h1{font-size:21px}p{margin-left:0}}
+  `],
   template: `
-    <header class="relative isolate">
-      <!-- Ambient cyan bloom, echoing the homepage's glow blobs. Behind everything,
-           non-interactive; the isolate keeps the negative z scoped to this header. -->
-      <div aria-hidden="true"
-        class="pointer-events-none absolute -top-9 -left-8 -z-10 h-28 w-64 rounded-full bg-cyan-500/10 blur-3xl"></div>
-      <div class="flex items-center gap-3">
-        <span class="w-1.5 h-7 rounded-full shrink-0 bg-gradient-to-b from-cyan-300 to-sky-500 shadow-[0_0_16px_-2px] shadow-cyan-400/60"></span>
-        <h1 class="app-title text-2xl font-bold">{{ title() }}</h1>
+    <header>
+      <div class="section-heading">
+        <span class="section-mark" aria-hidden="true"></span>
+        <h1 class="app-title">{{ title() }}</h1>
       </div>
       @if (subtitle()) {
-        <p class="text-sm text-base-content/50 mt-2 max-w-2xl leading-relaxed">{{ subtitle() }}</p>
+        <p>{{ subtitle() }}</p>
       }
     </header>
   `,

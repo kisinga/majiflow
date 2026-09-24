@@ -51,6 +51,10 @@ const PB_URL: string =
 @Injectable({ providedIn: 'root' })
 export class BackendService {
   readonly pb = new PocketBase(PB_URL);
+  /** Multiple shell/page consumers often need the same site during navigation.
+   * PocketBase auto-cancels duplicate requests, so share one in-flight load
+   * instead of letting the loser fall back to a raw record id. */
+  private siteLoads = new Map<string, Promise<SiteFullPayload>>();
 
   // --- Sites ---------------------------------------------------------------
 
@@ -61,7 +65,17 @@ export class BackendService {
     });
   }
 
-  async siteLoad(id: string): Promise<SiteFullPayload> {
+  siteLoad(id: string): Promise<SiteFullPayload> {
+    const active = this.siteLoads.get(id);
+    if (active) return active;
+    const request = this.loadSite(id).finally(() => {
+      if (this.siteLoads.get(id) === request) this.siteLoads.delete(id);
+    });
+    this.siteLoads.set(id, request);
+    return request;
+  }
+
+  private async loadSite(id: string): Promise<SiteFullPayload> {
     // Expand `owner` to a contact directory — name + email for each co-owner the
     // viewer may read (same-site, per migration 32). Best-effort: records the rule
     // hides simply don't appear; the activity feed falls back to the owner-id set.

@@ -25,7 +25,7 @@ interface OwnedSite { id: string; name: string }
   imports: [SiteThresholdsComponent],
   host: { class: 'flex-1 overflow-auto' },
   template: `
-    <div class="content-pane space-y-6 max-w-2xl">
+    <div class="content-pane space-y-6">
       <header>
         <h1 class="app-title text-lg font-bold">Notifications</h1>
         <p class="text-xs text-base-content/50 mt-0.5">{{ auth.user()?.email }}</p>

@@ -1,0 +1,743 @@
+<div id="majiflow-control-workspace">
+  <style>
+    #majiflow-control-workspace {
+      width: 100%;
+      color: light-dark(#0f172a, #e2e8f0);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    #majiflow-control-workspace * { box-sizing: border-box; }
+    #majiflow-control-workspace button { font: inherit; }
+    #majiflow-control-workspace i[data-lucide] { width: 17px; height: 17px; stroke-width: 1.8; }
+
+    #majiflow-control-workspace .mc-review-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    #majiflow-control-workspace .mc-review-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+
+    #majiflow-control-workspace .mc-review-subtitle {
+      margin-top: 4px;
+      color: light-dark(#64748b, #94a3b8);
+      font-size: 12px;
+    }
+
+    #majiflow-control-workspace .mc-preview-switch {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid light-dark(#cbd5e1, #334155);
+      border-radius: 10px;
+      background: light-dark(#f8fafc, #0f172a);
+    }
+
+    #majiflow-control-workspace .mc-preview-switch button {
+      min-height: 32px;
+      border: 0;
+      border-radius: 7px;
+      padding: 6px 11px;
+      color: light-dark(#64748b, #94a3b8);
+      background: transparent;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    #majiflow-control-workspace .mc-preview-switch button[aria-pressed="true"] {
+      color: #083344;
+      background: #22d3ee;
+    }
+
+    #majiflow-control-workspace .mc-directions {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    #majiflow-control-workspace .mc-direction {
+      display: grid;
+      grid-template-columns: 86px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      min-width: 0;
+      min-height: 78px;
+      border: 1px solid light-dark(#cbd5e1, #334155);
+      border-radius: 12px;
+      padding: 10px;
+      color: light-dark(#334155, #cbd5e1);
+      background: light-dark(#ffffff, #111c2f);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    #majiflow-control-workspace .mc-direction[aria-pressed="true"] {
+      border-color: #22d3ee;
+      box-shadow: 0 0 0 2px rgb(34 211 238 / 0.12);
+    }
+
+    #majiflow-control-workspace .mc-direction-map {
+      position: relative;
+      width: 86px;
+      height: 55px;
+      overflow: hidden;
+      border-radius: 7px;
+      background: #0f172a;
+      box-shadow: inset 0 0 0 1px #334155;
+    }
+
+    #majiflow-control-workspace .mc-thumb-routes,
+    #majiflow-control-workspace .mc-thumb-map,
+    #majiflow-control-workspace .mc-thumb-manual { position: absolute; }
+    #majiflow-control-workspace .mc-thumb-routes { inset: 5px auto 5px 5px; width: 23px; border-radius: 3px; background: #1e293b; }
+    #majiflow-control-workspace .mc-thumb-map { inset: 5px 5px 5px 32px; border-radius: 3px; background: #164e63; }
+    #majiflow-control-workspace .mc-thumb-manual { inset: 5px 5px 5px auto; width: 22px; border-radius: 3px; background: #1e293b; box-shadow: inset 1px 0 #475569; }
+    #majiflow-control-workspace .mc-direction[data-model="a"] .mc-thumb-manual { transform: translateX(100%); }
+    #majiflow-control-workspace .mc-direction[data-model="b"] .mc-thumb-map { right: 31px; }
+    #majiflow-control-workspace .mc-direction[data-model="c"] .mc-thumb-routes { z-index: 2; top: 10px; bottom: 10px; width: 28px; box-shadow: 0 5px 12px rgb(2 6 23 / 0.6); }
+    #majiflow-control-workspace .mc-direction[data-model="c"] .mc-thumb-map { left: 5px; }
+    #majiflow-control-workspace .mc-direction[data-model="c"] .mc-thumb-manual { top: 15px; bottom: 15px; width: 18px; background: #0e7490; box-shadow: 0 5px 12px rgb(2 6 23 / 0.6); }
+
+    #majiflow-control-workspace .mc-direction-name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: light-dark(#0f172a, #f1f5f9);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    #majiflow-control-workspace .mc-direction-note {
+      margin-top: 4px;
+      color: light-dark(#64748b, #94a3b8);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    #majiflow-control-workspace .mc-pick {
+      border-radius: 999px;
+      padding: 2px 6px;
+      color: #67e8f9;
+      background: rgb(8 145 178 / 0.18);
+      font-size: 11px;
+    }
+
+    #majiflow-control-workspace .mc-product {
+      position: relative;
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      width: 100%;
+      min-height: 690px;
+      overflow: hidden;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      color: #e2e8f0;
+      background: #0f172a;
+      box-shadow: 0 24px 70px rgb(2 6 23 / 0.4);
+    }
+
+    #majiflow-control-workspace .mc-app-rail {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 14px 11px;
+      border-right: 1px solid #334155;
+      background: #111c2f;
+    }
+
+    #majiflow-control-workspace .mc-brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 1px 5px 17px;
+      color: #f8fafc;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+
+    #majiflow-control-workspace .mc-brand-mark {
+      display: grid;
+      place-items: center;
+      width: 29px;
+      height: 29px;
+      border-radius: 9px;
+      color: #083344;
+      background: linear-gradient(135deg, #67e8f9, #38bdf8);
+      font-weight: 500;
+    }
+
+    #majiflow-control-workspace .mc-site-switch {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      min-height: 50px;
+      margin-bottom: 11px;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 8px 9px;
+      color: #f1f5f9;
+      background: #172033;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    #majiflow-control-workspace .mc-site-live {
+      width: 9px;
+      height: 9px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: #34d399;
+      box-shadow: 0 0 0 4px rgb(52 211 153 / 0.11);
+    }
+
+    #majiflow-control-workspace .mc-site-copy { min-width: 0; flex: 1; }
+    #majiflow-control-workspace .mc-site-name { display: block; overflow: hidden; color: #f8fafc; font-size: 11px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+    #majiflow-control-workspace .mc-site-state { display: block; margin-top: 2px; color: #94a3b8; font-size: 11px; }
+    #majiflow-control-workspace .mc-app-label { margin: 13px 9px 5px; color: #64748b; font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; }
+
+    #majiflow-control-workspace .mc-app-link {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      min-height: 39px;
+      margin: 1px 0;
+      border: 0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      color: #94a3b8;
+      background: transparent;
+      font-size: 11px;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    #majiflow-control-workspace .mc-app-link[aria-current="page"] { color: #cffafe; background: #164e63; }
+    #majiflow-control-workspace .mc-app-link[aria-current="page"]::before { content: ""; position: absolute; inset: 7px auto 7px -11px; width: 3px; border-radius: 0 4px 4px 0; background: #22d3ee; }
+    #majiflow-control-workspace .mc-app-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid #25334a; }
+    #majiflow-control-workspace .mc-alert-count { margin-left: auto; min-width: 19px; border-radius: 999px; padding: 2px 5px; color: #fee2e2; background: #7f1d1d; font-size: 11px; text-align: center; }
+    #majiflow-control-workspace .mc-account { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; border: 0; border-radius: 9px; padding: 7px; color: #cbd5e1; background: transparent; text-align: left; cursor: pointer; }
+    #majiflow-control-workspace .mc-avatar { display: grid; place-items: center; width: 29px; height: 29px; flex: 0 0 auto; border-radius: 50%; color: #083344; background: #67e8f9; font-size: 11px; font-weight: 500; }
+    #majiflow-control-workspace .mc-account-copy { min-width: 0; }
+    #majiflow-control-workspace .mc-account-name { display: block; overflow: hidden; color: #f1f5f9; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    #majiflow-control-workspace .mc-account-role { display: block; color: #64748b; font-size: 11px; }
+
+    #majiflow-control-workspace .mc-stage { position: relative; min-width: 0; overflow: hidden; }
+    #majiflow-control-workspace .mc-site-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 57px;
+      padding: 8px 16px;
+      border-bottom: 1px solid #334155;
+      background: #0f172a;
+    }
+
+    #majiflow-control-workspace .mc-breadcrumb { min-width: 0; flex: 1; overflow: hidden; color: #64748b; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    #majiflow-control-workspace .mc-breadcrumb strong { color: #e2e8f0; font-weight: 500; }
+    #majiflow-control-workspace .mc-live-pill { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; border: 1px solid #14532d; border-radius: 999px; padding: 5px 9px; color: #86efac; background: rgb(20 83 45 / 0.24); font-size: 11px; }
+    #majiflow-control-workspace .mc-live-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #34d399; }
+    #majiflow-control-workspace .mc-site-action { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #334155; border-radius: 9px; color: #94a3b8; background: #111c2f; cursor: pointer; }
+
+    #majiflow-control-workspace .mc-ops-shell {
+      position: relative;
+      display: grid;
+      grid-template-columns: 248px minmax(0, 1fr);
+      height: 632px;
+      overflow: hidden;
+    }
+
+    #majiflow-control-workspace .mc-route-dock {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 14px 12px;
+      border-right: 1px solid #334155;
+      background: #111c2f;
+    }
+
+    #majiflow-control-workspace .mc-dock-head { display: flex; align-items: center; gap: 8px; margin-bottom: 11px; }
+    #majiflow-control-workspace .mc-dock-title { color: #f1f5f9; font-size: 14px; font-weight: 500; }
+    #majiflow-control-workspace .mc-dock-count { color: #64748b; font-size: 11px; }
+    #majiflow-control-workspace .mc-stop-all { margin-left: auto; min-height: 34px; border: 1px solid #7f1d1d; border-radius: 8px; padding: 6px 9px; color: #fecaca; background: rgb(127 29 29 / 0.16); font-size: 11px; font-weight: 500; cursor: pointer; }
+    #majiflow-control-workspace .mc-route-help { margin: -2px 0 11px; color: #64748b; font-size: 11px; line-height: 1.35; }
+
+    #majiflow-control-workspace .mc-route-control {
+      position: relative;
+      display: grid;
+      grid-template-columns: 45px minmax(0, 1fr) auto;
+      gap: 9px;
+      align-items: center;
+      width: 100%;
+      min-height: 66px;
+      margin-bottom: 8px;
+      overflow: hidden;
+      border: 1px solid #334155;
+      border-radius: 11px;
+      padding: 8px 8px 8px 9px;
+      color: #cbd5e1;
+      background: #1e293b;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    #majiflow-control-workspace .mc-route-control:hover { border-color: #0e7490; }
+    #majiflow-control-workspace .mc-route-control[aria-pressed="true"] { border-color: #0891b2; background: #173247; }
+    #majiflow-control-workspace .mc-route-progress { position: absolute; inset: 0 auto 0 0; width: 0; background: rgb(34 211 238 / 0.1); pointer-events: none; transition: width 240ms ease; }
+    #majiflow-control-workspace .mc-route-control[aria-pressed="true"] .mc-route-progress { width: 64%; }
+    #majiflow-control-workspace .mc-route-hit { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid #475569; border-radius: 50%; color: #67e8f9; background: #0f172a; }
+    #majiflow-control-workspace .mc-route-control[aria-pressed="true"] .mc-route-hit { color: #fef3c7; border-color: #f59e0b; background: #451a03; }
+    #majiflow-control-workspace .mc-route-copy { position: relative; min-width: 0; }
+    #majiflow-control-workspace .mc-route-name { display: block; overflow: hidden; color: #f1f5f9; font-size: 12px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+    #majiflow-control-workspace .mc-route-state { display: block; margin-top: 4px; overflow: hidden; color: #94a3b8; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    #majiflow-control-workspace .mc-route-more { position: relative; display: grid; place-items: center; width: 32px; height: 44px; border-radius: 7px; color: #64748b; }
+
+    #majiflow-control-workspace .mc-dock-spacer { flex: 1; }
+    #majiflow-control-workspace .mc-manual-entry {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      min-height: 52px;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 8px 10px;
+      color: #cbd5e1;
+      background: #172033;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    #majiflow-control-workspace .mc-manual-entry-copy { min-width: 0; flex: 1; }
+    #majiflow-control-workspace .mc-manual-entry-title { display: block; color: #e2e8f0; font-size: 12px; font-weight: 500; }
+    #majiflow-control-workspace .mc-manual-entry-note { display: block; margin-top: 2px; color: #64748b; font-size: 11px; }
+
+    #majiflow-control-workspace .mc-map-pane {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 48% 48%, rgb(34 211 238 / 0.06), transparent 32%),
+        linear-gradient(rgb(51 65 85 / 0.14) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(51 65 85 / 0.14) 1px, transparent 1px),
+        #0f172a;
+      background-size: auto, 28px 28px, 28px 28px, auto;
+    }
+
+    #majiflow-control-workspace .mc-map-toolbar { position: absolute; z-index: 4; top: 12px; left: 12px; display: flex; gap: 5px; }
+    #majiflow-control-workspace .mc-map-tool { display: grid; place-items: center; min-width: 38px; height: 38px; border: 1px solid #334155; border-radius: 9px; color: #94a3b8; background: rgb(17 28 47 / 0.94); cursor: pointer; }
+    #majiflow-control-workspace .mc-map-health { position: absolute; z-index: 4; top: 12px; right: 12px; display: flex; align-items: center; gap: 6px; min-height: 34px; border: 1px solid #334155; border-radius: 9px; padding: 6px 9px; color: #cbd5e1; background: rgb(17 28 47 / 0.94); font-size: 11px; }
+    #majiflow-control-workspace .mc-map-health::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #34d399; }
+
+    #majiflow-control-workspace .mc-pipe { position: absolute; z-index: 1; height: 4px; border-radius: 5px; background: #0369a1; transform-origin: left center; }
+    #majiflow-control-workspace .mc-pipe-one { left: 16%; top: 47%; width: 26%; transform: rotate(-10deg); }
+    #majiflow-control-workspace .mc-pipe-two { left: 41%; top: 42%; width: 25%; transform: rotate(14deg); }
+    #majiflow-control-workspace .mc-pipe-three { left: 65%; top: 48%; width: 21%; transform: rotate(-30deg); background: #0e7490; }
+    #majiflow-control-workspace .mc-pipe-four { left: 65%; top: 49%; width: 20%; transform: rotate(31deg); background: #0e7490; }
+
+    #majiflow-control-workspace .mc-static-node,
+    #majiflow-control-workspace .mc-entity-node { position: absolute; z-index: 3; transform: translate(-50%, -50%); }
+    #majiflow-control-workspace .mc-static-node { display: grid; place-items: center; width: 76px; min-height: 64px; border: 1px solid #075985; border-radius: 14px; padding: 8px; color: #bae6fd; background: #0c2940; text-align: center; font-size: 11px; font-weight: 500; box-shadow: 0 0 0 7px rgb(14 116 144 / 0.08); }
+    #majiflow-control-workspace .mc-node-source { left: 14%; top: 48%; }
+    #majiflow-control-workspace .mc-node-tank { left: 88%; top: 29%; border-color: #047857; color: #a7f3d0; background: #0d312d; box-shadow: 0 0 0 7px rgb(5 150 105 / 0.08); }
+    #majiflow-control-workspace .mc-node-orchard { left: 88%; top: 70%; border-color: #4d7c0f; color: #d9f99d; background: #243314; box-shadow: 0 0 0 7px rgb(77 124 15 / 0.08); }
+
+    #majiflow-control-workspace .mc-entity-node {
+      display: grid;
+      place-items: center;
+      width: 52px;
+      height: 52px;
+      border: 1px solid #475569;
+      border-radius: 50%;
+      color: #cbd5e1;
+      background: #1e293b;
+      box-shadow: 0 0 0 8px rgb(30 41 59 / 0.55);
+      cursor: pointer;
+    }
+
+    #majiflow-control-workspace .mc-entity-node:hover,
+    #majiflow-control-workspace .mc-entity-node[aria-pressed="true"] { border-color: #22d3ee; color: #67e8f9; box-shadow: 0 0 0 8px rgb(34 211 238 / 0.12); }
+    #majiflow-control-workspace .mc-node-pump { left: 39%; top: 42%; }
+    #majiflow-control-workspace .mc-node-valve-a { left: 67%; top: 49%; }
+    #majiflow-control-workspace .mc-node-valve-b { left: 54%; top: 72%; }
+    #majiflow-control-workspace .mc-node-label { position: absolute; z-index: 3; transform: translateX(-50%); color: #94a3b8; font-size: 11px; white-space: nowrap; pointer-events: none; }
+    #majiflow-control-workspace .mc-label-pump { left: 39%; top: 49%; }
+    #majiflow-control-workspace .mc-label-valve-a { left: 67%; top: 56%; }
+    #majiflow-control-workspace .mc-label-valve-b { left: 54%; top: 79%; }
+    #majiflow-control-workspace .mc-map-idle { position: absolute; z-index: 2; left: 50%; bottom: 15px; transform: translateX(-50%); color: #64748b; font-size: 11px; white-space: nowrap; }
+
+    #majiflow-control-workspace .mc-entity-panel {
+      position: absolute;
+      z-index: 8;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 286px;
+      padding: 14px;
+      border-left: 1px solid #334155;
+      background: #111c2f;
+      box-shadow: -20px 0 45px rgb(2 6 23 / 0.46);
+      transform: translateX(100%);
+      transition: transform 180ms ease;
+    }
+
+    #majiflow-control-workspace .mc-product[data-entity-open="true"] .mc-entity-panel { transform: translateX(0); }
+    #majiflow-control-workspace .mc-product[data-model="b"] .mc-ops-shell { grid-template-columns: 236px minmax(0, 1fr) 270px; }
+    #majiflow-control-workspace .mc-product[data-model="b"] .mc-entity-panel { position: relative; grid-column: 3; grid-row: 1; width: auto; transform: none; box-shadow: none; }
+    #majiflow-control-workspace .mc-product[data-model="c"] .mc-ops-shell { grid-template-columns: minmax(0, 1fr); }
+    #majiflow-control-workspace .mc-product[data-model="c"] .mc-route-dock { position: absolute; inset: 14px auto 14px 14px; width: 242px; border: 1px solid #334155; border-radius: 13px; box-shadow: 0 18px 50px rgb(2 6 23 / 0.62); }
+    #majiflow-control-workspace .mc-product[data-model="c"] .mc-entity-panel { top: 82px; right: 14px; bottom: auto; width: 270px; max-height: 510px; border: 1px solid #334155; border-radius: 13px; box-shadow: 0 18px 50px rgb(2 6 23 / 0.62); }
+
+    #majiflow-control-workspace .mc-panel-head { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 13px; }
+    #majiflow-control-workspace .mc-panel-heading { min-width: 0; flex: 1; }
+    #majiflow-control-workspace .mc-panel-kicker { color: #22d3ee; font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; }
+    #majiflow-control-workspace .mc-panel-title { margin-top: 4px; color: #f8fafc; font-size: 17px; font-weight: 500; }
+    #majiflow-control-workspace .mc-panel-close { display: grid; place-items: center; width: 38px; height: 38px; border: 0; border-radius: 9px; color: #94a3b8; background: #172033; cursor: pointer; }
+    #majiflow-control-workspace .mc-entity-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 14px; }
+    #majiflow-control-workspace .mc-entity-tab { min-height: 44px; border: 1px solid #334155; border-radius: 8px; padding: 6px; color: #94a3b8; background: #172033; font-size: 11px; cursor: pointer; }
+    #majiflow-control-workspace .mc-entity-tab[aria-pressed="true"] { border-color: #0891b2; color: #cffafe; background: #164e63; }
+    #majiflow-control-workspace .mc-control-status { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 58px; margin-bottom: 10px; border-bottom: 1px solid #334155; padding: 0 0 12px; }
+    #majiflow-control-workspace .mc-control-state-label { color: #94a3b8; font-size: 11px; }
+    #majiflow-control-workspace .mc-control-state { margin-top: 3px; color: #f1f5f9; font-size: 18px; font-weight: 500; }
+    #majiflow-control-workspace .mc-available { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 5px 8px; color: #86efac; background: rgb(20 83 45 / 0.32); font-size: 11px; }
+    #majiflow-control-workspace .mc-available::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #34d399; }
+    #majiflow-control-workspace .mc-control-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+    #majiflow-control-workspace .mc-control-fact { min-width: 0; padding: 9px; border-radius: 8px; background: #172033; }
+    #majiflow-control-workspace .mc-fact-label { display: block; color: #64748b; font-size: 11px; }
+    #majiflow-control-workspace .mc-fact-value { display: block; margin-top: 3px; overflow: hidden; color: #cbd5e1; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    #majiflow-control-workspace .mc-safety-note { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; border: 1px solid #334155; border-radius: 9px; padding: 9px; color: #94a3b8; background: #0f172a; font-size: 11px; line-height: 1.4; }
+    #majiflow-control-workspace .mc-control-action { width: 100%; min-height: 50px; border: 1px solid #22d3ee; border-radius: 10px; padding: 10px 12px; color: #083344; background: #22d3ee; font-size: 12px; font-weight: 500; cursor: pointer; }
+    #majiflow-control-workspace .mc-control-action[data-active="true"] { border-color: #f87171; color: #fee2e2; background: #7f1d1d; }
+    #majiflow-control-workspace .mc-control-caption { margin-top: 8px; color: #64748b; font-size: 11px; line-height: 1.4; text-align: center; }
+
+    #majiflow-control-workspace .mc-mobile-shell { display: none; }
+    #majiflow-control-workspace .mc-product[data-viewport="mobile"] { grid-template-columns: minmax(0, 1fr); width: 390px; min-height: 760px; margin-inline: auto; border-radius: 26px; }
+    #majiflow-control-workspace .mc-product[data-viewport="mobile"] .mc-app-rail,
+    #majiflow-control-workspace .mc-product[data-viewport="mobile"] .mc-desktop-shell { display: none; }
+    #majiflow-control-workspace .mc-product[data-viewport="mobile"] .mc-mobile-shell { display: flex; flex-direction: column; min-height: 760px; background: #0f172a; }
+    #majiflow-control-workspace .mc-mobile-head { display: flex; align-items: center; gap: 10px; min-height: 61px; padding: 8px 13px; border-bottom: 1px solid #334155; background: #111c2f; }
+    #majiflow-control-workspace .mc-mobile-site { min-width: 0; flex: 1; border: 0; padding: 0; color: #f1f5f9; background: transparent; text-align: left; cursor: pointer; }
+    #majiflow-control-workspace .mc-mobile-site-name { display: block; overflow: hidden; font-size: 13px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+    #majiflow-control-workspace .mc-mobile-site-state { display: flex; align-items: center; gap: 5px; margin-top: 2px; color: #86efac; font-size: 11px; }
+    #majiflow-control-workspace .mc-mobile-site-state::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #34d399; }
+    #majiflow-control-workspace .mc-mobile-head-action { display: grid; place-items: center; width: 42px; height: 42px; border: 0; border-radius: 10px; color: #94a3b8; background: #172033; cursor: pointer; }
+    #majiflow-control-workspace .mc-mobile-modes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 11px 13px 0; padding: 4px; border: 1px solid #334155; border-radius: 11px; background: #111c2f; }
+    #majiflow-control-workspace .mc-mobile-mode { min-height: 42px; border: 0; border-radius: 8px; color: #94a3b8; background: transparent; font-size: 12px; font-weight: 500; cursor: pointer; }
+    #majiflow-control-workspace .mc-mobile-mode[aria-selected="true"] { color: #cffafe; background: #164e63; }
+    #majiflow-control-workspace .mc-mobile-body { position: relative; min-height: 0; flex: 1; padding-bottom: 66px; }
+    #majiflow-control-workspace .mc-mobile-controls { padding: 14px 13px 24px; }
+    #majiflow-control-workspace .mc-mobile-section-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; }
+    #majiflow-control-workspace .mc-mobile-section-title { color: #f1f5f9; font-size: 14px; font-weight: 500; }
+    #majiflow-control-workspace .mc-mobile-stop { min-height: 38px; border: 1px solid #7f1d1d; border-radius: 8px; padding: 7px 10px; color: #fecaca; background: rgb(127 29 29 / 0.16); font-size: 11px; }
+    #majiflow-control-workspace .mc-mobile-route { display: grid; grid-template-columns: 48px minmax(0, 1fr) 22px; gap: 10px; align-items: center; width: 100%; min-height: 68px; margin-bottom: 8px; border: 1px solid #334155; border-radius: 11px; padding: 9px; color: #cbd5e1; background: #1e293b; text-align: left; cursor: pointer; }
+    #majiflow-control-workspace .mc-mobile-route-icon { display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid #475569; border-radius: 50%; color: #67e8f9; background: #0f172a; }
+    #majiflow-control-workspace .mc-mobile-route-name { display: block; overflow: hidden; color: #f1f5f9; font-size: 12px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+    #majiflow-control-workspace .mc-mobile-route-state { display: block; margin-top: 4px; color: #94a3b8; font-size: 11px; }
+    #majiflow-control-workspace .mc-manual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    #majiflow-control-workspace .mc-mobile-entity { display: flex; align-items: center; gap: 8px; min-height: 62px; border: 1px solid #334155; border-radius: 10px; padding: 9px; color: #cbd5e1; background: #172033; text-align: left; cursor: pointer; }
+    #majiflow-control-workspace .mc-mobile-entity-copy { min-width: 0; }
+    #majiflow-control-workspace .mc-mobile-entity-name { display: block; overflow: hidden; color: #e2e8f0; font-size: 11px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+    #majiflow-control-workspace .mc-mobile-entity-state { display: block; margin-top: 3px; color: #64748b; font-size: 11px; }
+    #majiflow-control-workspace .mc-mobile-map { position: absolute; inset: 0 0 66px; overflow: hidden; background: radial-gradient(circle at 50% 45%, rgb(34 211 238 / 0.07), transparent 33%), #0f172a; }
+    #majiflow-control-workspace .mc-mobile-map .mc-pipe-one { left: 13%; top: 42%; width: 29%; }
+    #majiflow-control-workspace .mc-mobile-map .mc-pipe-two { left: 40%; top: 38%; width: 27%; }
+    #majiflow-control-workspace .mc-mobile-map .mc-pipe-three { left: 64%; top: 44%; width: 23%; }
+    #majiflow-control-workspace .mc-mobile-map .mc-pipe-four { left: 63%; top: 44%; width: 24%; }
+    #majiflow-control-workspace .mc-mobile-map .mc-static-node { width: 64px; min-height: 58px; }
+    #majiflow-control-workspace .mc-mobile-map .mc-node-source { left: 13%; top: 43%; }
+    #majiflow-control-workspace .mc-mobile-map .mc-node-tank { left: 88%; top: 27%; }
+    #majiflow-control-workspace .mc-mobile-map .mc-node-orchard { left: 88%; top: 66%; }
+    #majiflow-control-workspace .mc-mobile-map .mc-node-pump { left: 39%; top: 37%; }
+    #majiflow-control-workspace .mc-mobile-map .mc-node-valve-a { left: 66%; top: 44%; }
+    #majiflow-control-workspace .mc-mobile-map .mc-node-valve-b { left: 52%; top: 67%; }
+    #majiflow-control-workspace .mc-mobile-map .mc-node-label { display: none; }
+    #majiflow-control-workspace .mc-mobile-map .mc-map-toolbar { top: 12px; left: 12px; }
+    #majiflow-control-workspace .mc-map-hint { position: absolute; z-index: 5; left: 50%; bottom: 16px; transform: translateX(-50%); min-width: 240px; border: 1px solid #334155; border-radius: 10px; padding: 10px 12px; color: #94a3b8; background: rgb(17 28 47 / 0.94); font-size: 11px; text-align: center; }
+
+    #majiflow-control-workspace .mc-mobile-sheet {
+      position: absolute;
+      z-index: 12;
+      left: 8px;
+      right: 8px;
+      bottom: 72px;
+      border: 1px solid #334155;
+      border-radius: 15px;
+      padding: 12px;
+      background: #111c2f;
+      box-shadow: 0 -18px 50px rgb(2 6 23 / 0.55);
+    }
+    #majiflow-control-workspace .mc-mobile-sheet-head { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+    #majiflow-control-workspace .mc-mobile-sheet-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; color: #67e8f9; background: #164e63; }
+    #majiflow-control-workspace .mc-mobile-sheet-copy { min-width: 0; flex: 1; }
+    #majiflow-control-workspace .mc-mobile-sheet-title { color: #f1f5f9; font-size: 13px; font-weight: 500; }
+    #majiflow-control-workspace .mc-mobile-sheet-state { margin-top: 2px; color: #86efac; font-size: 11px; }
+    #majiflow-control-workspace .mc-mobile-sheet-close { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 9px; color: #94a3b8; background: #172033; }
+    #majiflow-control-workspace .mc-mobile-sheet-action { width: 100%; min-height: 50px; border: 1px solid #22d3ee; border-radius: 10px; color: #083344; background: #22d3ee; font-size: 12px; font-weight: 500; }
+    #majiflow-control-workspace .mc-mobile-sheet-action[data-active="true"] { border-color: #f87171; color: #fee2e2; background: #7f1d1d; }
+
+    #majiflow-control-workspace .mc-mobile-nav { position: absolute; z-index: 20; inset: auto 0 0; display: grid; grid-template-columns: repeat(4, 1fr); min-height: 66px; padding: 5px 6px; border-top: 1px solid #334155; background: rgb(17 28 47 / 0.98); }
+    #majiflow-control-workspace .mc-mobile-nav button { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 0; border-radius: 8px; color: #64748b; background: transparent; font-size: 11px; font-weight: 500; }
+    #majiflow-control-workspace .mc-mobile-nav button[aria-current="page"] { color: #67e8f9; background: rgb(8 145 178 / 0.12); }
+    #majiflow-control-workspace .mc-mobile-badge { position: absolute; top: 5px; left: calc(50% + 7px); min-width: 16px; height: 16px; border-radius: 999px; padding: 1px 4px; color: #fee2e2; background: #991b1b; font-size: 11px; }
+    #majiflow-control-workspace .mc-hidden { display: none !important; }
+
+    @media (max-width: 760px) {
+      #majiflow-control-workspace .mc-review-head { align-items: flex-start; flex-direction: column; }
+      #majiflow-control-workspace .mc-directions { grid-template-columns: 1fr; }
+      #majiflow-control-workspace .mc-product:not([data-viewport="mobile"]) { grid-template-columns: 64px minmax(0, 1fr); }
+      #majiflow-control-workspace .mc-product:not([data-viewport="mobile"]) .mc-brand-name,
+      #majiflow-control-workspace .mc-product:not([data-viewport="mobile"]) .mc-site-copy,
+      #majiflow-control-workspace .mc-product:not([data-viewport="mobile"]) .mc-site-switch > i,
+      #majiflow-control-workspace .mc-product:not([data-viewport="mobile"]) .mc-app-label,
+      #majiflow-control-workspace .mc-product:not([data-viewport="mobile"]) .mc-app-link span,
+      #majiflow-control-workspace .mc-product:not([data-viewport="mobile"]) .mc-alert-count,
+      #majiflow-control-workspace .mc-product:not([data-viewport="mobile"]) .mc-account-copy { display: none; }
+      #majiflow-control-workspace .mc-product:not([data-viewport="mobile"]) .mc-app-rail { align-items: center; padding-inline: 8px; }
+      #majiflow-control-workspace .mc-product:not([data-viewport="mobile"]) .mc-site-switch { width: 42px; justify-content: center; padding: 0; }
+      #majiflow-control-workspace .mc-product:not([data-viewport="mobile"]) .mc-app-link { justify-content: center; padding: 8px; }
+      #majiflow-control-workspace .mc-product:not([data-viewport="mobile"]) .mc-ops-shell { grid-template-columns: 224px minmax(0, 1fr); }
+      #majiflow-control-workspace .mc-product:not([data-viewport="mobile"]) .mc-product[data-model="b"] .mc-ops-shell { grid-template-columns: 224px minmax(0, 1fr); }
+    }
+
+    @media (pointer: coarse) {
+      #majiflow-control-workspace button { min-height: 44px; }
+    }
+  </style>
+
+  <div class="mc-review-head">
+    <div>
+      <h2 class="mc-review-title">Operator workspace refinements</h2>
+      <div class="mc-review-subtitle">Route-first hierarchy, map-first idle state, and explicit manual entity control.</div>
+    </div>
+    <div class="mc-preview-switch" aria-label="Preview size">
+      <button type="button" data-viewport="desktop" aria-pressed="true">Desktop</button>
+      <button type="button" data-viewport="mobile" aria-pressed="false">Mobile</button>
+    </div>
+  </div>
+
+  <div class="mc-directions" aria-label="Control layout alternatives">
+    <button class="mc-direction" type="button" data-model="a" aria-pressed="true">
+      <span class="mc-direction-map" aria-hidden="true"><span class="mc-thumb-routes"></span><span class="mc-thumb-map"></span><span class="mc-thumb-manual"></span></span>
+      <span><span class="mc-direction-name">Contextual drawer <span class="mc-pick">Best balance</span></span><span class="mc-direction-note">Routes stay primary; manual controls appear only after entity selection.</span></span>
+    </button>
+    <button class="mc-direction" type="button" data-model="b" aria-pressed="false">
+      <span class="mc-direction-map" aria-hidden="true"><span class="mc-thumb-routes"></span><span class="mc-thumb-map"></span><span class="mc-thumb-manual"></span></span>
+      <span><span class="mc-direction-name">Permanent control rail</span><span class="mc-direction-note">Manual control is obvious, but the map is compressed even when idle.</span></span>
+    </button>
+    <button class="mc-direction" type="button" data-model="c" aria-pressed="false">
+      <span class="mc-direction-map" aria-hidden="true"><span class="mc-thumb-routes"></span><span class="mc-thumb-map"></span><span class="mc-thumb-manual"></span></span>
+      <span><span class="mc-direction-name">In-canvas controls</span><span class="mc-direction-note">Largest canvas, but overlays obscure topology and weaken scan order.</span></span>
+    </button>
+  </div>
+
+  <section class="mc-product" data-model="a" data-viewport="desktop" data-entity-open="false" aria-label="MajiFlow operator workspace mockup">
+    <aside class="mc-app-rail">
+      <div class="mc-brand"><span class="mc-brand-mark">M</span><span class="mc-brand-name">MajiFlow</span></div>
+      <button class="mc-site-switch" type="button" aria-label="Switch site"><span class="mc-site-live"></span><span class="mc-site-copy"><span class="mc-site-name">Riverside Farm</span><span class="mc-site-state">3 controllers online</span></span><i data-lucide="chevrons-up-down" aria-hidden="true"></i></button>
+      <div class="mc-app-label">Workspace</div>
+      <button class="mc-app-link" type="button"><i data-lucide="layout-grid" aria-hidden="true"></i><span>Sites</span></button>
+      <button class="mc-app-link" type="button"><i data-lucide="users" aria-hidden="true"></i><span>Customers</span></button>
+      <button class="mc-app-link" type="button"><i data-lucide="microchip" aria-hidden="true"></i><span>Device fleet</span></button>
+      <div class="mc-app-label">Riverside Farm</div>
+      <button class="mc-app-link" type="button" aria-current="page"><i data-lucide="activity" aria-hidden="true"></i><span>Live dashboard</span></button>
+      <button class="mc-app-link" type="button"><i data-lucide="clock-3" aria-hidden="true"></i><span>Automations</span></button>
+      <button class="mc-app-link" type="button"><i data-lucide="receipt" aria-hidden="true"></i><span>Billing</span></button>
+      <button class="mc-app-link" type="button"><i data-lucide="book-open" aria-hidden="true"></i><span>Documentation</span></button>
+      <button class="mc-app-link" type="button"><i data-lucide="wrench" aria-hidden="true"></i><span>Design &amp; deploy</span></button>
+      <div class="mc-app-foot">
+        <button class="mc-app-link" type="button"><i data-lucide="bell" aria-hidden="true"></i><span>Alerts</span><span class="mc-alert-count">3</span></button>
+        <button class="mc-account" type="button"><span class="mc-avatar">AM</span><span class="mc-account-copy"><span class="mc-account-name">admin@maji.local</span><span class="mc-account-role">Admin</span></span></button>
+      </div>
+    </aside>
+
+    <div class="mc-stage mc-desktop-shell">
+      <header class="mc-site-bar">
+        <div class="mc-breadcrumb">Sites&nbsp; / &nbsp;<strong>Riverside Farm</strong>&nbsp; / &nbsp;Live control</div>
+        <span class="mc-live-pill">Live</span>
+        <button class="mc-site-action" type="button" aria-label="Search"><i data-lucide="search" aria-hidden="true"></i></button>
+        <button class="mc-site-action" type="button" aria-label="More site actions"><i data-lucide="ellipsis" aria-hidden="true"></i></button>
+      </header>
+
+      <div class="mc-ops-shell">
+        <aside class="mc-route-dock" aria-label="Route controls">
+          <div class="mc-dock-head"><span class="mc-dock-title">Routes</span><span class="mc-dock-count">3 ready</span><button class="mc-stop-all" type="button">Stop all</button></div>
+          <div class="mc-route-help">Primary operating controls. Tap a route to start or stop it.</div>
+
+          <button class="mc-route-control" type="button" data-route="borehole" aria-pressed="false">
+            <span class="mc-route-progress"></span><span class="mc-route-hit"><i data-lucide="play" aria-hidden="true"></i></span><span class="mc-route-copy"><span class="mc-route-name">Borehole → Main tank</span><span class="mc-route-state">Ready · stops at 90%</span></span><span class="mc-route-more"><i data-lucide="chevron-right" aria-hidden="true"></i></span>
+          </button>
+          <button class="mc-route-control" type="button" data-route="orchard" aria-pressed="false">
+            <span class="mc-route-progress"></span><span class="mc-route-hit"><i data-lucide="play" aria-hidden="true"></i></span><span class="mc-route-copy"><span class="mc-route-name">Main tank → Orchard</span><span class="mc-route-state">Ready · scheduled 18:00</span></span><span class="mc-route-more"><i data-lucide="chevron-right" aria-hidden="true"></i></span>
+          </button>
+          <button class="mc-route-control" type="button" data-route="greenhouse" aria-pressed="false">
+            <span class="mc-route-progress"></span><span class="mc-route-hit"><i data-lucide="play" aria-hidden="true"></i></span><span class="mc-route-copy"><span class="mc-route-name">Main tank → Greenhouse</span><span class="mc-route-state">Ready · manual</span></span><span class="mc-route-more"><i data-lucide="chevron-right" aria-hidden="true"></i></span>
+          </button>
+
+          <div class="mc-dock-spacer"></div>
+          <button class="mc-manual-entry" type="button" data-open-entity="pump"><i data-lucide="sliders-horizontal" aria-hidden="true"></i><span class="mc-manual-entry-copy"><span class="mc-manual-entry-title">Manual controls</span><span class="mc-manual-entry-note">1 pump · 2 valves</span></span><i data-lucide="chevron-right" aria-hidden="true"></i></button>
+        </aside>
+
+        <section class="mc-map-pane" aria-label="Live site map">
+          <div class="mc-map-toolbar"><button class="mc-map-tool" type="button" aria-label="Fit map"><i data-lucide="scan" aria-hidden="true"></i></button><button class="mc-map-tool" type="button" aria-label="Zoom in"><i data-lucide="plus" aria-hidden="true"></i></button><button class="mc-map-tool" type="button" aria-label="Zoom out"><i data-lucide="minus" aria-hidden="true"></i></button></div>
+          <div class="mc-map-health">All safety checks passing</div>
+          <span class="mc-pipe mc-pipe-one"></span><span class="mc-pipe mc-pipe-two"></span><span class="mc-pipe mc-pipe-three"></span><span class="mc-pipe mc-pipe-four"></span>
+          <div class="mc-static-node mc-node-source"><i data-lucide="waves" aria-hidden="true"></i><span>Borehole</span></div>
+          <button class="mc-entity-node mc-node-pump" type="button" data-open-entity="pump" aria-label="Transfer pump, stopped" aria-pressed="false"><i data-lucide="circle-gauge" aria-hidden="true"></i></button><span class="mc-node-label mc-label-pump">Transfer pump · stopped</span>
+          <button class="mc-entity-node mc-node-valve-a" type="button" data-open-entity="valve-a" aria-label="Tank inlet valve, closed" aria-pressed="false"><i data-lucide="circle-dot" aria-hidden="true"></i></button><span class="mc-node-label mc-label-valve-a">Tank inlet · closed</span>
+          <button class="mc-entity-node mc-node-valve-b" type="button" data-open-entity="valve-b" aria-label="Orchard valve, closed" aria-pressed="false"><i data-lucide="circle-dot" aria-hidden="true"></i></button><span class="mc-node-label mc-label-valve-b">Orchard valve · closed</span>
+          <div class="mc-static-node mc-node-tank"><i data-lucide="cylinder" aria-hidden="true"></i><span>Main tank<br>78%</span></div>
+          <div class="mc-static-node mc-node-orchard"><i data-lucide="sprout" aria-hidden="true"></i><span>Orchard</span></div>
+          <div class="mc-map-idle">Select a pump or valve for manual control</div>
+        </section>
+
+        <aside class="mc-entity-panel" aria-label="Manual entity control">
+          <div class="mc-panel-head"><div class="mc-panel-heading"><div class="mc-panel-kicker">Manual control</div><div class="mc-panel-title" data-entity-name>Transfer pump</div></div><button class="mc-panel-close" type="button" aria-label="Close manual controls"><i data-lucide="x" aria-hidden="true"></i></button></div>
+          <div class="mc-entity-tabs" aria-label="Manual entities"><button class="mc-entity-tab" type="button" data-open-entity="pump" aria-pressed="true">Pump</button><button class="mc-entity-tab" type="button" data-open-entity="valve-a" aria-pressed="false">Inlet</button><button class="mc-entity-tab" type="button" data-open-entity="valve-b" aria-pressed="false">Orchard</button></div>
+          <div class="mc-control-status"><div><div class="mc-control-state-label">Reported state</div><div class="mc-control-state" data-entity-state>Stopped</div></div><span class="mc-available">Available</span></div>
+          <div class="mc-control-facts"><div class="mc-control-fact"><span class="mc-fact-label">Controller</span><span class="mc-fact-value">Borehole · online</span></div><div class="mc-control-fact"><span class="mc-fact-label">Last changed</span><span class="mc-fact-value">12 min ago</span></div></div>
+          <div class="mc-safety-note"><i data-lucide="shield-check" aria-hidden="true"></i><span data-safety-copy>Route interlocks remain active. The pump stops if this page loses its control lease.</span></div>
+          <button class="mc-control-action" type="button" data-manual-action data-active="false">Run pump</button>
+          <div class="mc-control-caption" data-control-caption>Creates a live operator claim; it does not change automation.</div>
+        </aside>
+      </div>
+    </div>
+
+    <div class="mc-mobile-shell">
+      <header class="mc-mobile-head"><button class="mc-mobile-site" type="button"><span class="mc-mobile-site-name">Riverside Farm⌄</span><span class="mc-mobile-site-state">3 controllers online</span></button><button class="mc-mobile-head-action" type="button" aria-label="Stop all routes"><i data-lucide="octagon" aria-hidden="true"></i></button><button class="mc-mobile-head-action" type="button" aria-label="More site actions"><i data-lucide="ellipsis" aria-hidden="true"></i></button></header>
+      <div class="mc-mobile-modes" role="tablist" aria-label="Dashboard view"><button class="mc-mobile-mode" id="mc-control-tab" type="button" role="tab" aria-controls="mc-control-panel" aria-selected="true" data-mobile-mode="control">Controls</button><button class="mc-mobile-mode" id="mc-map-tab" type="button" role="tab" aria-controls="mc-map-panel" aria-selected="false" data-mobile-mode="map">Map</button></div>
+      <div class="mc-mobile-body">
+        <div class="mc-mobile-controls" id="mc-control-panel" role="tabpanel" aria-labelledby="mc-control-tab">
+          <div class="mc-mobile-section-head"><span class="mc-mobile-section-title">Routes</span><button class="mc-mobile-stop" type="button">Stop all</button></div>
+          <button class="mc-mobile-route" type="button"><span class="mc-mobile-route-icon"><i data-lucide="play" aria-hidden="true"></i></span><span><span class="mc-mobile-route-name">Borehole → Main tank</span><span class="mc-mobile-route-state">Ready · stops at 90%</span></span><i data-lucide="chevron-right" aria-hidden="true"></i></button>
+          <button class="mc-mobile-route" type="button"><span class="mc-mobile-route-icon"><i data-lucide="play" aria-hidden="true"></i></span><span><span class="mc-mobile-route-name">Main tank → Orchard</span><span class="mc-mobile-route-state">Ready · scheduled 18:00</span></span><i data-lucide="chevron-right" aria-hidden="true"></i></button>
+          <button class="mc-mobile-route" type="button"><span class="mc-mobile-route-icon"><i data-lucide="play" aria-hidden="true"></i></span><span><span class="mc-mobile-route-name">Main tank → Greenhouse</span><span class="mc-mobile-route-state">Ready · manual</span></span><i data-lucide="chevron-right" aria-hidden="true"></i></button>
+          <div class="mc-mobile-section-head" style="margin-top:18px"><span class="mc-mobile-section-title">Manual controls</span></div>
+          <div class="mc-manual-grid"><button class="mc-mobile-entity" type="button" data-mobile-entity="pump"><i data-lucide="circle-gauge" aria-hidden="true"></i><span class="mc-mobile-entity-copy"><span class="mc-mobile-entity-name">Transfer pump</span><span class="mc-mobile-entity-state">Stopped</span></span></button><button class="mc-mobile-entity" type="button" data-mobile-entity="valve-a"><i data-lucide="circle-dot" aria-hidden="true"></i><span class="mc-mobile-entity-copy"><span class="mc-mobile-entity-name">Tank inlet</span><span class="mc-mobile-entity-state">Closed</span></span></button><button class="mc-mobile-entity" type="button" data-mobile-entity="valve-b"><i data-lucide="circle-dot" aria-hidden="true"></i><span class="mc-mobile-entity-copy"><span class="mc-mobile-entity-name">Orchard valve</span><span class="mc-mobile-entity-state">Closed</span></span></button></div>
+        </div>
+
+        <div class="mc-mobile-map mc-hidden" id="mc-map-panel" role="tabpanel" aria-labelledby="mc-map-tab">
+          <div class="mc-map-toolbar"><button class="mc-map-tool" type="button" aria-label="Fit map"><i data-lucide="scan" aria-hidden="true"></i></button><button class="mc-map-tool" type="button" aria-label="Zoom in"><i data-lucide="plus" aria-hidden="true"></i></button><button class="mc-map-tool" type="button" aria-label="Zoom out"><i data-lucide="minus" aria-hidden="true"></i></button></div>
+          <span class="mc-pipe mc-pipe-one"></span><span class="mc-pipe mc-pipe-two"></span><span class="mc-pipe mc-pipe-three"></span><span class="mc-pipe mc-pipe-four"></span>
+          <div class="mc-static-node mc-node-source"><i data-lucide="waves" aria-hidden="true"></i><span>Borehole</span></div>
+          <button class="mc-entity-node mc-node-pump" type="button" data-mobile-entity="pump" aria-label="Transfer pump, stopped"><i data-lucide="circle-gauge" aria-hidden="true"></i></button>
+          <button class="mc-entity-node mc-node-valve-a" type="button" data-mobile-entity="valve-a" aria-label="Tank inlet valve, closed"><i data-lucide="circle-dot" aria-hidden="true"></i></button>
+          <button class="mc-entity-node mc-node-valve-b" type="button" data-mobile-entity="valve-b" aria-label="Orchard valve, closed"><i data-lucide="circle-dot" aria-hidden="true"></i></button>
+          <div class="mc-static-node mc-node-tank"><i data-lucide="cylinder" aria-hidden="true"></i><span>Main tank<br>78%</span></div>
+          <div class="mc-static-node mc-node-orchard"><i data-lucide="sprout" aria-hidden="true"></i><span>Orchard</span></div>
+          <div class="mc-map-hint">Tap a pump or valve to inspect and control it</div>
+        </div>
+
+        <aside class="mc-mobile-sheet mc-hidden" aria-live="polite">
+          <div class="mc-mobile-sheet-head"><span class="mc-mobile-sheet-icon"><i data-lucide="circle-gauge" aria-hidden="true"></i></span><span class="mc-mobile-sheet-copy"><span class="mc-mobile-sheet-title" data-mobile-entity-name>Transfer pump</span><span class="mc-mobile-sheet-state" data-mobile-entity-state>Stopped · available</span></span><button class="mc-mobile-sheet-close" type="button" aria-label="Close entity controls"><i data-lucide="x" aria-hidden="true"></i></button></div>
+          <button class="mc-mobile-sheet-action" type="button" data-mobile-manual-action data-active="false">Run pump</button>
+        </aside>
+
+        <nav class="mc-mobile-nav" aria-label="Primary navigation"><button type="button" aria-current="page"><i data-lucide="activity" aria-hidden="true"></i><span>Dashboard</span></button><button type="button"><i data-lucide="clock-3" aria-hidden="true"></i><span>Automations</span></button><button type="button"><i data-lucide="bell" aria-hidden="true"></i><span>Alerts</span><span class="mc-mobile-badge">3</span></button><button type="button"><i data-lucide="menu" aria-hidden="true"></i><span>More</span></button></nav>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      const root = document.getElementById('majiflow-control-workspace');
+      const product = root.querySelector('.mc-product');
+      const state = { model: 'a', viewport: 'desktop', mobileMode: 'control', entity: '', routeRunning: false, manualActive: false };
+      const entities = {
+        pump: { name: 'Transfer pump', off: 'Stopped', on: 'Running', action: 'Run pump', stop: 'Stop pump', safety: 'Route interlocks remain active. The pump stops if this page loses its control lease.', caption: 'Creates a live operator claim; it does not change automation.' },
+        'valve-a': { name: 'Tank inlet valve', off: 'Closed', on: 'Open', action: 'Hold valve open', stop: 'Close valve', safety: 'Travel time and route interlocks remain active. The valve closes if the control lease expires.', caption: 'The hold is temporary and does not change route configuration.' },
+        'valve-b': { name: 'Orchard valve', off: 'Closed', on: 'Open', action: 'Hold valve open', stop: 'Close valve', safety: 'Travel time and route interlocks remain active. The valve closes if the control lease expires.', caption: 'The hold is temporary and does not change route configuration.' }
+      };
+
+      function renderIcons() {
+        if (globalThis.lucide) globalThis.lucide.createIcons({ attrs: { width: 17, height: 17 } });
+      }
+
+      function render() {
+        product.dataset.model = state.model;
+        product.dataset.viewport = state.viewport;
+        const entityOpen = state.model === 'b' || Boolean(state.entity);
+        product.dataset.entityOpen = String(entityOpen);
+
+        root.querySelectorAll('.mc-direction').forEach((el) => el.setAttribute('aria-pressed', String(el.dataset.model === state.model)));
+        root.querySelectorAll('[data-viewport]').forEach((el) => {
+          if (el.closest('.mc-preview-switch')) el.setAttribute('aria-pressed', String(el.dataset.viewport === state.viewport));
+        });
+        root.querySelectorAll('[data-mobile-mode]').forEach((el) => el.setAttribute('aria-selected', String(el.dataset.mobileMode === state.mobileMode)));
+        root.querySelector('.mc-mobile-controls').classList.toggle('mc-hidden', state.mobileMode !== 'control');
+        root.querySelector('.mc-mobile-map').classList.toggle('mc-hidden', state.mobileMode !== 'map');
+
+        const activeEntity = state.entity || (state.model === 'b' ? 'pump' : '');
+        root.querySelectorAll('[data-open-entity]').forEach((el) => el.setAttribute('aria-pressed', String(el.dataset.openEntity === activeEntity)));
+        root.querySelectorAll('.mc-entity-node').forEach((el) => {
+          const key = el.dataset.openEntity || el.dataset.mobileEntity;
+          if (key) el.setAttribute('aria-pressed', String(key === activeEntity));
+        });
+
+        if (activeEntity) {
+          const e = entities[activeEntity];
+          root.querySelector('[data-entity-name]').textContent = e.name;
+          root.querySelector('[data-entity-state]').textContent = state.manualActive ? e.on : e.off;
+          root.querySelector('[data-safety-copy]').textContent = e.safety;
+          root.querySelector('[data-control-caption]').textContent = e.caption;
+          const action = root.querySelector('[data-manual-action]');
+          action.textContent = state.manualActive ? e.stop : e.action;
+          action.dataset.active = String(state.manualActive);
+
+          root.querySelector('[data-mobile-entity-name]').textContent = e.name;
+          root.querySelector('[data-mobile-entity-state]').textContent = `${state.manualActive ? e.on : e.off} · available`;
+          const mobileAction = root.querySelector('[data-mobile-manual-action]');
+          mobileAction.textContent = state.manualActive ? e.stop : e.action;
+          mobileAction.dataset.active = String(state.manualActive);
+        }
+
+        const route = root.querySelector('[data-route="borehole"]');
+        route.setAttribute('aria-pressed', String(state.routeRunning));
+        route.querySelector('.mc-route-state').textContent = state.routeRunning ? 'Running · 64% · 23 L/min' : 'Ready · stops at 90%';
+        const routeIcon = route.querySelector('[data-lucide]');
+        routeIcon.setAttribute('data-lucide', state.routeRunning ? 'square' : 'play');
+        renderIcons();
+      }
+
+      function selectEntity(key, mobile) {
+        state.entity = key;
+        state.manualActive = false;
+        if (mobile) root.querySelector('.mc-mobile-sheet').classList.remove('mc-hidden');
+        render();
+      }
+
+      root.querySelectorAll('.mc-direction').forEach((el) => el.addEventListener('click', () => { state.model = el.dataset.model; if (state.model === 'b' && !state.entity) state.entity = 'pump'; render(); }));
+      root.querySelectorAll('.mc-preview-switch [data-viewport]').forEach((el) => el.addEventListener('click', () => { state.viewport = el.dataset.viewport; render(); }));
+      root.querySelectorAll('[data-mobile-mode]').forEach((el) => el.addEventListener('click', () => { state.mobileMode = el.dataset.mobileMode; root.querySelector('.mc-mobile-sheet').classList.add('mc-hidden'); render(); }));
+      root.querySelectorAll('[data-open-entity]').forEach((el) => el.addEventListener('click', () => selectEntity(el.dataset.openEntity, false)));
+      root.querySelectorAll('[data-mobile-entity]').forEach((el) => el.addEventListener('click', () => selectEntity(el.dataset.mobileEntity, true)));
+      root.querySelector('.mc-panel-close').addEventListener('click', () => { state.entity = ''; state.manualActive = false; render(); });
+      root.querySelector('.mc-mobile-sheet-close').addEventListener('click', () => root.querySelector('.mc-mobile-sheet').classList.add('mc-hidden'));
+      root.querySelector('[data-route="borehole"]').addEventListener('click', () => { state.routeRunning = !state.routeRunning; render(); });
+      root.querySelector('[data-manual-action]').addEventListener('click', () => { state.manualActive = !state.manualActive; render(); });
+      root.querySelector('[data-mobile-manual-action]').addEventListener('click', () => { state.manualActive = !state.manualActive; render(); });
+
+      render();
+      if (globalThis.Tweak) {
+        const tweak = new Tweak({ container: product, onChange: render });
+        tweak.addSelect(state, 'model', { label: 'Control layout', options: [{ label: 'Contextual drawer', value: 'a' }, { label: 'Permanent control rail', value: 'b' }, { label: 'In-canvas controls', value: 'c' }], reference: 'operator.layout' });
+        tweak.addSelect(state, 'viewport', { label: 'Viewport', options: ['desktop', 'mobile'], reference: 'operator.viewport' });
+        tweak.addSelect(state, 'mobileMode', { label: 'Mobile view', options: [{ label: 'Controls', value: 'control' }, { label: 'Map', value: 'map' }], reference: 'operator.mobile_view' });
+      }
+    })();
+  </script>
+</div>

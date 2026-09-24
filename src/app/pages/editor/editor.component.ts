@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, signal, computed, effect } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SystemEditorService, PANEL_LABELS, SLUG_PANELS } from '../../core/services/system-editor.service';
 import { WorkspaceService } from '../../core/services/workspace.service';
 import { BoardService } from '../../core/services/board.service';
@@ -16,7 +16,6 @@ import { ControllerSelectComponent } from './shared/controller-select.component'
   selector: 'app-editor',
   standalone: true,
   imports: [
-    RouterLink,
     WorkspaceRailComponent,
     ControllerSelectComponent,
     TopologyX6TabComponent,
@@ -29,25 +28,17 @@ import { ControllerSelectComponent } from './shared/controller-select.component'
     class: 'flex-1 min-h-0 flex overflow-hidden',
     '[class.preview]': 'editor.readonly()',
   },
+  styles: [`
+    :host{--op-border:#d7ded8;--op-ink:#152019;--op-muted:#68756d;--op-shell:#fbfcfa;--op-panel:#f3f6f2;--op-blue:#196ca6;--color-base-100:var(--op-shell);--color-base-200:var(--op-panel);--color-base-300:var(--op-border);--color-base-content:var(--op-ink)}.system-shell{display:flex;flex:1;min-width:0;min-height:0;flex-direction:column;background:var(--op-shell)}.system-context{height:64px;min-height:64px;padding:0 20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--op-border);background:var(--op-shell)}.system-context-copy{width:210px;min-width:0}.system-context-copy strong{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:17px}.system-context-copy span{display:block;margin-top:3px;color:var(--op-muted);font-size:11px}.system-workflow{min-width:0;flex:1;display:flex;justify-content:center}.controller-picker{flex:none}.system-content{display:flex;flex:1;min-width:0;min-height:0;flex-direction:column}@media(max-width:767.98px){.system-context{height:56px;min-height:56px;padding:6px 8px}.system-context-copy,.controller-picker{display:none}.system-workflow{width:100%;justify-content:stretch}}
+  `],
   template: `
-    <!-- Primary navigation: which part of this site -->
-    <app-workspace-rail />
-
-    <div class="flex-1 flex flex-col min-h-0 min-w-0">
-      <!-- Sub-header: breadcrumb + the ONE controller switcher -->
-      <div class="sub-header">
-        <a routerLink="/overview" class="text-base-content/50 hover:text-base-content transition-colors shrink-0">Sites</a>
-        <span class="text-base-content/30 shrink-0">&rsaquo;</span>
-        <a [routerLink]="['/site', siteId()]"
-          class="font-medium truncate max-w-[30%] hover:text-primary transition-colors"
-          [class.text-primary]="editor.panel() === 'site'">{{ siteName() }}</a>
-        <span class="text-base-content/30 shrink-0">&rsaquo;</span>
-        <span class="font-semibold text-primary truncate shrink-0">{{ sectionLabel() }}</span>
-
-        <div class="flex-1"></div>
+    <div class="system-shell workspace-page">
+      <div class="system-context">
+        <div class="system-context-copy"><strong>{{siteName()}}</strong><span>System · {{sectionLabel()}}</span></div>
+        <div class="system-workflow"><app-workspace-rail /></div>
 
         @if (editor.panel() !== 'site') {
-          <app-controller-select />
+          <div class="controller-picker"><app-controller-select /></div>
         }
       </div>
 
@@ -64,7 +55,7 @@ import { ControllerSelectComponent } from './shared/controller-select.component'
       }
 
       <!-- Content: the design canvas stays mounted (display toggle) to preserve X6 state -->
-      <div class="flex flex-col flex-1 min-h-0">
+      <div class="system-content">
         <main class="flex-1 min-h-0 min-w-0 flex flex-col"
           [style.display]="editor.panel() === 'design' ? 'flex' : 'none'">
           <app-topology-x6-tab />

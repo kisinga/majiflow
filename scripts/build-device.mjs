@@ -127,7 +127,14 @@ export function packDeviceUiDist(dist) {
 }
 
 function main() {
-  const run = (cmd, args) => execFileSync(cmd, args, { stdio: 'inherit' });
+  // Device builds are release artifacts, not watch builds. Mark the child as CI
+  // so Angular disables its local LMDB cache; on macOS that native cache can
+  // abort while reopening the second (file-replaced) build target. The normal
+  // cloud/watch workflow keeps its cache.
+  const run = (cmd, args) => execFileSync(cmd, args, {
+    stdio: 'inherit',
+    env: { ...process.env, CI: '1' },
+  });
 
   // Invoke the CLI's JS entry directly: spawning the ng.cmd shim throws EINVAL
   // under Node ≥18.20's CVE-2024-27980 hardening on win32.

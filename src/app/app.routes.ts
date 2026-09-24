@@ -147,6 +147,25 @@ export const routes: Routes = [
     // build routes the same path to the same component (app.routes.device.ts).
     path: 'site/:name/dashboard',
     canActivate: [authGuard],
+    data: { workspaceView: 'operate' },
+    loadComponent: () =>
+      import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+  },
+  {
+    // Reporting is deliberately separate from the operator surface: routes and
+    // topology own Operations; history and configurable widgets live here.
+    path: 'site/:name/insights',
+    canActivate: [authGuard],
+    data: { workspaceView: 'insights' },
+    loadComponent: () =>
+      import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+  },
+  {
+    // Shared cloud/device commissioning surface. It reuses the dashboard stores
+    // and device provider swaps, so configuration writes keep their one path.
+    path: 'site/:name/settings',
+    canActivate: [authGuard],
+    data: { workspaceView: 'settings' },
     loadComponent: () =>
       import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
   },

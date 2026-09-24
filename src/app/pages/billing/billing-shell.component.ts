@@ -32,14 +32,12 @@ const METER_SILENCE_MS = 48 * 3_600_000;
   selector: 'app-billing-shell',
   standalone: true,
   imports: [RouterLink, RouterLinkActive, RouterOutlet, BillingPageErrorComponent],
-  host: { class: 'flex-1 overflow-auto' },
+  host: { class: 'flex-1 min-h-0 min-w-0 flex overflow-hidden' },
+  styles: [`
+    :host{--op-shell:#fbfcfa;--op-panel:#f3f6f2;--op-border:#d7ded8;--op-ink:#152019;--op-muted:#68756d;--color-base-100:var(--op-shell);--color-base-200:var(--op-panel);--color-base-300:var(--op-border);--color-base-content:var(--op-ink)}.billing-page{display:flex;flex:1;min-width:0;min-height:0;flex-direction:column;background:var(--op-shell);color:var(--op-ink)}.billing-context{height:64px;min-height:64px;padding:0 24px;display:flex;align-items:center;border-bottom:1px solid var(--op-border)}.billing-context h1{margin:0;font-size:18px;font-weight:800}.billing-context p{margin:3px 0 0;color:var(--op-muted);font-size:11px}.billing-scroll{flex:1;min-height:0;overflow:auto}.billing-content{display:flex;flex-direction:column;gap:20px}@media(max-width:767.98px){.billing-context{display:none}}
+  `],
   template: `
-    <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-5 sm:py-6 flex flex-col gap-5">
-      <header class="min-w-0">
-        <a [routerLink]="['/site', siteId(), 'dashboard']" class="text-xs text-base-content/50 hover:text-base-content/80 transition-colors">← Dashboard</a>
-        <h1 class="app-title text-xl font-semibold mt-0.5">Billing</h1>
-        <p class="text-sm text-base-content/50 mt-0.5">Tenant water billing{{ siteName() ? ' for ' + siteName() : '' }} — meters, accounts, invoices and payments.</p>
-      </header>
+    <div class="billing-page"><header class="billing-context"><div><h1>{{siteName()||'Site'}}</h1><p>Billing · meters, accounts, invoices and payments</p></div></header><div class="billing-scroll"><div class="billing-content page-container">
 
       @if (probeError(); as pe) {
         <app-billing-page-error [text]="pe" (retry)="retryProbe()" />
@@ -112,7 +110,7 @@ const METER_SILENCE_MS = 48 * 3_600_000;
         </nav>
         <router-outlet />
       }
-    </div>
+    </div></div></div>
   `,
 })
 export class BillingShellComponent {

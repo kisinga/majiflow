@@ -57,7 +57,8 @@ function ensureFlowStyles(): void {
   if (document.getElementById(FLOW_STYLE_ID)) return;
   const style = document.createElement('style');
   style.id = FLOW_STYLE_ID;
-  style.textContent = `@keyframes x6-flow { to { stroke-dashoffset: -1000; } }`;
+  style.textContent = `@keyframes x6-flow { to { stroke-dashoffset: -1000; } }
+@media (prefers-reduced-motion: reduce) { .x6-edge path { animation: none !important; } }`;
   document.head.appendChild(style);
 }
 
@@ -94,13 +95,12 @@ export class X6Canvas {
       async: options?.async ?? true,
       grid: options?.grid === false
         ? { visible: false }
-        // Dark slate canvas (slate-900), framed by the slate-800 toolbar/sidebar.
-        // Entity nodes render as dark slate chips (UI_COLORS.bg) with light labels
-        // and their own colour as the stroke, so they sit naturally on it.
-        : { visible: true, type: 'dot', args: [{ color: '#334155' }] },
+        // The editor uses the same light operational canvas as the live map.
+        // Geometry and highlight layers are unchanged; this is presentation only.
+        : { visible: true, type: 'dot', args: [{ color: '#cbd8cf' }] },
       background: options?.background === false
         ? false
-        : { color: '#0f172a' },
+        : { color: '#edf2ee' },
       panning: { enabled: true, eventTypes: ['leftMouseDown'], modifiers: [] },
       mousewheel: { enabled: true, factor: 1.1, minScale: 0.2, maxScale: 3 },
       connecting: {

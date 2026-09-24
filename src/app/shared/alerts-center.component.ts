@@ -13,10 +13,26 @@ import type { AlertSeverity, DerivedAlert } from '../core/models/alerts';
   selector: 'app-alerts-center',
   standalone: true,
   imports: [RouterLink],
+  styles: [`
+    :host { display: contents; }
+    :host-context(.global-rail) details { position: relative; }
+    :host-context(.global-rail) summary {
+      width: 48px;
+      min-width: 48px;
+      height: 48px;
+      min-height: 48px;
+      border-radius: 12px;
+      color: var(--op-muted);
+    }
+    :host-context(.global-rail) .dropdown-content {
+      inset: auto auto 0 calc(100% + 12px);
+      margin: 0;
+    }
+  `],
   template: `
-    <details class="dropdown dropdown-end" #dd>
+    <details name="global-menu" class="dropdown dropdown-end" #dd>
       <summary
-        class="btn btn-ghost btn-sm btn-square list-none relative"
+        class="btn btn-ghost btn-sm btn-square touch-target list-none relative"
         [title]="count() ? count() + ' active alert(s)' : 'No active alerts'"
         aria-label="Alerts"
       >

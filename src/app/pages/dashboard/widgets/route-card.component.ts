@@ -1,4 +1,5 @@
 import { Component, computed, input, output, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { describeState, routeLabel, FAULT_MEANINGS, STOP_REASON_MEANINGS, RUN_TARGET_FIELDS, runTargetMax, runTargetChips, type RouteControl, type CommandPhase, type StopSpecOverride, type RunTargetField, type TargetAvailability } from '@core';
 import { phaseUi } from './command-phase';
 import { formatInitiator } from './initiator';
@@ -34,27 +35,54 @@ interface RouteView {
 }
 
 /**
- * One route, drawn as a `source → destination` pipe. The whole card is the control
- * (tap to start/stop/reset) AND, while running, the progress bar: it fills left→right
- * toward the run's nearest stop target (volume / level / time), with the delivered
- * amount and goal on the right. Colour + words + the fill all track the live state.
+ * One route, drawn as a `source → destination` pipe. The card is a status/progress
+ * surface with explicit controls at either edge: route actuation on the left and
+ * route-scoped automation management on the right. The centre never sends a hardware
+ * command; while idle it only discloses the optional one-off run-target editor.
  * Presentational — the page wires state, flow, and the computed progress.
  */
 @Component({
   selector: 'app-route-card',
   standalone: true,
+  imports: [NgTemplateOutlet],
+  host: { class: 'block w-full min-w-0' },
   styles: [`
+    :host { display: block; width: 100%; min-width: 0; }
     @keyframes rc-sweep { 0% { transform: translateX(-120%); } 100% { transform: translateX(420%); } }
     .rc-sweep { animation: rc-sweep 1.8s ease-in-out infinite; }
+    .rc-card { transition: box-shadow var(--motion-selection, 170ms) var(--ease-standard, ease), border-color var(--motion-selection, 170ms) var(--ease-standard, ease); }
+    .rc-card.is-automation-selected { background:linear-gradient(90deg,var(--op-blue-surface,#e0f0fb),#fff 44%);box-shadow:0 0 0 2px var(--op-blue,#196ca6),0 8px 22px color-mix(in srgb,var(--op-blue,#196ca6) 16%,transparent); }
+    .rc-card.is-automation-selected .rc-automation{color:var(--op-blue,#196ca6);background:var(--op-blue-surface,#e0f0fb)}
+    .rc-row { min-height: 64px; }
+    .rc-action,.rc-automation,.rc-summary { position: relative; transition: color var(--motion-press, 130ms) var(--ease-standard, ease), background-color var(--motion-press, 130ms) var(--ease-standard, ease), transform var(--motion-press, 130ms) var(--ease-standard, ease); }
+    .rc-action { width: 58px; min-width: 58px; display: grid; place-items: center; border-right: 1px solid color-mix(in srgb, currentColor 10%, transparent); }
+    .rc-action:hover:not(:disabled) { background: color-mix(in srgb, currentColor 7%, transparent); }
+    .rc-action:active:not(:disabled),.rc-automation:active:not(:disabled) { transform: scale(.97); }
+    .rc-action:focus-visible,.rc-automation:focus-visible,.rc-summary:focus-visible { z-index: 3; outline: 3px solid color-mix(in srgb,var(--op-blue,#196ca6) 30%,transparent); outline-offset: -3px; }
+    .rc-action:disabled { cursor: not-allowed; }
+    .rc-summary { min-width: 0; flex: 1; padding: 9px 10px; text-align: left; }
+    button.rc-summary:hover { background: color-mix(in srgb,var(--op-blue,#196ca6) 4%,transparent); }
+    .rc-automation { width: 54px; min-width: 54px; display: grid; place-items: center; align-content: center; gap: 1px; border-left: 1px solid var(--op-border,#d7ded8); color: var(--op-muted,#68756d); }
+    .rc-automation:hover:not(:disabled),.rc-automation.has-automations { color: var(--op-blue,#196ca6); background: var(--op-blue-surface,#e0f0fb); }
+    .rc-automation:disabled { color: color-mix(in srgb,var(--op-muted,#68756d) 45%,transparent); cursor: not-allowed; }
+    .rc-automation svg { width: 18px; height: 18px; }
+    .rc-count { min-width: 18px; height: 15px; padding: 0 4px; display: grid; place-items: center; border-radius: 999px; background: var(--op-panel-strong,#e8eee9); color: var(--op-muted,#68756d); font-size: 9px; line-height: 1; font-weight: 850; font-variant-numeric: tabular-nums; }
+    .rc-automation.has-automations .rc-count { background: #fff; color: var(--op-blue,#196ca6); }
+    .rc-target-cue { margin-left: auto; width: 18px; height: 18px; flex: none; display: grid; place-items: center; border-radius: 50%; color: var(--op-muted,#68756d); }
+    .rc-glyph { transition-duration: var(--motion-selection, 170ms); transition-timing-function: var(--ease-standard, ease); }
+    .rc-options { animation: op-page-enter var(--motion-mode, 200ms) var(--ease-enter, ease) both; }
+    @media (prefers-reduced-motion: reduce) {
+      .rc-sweep, .animate-spin, .animate-pulse { animation: none !important; }
+      [class*="transition-"] { transition: none !important; }
+    }
   `],
   template: `
-    <!-- Compact strip: control · source → destination · progress/flow, on one row.
-         While running the whole surface doubles as the progress bar (fill below the
-         content). The morphing button is the action affordance; colours, dot and ring
-         track live state. -->
-    <div class="relative isolate w-full bg-base-100 rounded-xl ring-1 transition-all overflow-hidden"
+    <!-- Explicit edge actions with a passive status/progress centre. The centre may
+         disclose one-off run targets, but only the left button can actuate a route. -->
+    <div class="rc-card relative isolate w-full bg-base-100 rounded-xl ring-1 overflow-hidden"
          [class]="cmd()?.alert ? 'ring-error/60' : view().ring"
-         [class.opacity-60]="!online()">
+         [class.is-automation-selected]="automationSelected()"
+         [class.is-offline]="!online()">
 
       <!-- progress fill: the card IS the bar while running -->
       @if (view().running && progress(); as p) {
@@ -75,17 +103,18 @@ interface RouteView {
         }
       }
 
-      <div class="relative z-10 flex items-stretch">
-        <!-- main control: the whole strip is the start/stop/reset affordance -->
+      <div class="rc-row relative z-10 flex items-stretch">
+        <!-- Only this control sends start/stop/reset. -->
         <button
           type="button"
-          class="group flex-1 min-w-0 text-left px-3 py-2.5 sm:py-2 flex items-center gap-3 disabled:cursor-not-allowed"
+          class="rc-action group {{ view().textCls }}"
           [disabled]="disabled()"
-          [title]="title()"
+          [title]="actionTitle()"
+          [attr.aria-label]="actionTitle()"
           (click)="action.emit(view().action)">
 
           <!-- control — compact morphing glyph (play↔stop↔reset) with the same rings -->
-          <span class="relative shrink-0 grid place-items-center w-9 h-9 rounded-full bg-base-100 ring-1 ring-base-300/40
+          <span class="relative shrink-0 grid place-items-center w-10 h-10 rounded-full bg-base-100 ring-1 ring-base-300/50
                        transition-all group-hover:scale-105 {{ view().textCls }}">
             <svg class="col-start-1 row-start-1 w-full h-full" [class.animate-spin]="view().spin || cmd()?.spin" viewBox="0 0 48 48" fill="none">
               <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-opacity="0.18" stroke-width="3" />
@@ -95,23 +124,49 @@ interface RouteView {
                 <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
               }
             </svg>
-            <svg class="col-start-1 row-start-1 h-4 w-4 translate-x-px transition-all duration-300 {{ view().glyph === 'play' ? 'opacity-100 scale-100' : 'opacity-0 scale-50' }}" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.5 L12.5 8 L5 12.5 Z" /></svg>
-            <svg class="col-start-1 row-start-1 h-3.5 w-3.5 transition-all duration-300 {{ view().glyph === 'stop' ? 'opacity-100 scale-100' : 'opacity-0 scale-50' }}" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="10" height="10" rx="2.5" /></svg>
-            <svg class="col-start-1 row-start-1 h-4 w-4 transition-all duration-300 {{ view().glyph === 'reset' ? 'opacity-100 scale-100' : 'opacity-0 scale-50' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.708L3 8" /><path d="M3 3v5h5" /></svg>
+            <svg class="rc-glyph col-start-1 row-start-1 h-4 w-4 translate-x-px transition-all {{ view().glyph === 'play' ? 'opacity-100 scale-100' : 'opacity-0 scale-50' }}" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.5 L12.5 8 L5 12.5 Z" /></svg>
+            <svg class="rc-glyph col-start-1 row-start-1 h-3.5 w-3.5 transition-all {{ view().glyph === 'stop' ? 'opacity-100 scale-100' : 'opacity-0 scale-50' }}" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="10" height="10" rx="2.5" /></svg>
+            <svg class="rc-glyph col-start-1 row-start-1 h-4 w-4 transition-all {{ view().glyph === 'reset' ? 'opacity-100 scale-100' : 'opacity-0 scale-50' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.708L3 8" /><path d="M3 3v5h5" /></svg>
           </span>
 
-          <!-- source → destination + state line -->
+        </button>
+
+        <!-- Route identity stays readable and owns no direct actuation. When idle,
+             it is a disclosure button for one-off target settings only. -->
+        @if (canPick()) {
+          <button type="button" class="rc-summary" (click)="togglePicker()"
+            [attr.aria-expanded]="expanded()" [title]="expanded() ? 'Hide one-off run targets' : 'Set a one-off run target'">
+            <ng-container *ngTemplateOutlet="routeSummary" />
+          </button>
+        } @else {
+          <div class="rc-summary"><ng-container *ngTemplateOutlet="routeSummary" /></div>
+        }
+
+        <!-- Route-scoped automation management is available independently of device
+             connectivity. Count is total schedules/triggers attached to this route. -->
+        <button type="button" class="rc-automation" [class.has-automations]="automationCount()>0"
+          [disabled]="!automationKey()" (click)="automation.emit()"
+          [attr.aria-label]="automationLabel()" [title]="automationLabel()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6M12 2v3"/></svg>
+          <span class="rc-count">{{automationCount()}}</span>
+        </button>
+      </div>
+
+      <ng-template #routeSummary>
           <span class="min-w-0 flex-1 flex flex-col gap-0.5">
             <span class="flex items-center gap-1 min-w-0 text-[13px] font-bold tracking-tight leading-tight">
-              <span class="truncate" [title]="route().source || ''">{{ route().source || '—' }}</span>
+              <span class="truncate">{{ route().source || '—' }}</span>
               <svg class="shrink-0 h-3 w-3 text-base-content/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-              <span class="truncate" [title]="route().destination || ''">{{ route().destination || '—' }}</span>
+              <span class="truncate">{{ route().destination || '—' }}</span>
             </span>
             <span class="inline-flex items-center gap-1.5 min-w-0 text-[11px] font-semibold leading-tight {{ cmd()?.tone || view().textCls }}">
               <span class="w-1.5 h-1.5 rounded-full shrink-0 {{ view().dotCls }}" [class.animate-pulse]="view().pulse"></span>
               <span class="truncate">{{ labelText() }}</span>
               @if (originText()) {
                 <span class="text-base-content/40 font-normal truncate cursor-help" [title]="originTitle()">· {{ originText() }}</span>
+              }
+              @if(canPick()){
+                <span class="rc-target-cue" aria-hidden="true"><svg class="h-3 w-3 transition-transform" [class.rotate-180]="expanded()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
               }
             </span>
           </span>
@@ -127,25 +182,12 @@ interface RouteView {
           } @else if (!online()) {
             <span class="shrink-0 text-[10px] text-base-content/40">offline</span>
           }
-        </button>
-
-        <!-- run-with-a-target toggle: only while idle + controllable. A bigger, full-height
-             hit target (≥44px) for thumbs; plain start (the strip) runs to the route's own stop. -->
-        @if (canPick()) {
-          <button type="button" (click)="togglePicker()"
-            [title]="expanded() ? 'Hide run options' : 'Run with a target (volume / level / time)'"
-            [attr.aria-expanded]="expanded()"
-            class="shrink-0 self-stretch min-w-11 grid place-items-center border-l border-base-300/40
-                   text-base-content/40 hover:text-base-content hover:bg-base-200/60 active:bg-base-200 transition-colors">
-            <svg class="h-5 w-5 transition-transform" [class.rotate-180]="expanded()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-        }
-      </div>
+      </ng-template>
 
       <!-- target picker: combine any of the route's targets; the run stops at the first
            one reached. Touch-sized controls; the volume target is capped at the tank. -->
       @if (expanded() && canPick()) {
-        <div class="relative z-10 px-3 pb-3 pt-2 border-t border-base-300/40 flex flex-col gap-2">
+        <div class="rc-options relative z-10 px-3 pb-3 pt-2 border-t border-base-300/40 flex flex-col gap-2">
           <p class="text-[10px] text-base-content/40 leading-snug">
             Stops at the first target reached.
             {{ route().canStopOnFull ? 'No target → runs until the tank is full.' : 'No target → runs until the time limit.' }}
@@ -224,8 +266,13 @@ export class RouteCardComponent {
   readonly phaseReason = input('');
   /** False (admin read-only) → state still shows, the toggle is disabled. */
   readonly controllable = input(true);
+  /** Stable manifest route key and current number of attached automations. */
+  readonly automationKey = input('');
+  readonly automationCount = input(0);
+  readonly automationSelected = input(false);
 
   readonly action = output<RouteAction>();
+  readonly automation = output<void>();
   /** A targeted run: emitted with the chosen StopSpec when the operator taps Run in
    *  the picker. The page dispatches a `route_start` carrying it; plain start (the
    *  strip) emits `action` with no target and runs to the route's own stop. */
@@ -361,7 +408,7 @@ export class RouteCardComponent {
     return v >= 100 || Number.isInteger(v) ? String(Math.round(v)) : v.toFixed(1);
   }
 
-  protected title = computed(() => {
+  protected actionTitle = computed(() => {
     const v = this.view();
     const parts = [`${routeLabel(this.route(), this.route().routeId)}: ${v.label}`];
     const reason = this.state().reason;
@@ -369,8 +416,14 @@ export class RouteCardComponent {
     if (!this.online()) parts.push('controller offline');
     else if (!this.controllable()) parts.push('read-only');
     else if (!this.runnable()) parts.push('no actuator — monitor only');
-    else parts.push(`tap to ${v.actionLabel.toLowerCase()}`);
+    else parts.push(v.actionLabel);
     return parts.join(' · ');
+  });
+
+  protected automationLabel = computed(() => {
+    const count = this.automationCount();
+    if (!this.automationKey()) return 'Automations unavailable for this route';
+    return `Manage ${count} ${count === 1 ? 'automation' : 'automations'} for ${routeLabel(this.route(), this.route().routeId)}`;
   });
 
   protected view = computed<RouteView>(() => {

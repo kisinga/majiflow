@@ -1,118 +1,89 @@
-<div class="h-screen bg-base-200 text-base-content flex flex-col overflow-hidden">
-  <!-- Global top bar (hidden on the public landing/login, which carry their own) -->
-  @if (!isPublic()) {
-  <header class="navbar relative z-20 bg-base-100 border-b border-base-300/60 shadow-lg shadow-black/30 px-4 min-h-[var(--header-h)] h-[var(--header-h)]">
-    <!-- Role-based nav links, shared by the desktop center row and the mobile
-         hamburger (single source — the two must never drift). -->
-    <ng-template #navLinks>
-      @if (auth.isManager()) {
-        @if (auth.isPartner() && featureFlags.isEnabled('partner_portal')) {
-          <a routerLink="/partner" routerLinkActive="btn-active" class="btn btn-ghost btn-sm">Partner</a>
-        }
-        <a routerLink="/overview" routerLinkActive="btn-active" class="btn btn-ghost btn-sm">Sites</a>
-        <a routerLink="/customers" routerLinkActive="btn-active" class="btn btn-ghost btn-sm">Customers</a>
-        <a routerLink="/devices" routerLinkActive="btn-active" class="btn btn-ghost btn-sm">Devices</a>
-        @if (auth.isAdmin()) {
-          <a routerLink="/boards" routerLinkActive="btn-active" class="btn btn-ghost btn-sm">Boards</a>
-          <a routerLink="/docs" routerLinkActive="btn-active" class="btn btn-ghost btn-sm">Docs</a>
-          <a routerLink="/leads" routerLinkActive="btn-active" class="btn btn-ghost btn-sm">Leads</a>
-        }
-      } @else if (auth.isAuthenticated()) {
-        <a routerLink="/home" routerLinkActive="btn-active" class="btn btn-ghost btn-sm">My Sites</a>
-      }
-    </ng-template>
-
-    <div class="navbar-start gap-1 sm:gap-3">
-      <!-- Mobile nav: the center links collapse into a hamburger below md. -->
-      @if (auth.isAuthenticated()) {
-        <div class="dropdown md:hidden">
-          <button tabindex="0" class="btn btn-ghost btn-square" aria-label="Menu" title="Menu">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-          <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box shadow-lg border border-base-300/40 z-50 w-52 mt-2 p-1.5">
-            <ng-container *ngTemplateOutlet="navLinks" />
-          </ul>
-        </div>
-      }
-      <a routerLink="/home" class="flex items-center gap-2.5 shrink-0 min-w-0 hover:opacity-80 transition-opacity">
-        @if (branding.logoUrl(); as logo) {
-          <img [src]="logo" alt="" class="w-7 h-7 object-contain" />
-        } @else {
-          <span class="w-7 h-7 block shrink-0" [innerHTML]="logoSvg"></span>
-        }
-        <span class="font-bold text-base tracking-tight truncate">{{ branding.name() || 'MajiFlow' }}</span>
+@if (isPublic()) {
+  <div class="h-screen min-w-0 bg-base-200 text-base-content flex flex-col overflow-hidden">
+    <main class="flex-1 flex min-w-0 overflow-hidden"><router-outlet /></main>
+  </div>
+} @else {
+  <div class="authenticated-shell" [class.rail-expanded]="railExpanded()">
+    <aside class="global-rail" [class.is-expanded]="railExpanded()" aria-label="Primary navigation">
+      <a [routerLink]="auth.isManager() ? '/overview' : '/home'" class="rail-brand" [attr.aria-label]="branding.name() || 'MajiFlow'">
+        @if (branding.logoUrl(); as logo) { <span class="rail-brand-logo"><img [src]="logo" alt="" /></span> }
+        @else { <span class="rail-brand-logo" [innerHTML]="logoSvg"></span> }
+        <span class="rail-brand-copy"><strong>{{ branding.name() || 'MajiFlow' }}</strong><small>{{ inSite() ? 'Site workspace' : 'Platform workspace' }}</small></span>
       </a>
-    </div>
 
-    <div class="navbar-center hidden md:flex gap-1">
-      <ng-container *ngTemplateOutlet="navLinks" />
-    </div>
-
-    <div class="navbar-end gap-1">
-      @if (auth.isAuthenticated()) {
-        <app-alerts-center />
-        <app-persona-switcher />
-      }
-      @if (auth.isAdmin()) {
-        <a routerLink="/settings" routerLinkActive="btn-active" class="btn btn-ghost btn-sm btn-square" title="Settings" aria-label="Settings">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 001.066-2.573c.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </a>
-      }
-      @if (auth.user(); as u) {
-        <div class="dropdown dropdown-end">
-          <button tabindex="0" class="btn btn-ghost btn-sm gap-1.5 btn-square sm:w-auto" aria-label="Account menu" title="Account">
-            <!-- Person icon everywhere; the email/role chip is desktop-only (it
-                 crowded the bar on phones and pushed buttons into overlap). -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            <span class="text-xs text-base-content/70 max-w-[160px] truncate hidden sm:inline">{{ u.email }}</span>
-            <span class="badge badge-xs badge-ghost uppercase hidden sm:inline-flex">{{ u.role }}</span>
-          </button>
-          <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box shadow-lg border border-base-300/40 z-50 w-52 mt-2 p-1.5">
-            <!-- Identity header: the phone home for the email/role the bar hides. -->
-            <li class="menu-title sm:hidden">
-              <span class="truncate">{{ u.email }}</span>
-              <span class="badge badge-xs badge-ghost uppercase">{{ u.role }}</span>
-            </li>
-            <li><a routerLink="/account">Account</a></li>
-            <li><button (click)="logout()">Sign out</button></li>
-          </ul>
+      @if (inSite()) {
+        <div class="rail-context" [title]="shellSiteName() || siteId()">
+          <span>Current site</span><strong>{{ shellSiteName() || siteId() }}</strong>
         </div>
       }
-    </div>
-  </header>
-  }
 
-  <!-- Stream-loss banner: the SDK is auto-reconnecting; data is stale meanwhile.
-       Per-controller dots still convey per-device freshness independently. -->
-  @if (connection() === 'disconnected') {
-  <div class="bg-warning text-warning-content text-xs text-center py-1 px-3 flex items-center justify-center gap-2 shrink-0">
-    <span class="loading loading-spinner loading-xs"></span>
-    Reconnecting to live data…
+      <nav class="rail-nav" [attr.aria-label]="inSite() ? 'Site workspace' : 'Platform workspace'">
+        @for (item of primaryNavigation(); track item.id) {
+          <a [routerLink]="item.link" [class.is-active]="navigationActive(item)" class="rail-link" [attr.aria-label]="item.label" [title]="item.label">
+            <app-navigation-icon [icon]="item.icon"/><span class="rail-label">{{ item.label }}</span>
+          </a>
+        }
+      </nav>
+
+      <div class="rail-footer">
+        <button type="button" class="rail-link rail-toggle" [attr.aria-expanded]="railExpanded()" [attr.aria-label]="railExpanded() ? 'Collapse navigation' : 'Expand navigation'" (click)="toggleRail()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+          <span class="rail-label">{{ railExpanded() ? 'Collapse' : 'Expand' }}</span>
+        </button>
+        @for (item of footerNavigation(); track item.id) {
+          <a [routerLink]="item.link" [class.is-active]="navigationActive(item)" class="rail-link" [attr.aria-label]="item.label" [title]="item.label"><app-navigation-icon [icon]="item.icon"/><span class="rail-label">{{ item.label }}</span></a>
+        }
+        @if (auth.isAuthenticated()) {
+          <app-alerts-center />
+          <details name="global-menu" class="rail-account">
+            <summary class="rail-avatar" aria-label="Account menu" title="Account">{{ accountInitials() }}</summary>
+            <div class="rail-account-menu">
+              @if (auth.user(); as user) { <div class="account-identity"><strong>{{ user.email }}</strong><span>{{ user.role }}</span></div> }
+              <app-persona-switcher />
+              <a routerLink="/account">Account and notifications</a>
+              <button type="button" (click)="logout()">Sign out</button>
+            </div>
+          </details>
+        } @else if (deviceMode) {
+          <span class="rail-avatar" title="On-device dashboard">L</span>
+        }
+      </div>
+    </aside>
+
+    <section class="shell-stage">
+      <header class="mobile-shellbar">
+        <details class="mobile-navigation" #mobileNav>
+          <summary class="mobile-brand" aria-label="Open navigation">
+            @if (branding.logoUrl(); as logo) { <img [src]="logo" alt="" /> }
+            @else { <span [innerHTML]="mobileLogoSvg"></span> }
+          </summary>
+          <div class="mobile-nav-scrim" (click)="mobileNav.open = false"></div>
+          <nav class="mobile-nav-sheet" aria-label="Navigation">
+            <div class="mobile-nav-head"><strong>{{ branding.name() || 'MajiFlow' }}</strong><button type="button" (click)="mobileNav.open = false" aria-label="Close navigation">×</button></div>
+            @if (inSite()) { <div class="mobile-nav-context"><span>Site workspace</span><strong>{{ shellSiteName() || siteId() }}</strong></div> }
+            @for (item of navigationItems(); track item.id) {
+              <a [routerLink]="item.link" [class.is-active]="navigationActive(item)" (click)="mobileNav.open=false"><app-navigation-icon [icon]="item.icon"/><span>{{ item.label }}</span></a>
+            }
+            @if (inSite() && !deviceMode) { <a [routerLink]="auth.isManager() ? '/overview' : '/home'" (click)="mobileNav.open=false">All sites</a> }
+          </nav>
+        </details>
+        <div class="mobile-context"><strong>{{ inSite() ? (shellSiteName() || siteId()) : (branding.name() || 'MajiFlow') }}</strong><span>{{ inSite() ? 'Site workspace' : 'Platform workspace' }}</span></div>
+        @if (auth.isAuthenticated()) { <app-alerts-center /><a routerLink="/account" class="mobile-avatar" aria-label="Account">{{ accountInitials() }}</a> }
+        @else if (deviceMode) { <span class="mobile-local">Local</span> }
+      </header>
+
+      @if (connection() === 'disconnected') { <div class="connection-strip" role="status"><span class="loading loading-spinner loading-xs"></span>Reconnecting to live data…</div> }
+      <main class="shell-content"><router-outlet /></main>
+      <nav class="mobile-bottom-nav" aria-label="Primary navigation">
+        @for (item of mobileBottomNavigation(); track item.id) {
+          <a [routerLink]="item.link" [class.is-active]="navigationActive(item)" [attr.aria-current]="navigationActive(item)?'page':null">
+            <app-navigation-icon [icon]="item.icon"/><span>{{item.label}}</span>
+          </a>
+        }
+      </nav>
+    </section>
+
+    <app-confirm-dialog />
+    @if (updateReady()) { <div class="toast toast-end z-toast"><div class="alert alert-info shadow-lg"><span class="text-sm">A new version is available.</span><button class="btn btn-sm btn-primary" (click)="reloadApp()">Reload</button></div></div> }
   </div>
-  }
-
-  <!-- Main content -->
-  <main class="flex-1 flex overflow-hidden min-w-0">
-    <router-outlet />
-  </main>
-
-  <!-- Confirm dialog (global) -->
-  <app-confirm-dialog />
-
-  <!-- New-version toast: the service worker has a fresh build staged. -->
-  @if (updateReady()) {
-  <div class="toast toast-end z-100">
-    <div class="alert alert-info shadow-lg">
-      <span class="text-sm">A new version is available.</span>
-      <button class="btn btn-sm btn-primary" (click)="reloadApp()">Reload</button>
-    </div>
-  </div>
-  }
-</div>
+}

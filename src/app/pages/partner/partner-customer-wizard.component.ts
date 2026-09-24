@@ -33,7 +33,7 @@ function generatePassword(): string {
   imports: [RouterLink, SectionHeaderComponent],
   host: { class: 'flex-1 overflow-auto' },
   template: `
-    <div class="content-pane space-y-6 max-w-2xl">
+    <div class="content-pane space-y-6">
       <app-section-header title="New customer" subtitle="Create the account and, optionally, their first site." />
 
       @if (done(); as d) {

@@ -1,0 +1,808 @@
+<div id="majiflow-responsive-map-study" aria-label="Responsive live map renderer study">
+  <style>
+    #majiflow-responsive-map-study {
+      --mf-page: light-dark(#eef2f7, #07101e);
+      --mf-shell: light-dark(#ffffff, #0b1424);
+      --mf-panel: light-dark(#f8fafc, #111c2f);
+      --mf-panel-strong: light-dark(#eef2f7, #17243a);
+      --mf-map: light-dark(#e8eef5, #0b1526);
+      --mf-grid: light-dark(#cbd5e1, #1c2b42);
+      --mf-line: light-dark(#64748b, #52637a);
+      --mf-text: light-dark(#0f172a, #e6edf7);
+      --mf-muted: light-dark(#64748b, #8da0b9);
+      --mf-border: light-dark(#cbd5e1, #2a3b54);
+      --mf-active: light-dark(#0284c7, #38bdf8);
+      --mf-active-soft: light-dark(#e0f2fe, #123d55);
+      --mf-good: light-dark(#047857, #34d399);
+      --mf-warn: light-dark(#b45309, #f59e0b);
+      --mf-fault: light-dark(#b91c1c, #fb7185);
+      width: 100%;
+      color: var(--mf-text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    #majiflow-responsive-map-study * { box-sizing: border-box; }
+    #majiflow-responsive-map-study button { font: inherit; }
+
+    #majiflow-responsive-map-study .mf-study-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    #majiflow-responsive-map-study .mf-study-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    #majiflow-responsive-map-study .mf-study-subtitle {
+      margin-top: 3px;
+      color: var(--mf-muted);
+      font-size: 12px;
+    }
+
+    #majiflow-responsive-map-study .mf-study-controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    #majiflow-responsive-map-study .mf-product {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 1000px;
+      height: 610px;
+      margin-inline: auto;
+      overflow: hidden;
+      border: 1px solid var(--mf-border);
+      border-radius: 16px;
+      color: var(--mf-text);
+      background: var(--mf-shell);
+      box-shadow: 0 22px 60px light-dark(rgb(15 23 42 / 0.16), rgb(0 0 0 / 0.34));
+      transition: max-width 240ms cubic-bezier(.2, 0, 0, 1), height 240ms cubic-bezier(.2, 0, 0, 1);
+    }
+
+    #majiflow-responsive-map-study .mf-product[data-size="tablet"] { max-width: 720px; height: 620px; }
+    #majiflow-responsive-map-study .mf-product[data-size="phone"] { max-width: 380px; height: 680px; border-radius: 24px; }
+
+    #majiflow-responsive-map-study .mf-site-bar {
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 54px;
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--mf-border);
+      background: var(--mf-shell);
+    }
+
+    #majiflow-responsive-map-study .mf-brand-mark {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      flex: 0 0 auto;
+      border-radius: 9px;
+      color: light-dark(#ffffff, #082f49);
+      background: var(--mf-active);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    #majiflow-responsive-map-study .mf-site-copy { min-width: 0; flex: 1; }
+    #majiflow-responsive-map-study .mf-site-name { overflow: hidden; font-size: 13px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+    #majiflow-responsive-map-study .mf-site-meta { margin-top: 2px; color: var(--mf-muted); font-size: 11px; }
+
+    #majiflow-responsive-map-study .mf-online {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 32px;
+      color: var(--mf-good);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    #majiflow-responsive-map-study .mf-online::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    #majiflow-responsive-map-study .mf-mode-tabs {
+      z-index: 10;
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 7px 10px;
+      border-bottom: 1px solid var(--mf-border);
+      background: var(--mf-shell);
+    }
+
+    #majiflow-responsive-map-study .mf-mode-tabs button {
+      min-height: 40px;
+      border: 0;
+      border-radius: 9px;
+      color: var(--mf-muted);
+      background: transparent;
+      cursor: pointer;
+    }
+
+    #majiflow-responsive-map-study .mf-mode-tabs button[aria-selected="true"] {
+      color: var(--mf-text);
+      background: var(--mf-panel-strong);
+    }
+
+    #majiflow-responsive-map-study .mf-workspace {
+      position: relative;
+      display: grid;
+      grid-template-columns: 236px minmax(0, 1fr);
+      min-height: 0;
+      flex: 1;
+    }
+
+    #majiflow-responsive-map-study .mf-product[data-size="tablet"] .mf-workspace { grid-template-columns: 188px minmax(0, 1fr); }
+    #majiflow-responsive-map-study .mf-product[data-size="phone"] .mf-mode-tabs { display: grid; }
+    #majiflow-responsive-map-study .mf-product[data-size="phone"] .mf-workspace { grid-template-columns: minmax(0, 1fr); }
+
+    #majiflow-responsive-map-study .mf-route-dock {
+      z-index: 8;
+      min-width: 0;
+      padding: 12px;
+      border-right: 1px solid var(--mf-border);
+      background: var(--mf-panel);
+    }
+
+    #majiflow-responsive-map-study .mf-product[data-size="phone"] .mf-route-dock { display: none; }
+
+    #majiflow-responsive-map-study .mf-dock-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 9px;
+      color: var(--mf-muted);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    #majiflow-responsive-map-study .mf-route {
+      width: 100%;
+      min-height: 62px;
+      margin-bottom: 8px;
+      border: 1px solid var(--mf-border);
+      border-radius: 11px;
+      padding: 10px;
+      color: var(--mf-text);
+      background: var(--mf-shell);
+      text-align: left;
+    }
+
+    #majiflow-responsive-map-study .mf-route.is-active {
+      border-color: var(--mf-active);
+      background: var(--mf-active-soft);
+    }
+
+    #majiflow-responsive-map-study .mf-route-name { display: block; font-size: 12px; font-weight: 500; }
+    #majiflow-responsive-map-study .mf-route-state { display: block; margin-top: 5px; color: var(--mf-muted); font-size: 11px; }
+    #majiflow-responsive-map-study .mf-route.is-active .mf-route-state { color: var(--mf-active); }
+
+    #majiflow-responsive-map-study .mf-map-stage {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      background: var(--mf-map);
+      touch-action: none;
+      user-select: none;
+    }
+
+    #majiflow-responsive-map-study .mf-map-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .42;
+      background-image: radial-gradient(circle, var(--mf-grid) 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events: none;
+    }
+
+    #majiflow-responsive-map-study .mf-map-svg {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+
+    #majiflow-responsive-map-study .mf-map-svg.is-dragging { cursor: grabbing; }
+    #majiflow-responsive-map-study .mf-pipe { fill: none; stroke: var(--mf-line); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    #majiflow-responsive-map-study .mf-pipe-arrow { fill: var(--mf-line); }
+
+    #majiflow-responsive-map-study .mf-product[data-scenario="active"] .mf-pipe.route-a {
+      stroke: var(--mf-active);
+      stroke-dasharray: 11 9;
+      animation: mf-flow 7s linear infinite;
+    }
+
+    #majiflow-responsive-map-study .mf-product[data-scenario="fault"] .mf-pipe.route-a {
+      stroke: var(--mf-fault);
+      stroke-dasharray: 0;
+    }
+
+    #majiflow-responsive-map-study .mf-node-body { fill: var(--mf-panel); stroke: var(--mf-line); stroke-width: 3; vector-effect: non-scaling-stroke; }
+    #majiflow-responsive-map-study .mf-node-detail { fill: none; stroke: var(--mf-muted); stroke-width: 3; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+    #majiflow-responsive-map-study .mf-water { fill: color-mix(in srgb, var(--mf-active) 30%, transparent); }
+    #majiflow-responsive-map-study .mf-product[data-scenario="active"] .mf-priority .mf-node-body { stroke: var(--mf-active); }
+    #majiflow-responsive-map-study .mf-product[data-scenario="fault"] .mf-priority .mf-node-body { stroke: var(--mf-fault); }
+
+    #majiflow-responsive-map-study .mf-node-label {
+      fill: var(--mf-text);
+      font-size: 30px;
+      font-weight: 500;
+      paint-order: stroke;
+      stroke: var(--mf-map);
+      stroke-width: 7px;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+
+    #majiflow-responsive-map-study .mf-node-value { fill: var(--mf-muted); font-size: 24px; font-weight: 500; }
+    #majiflow-responsive-map-study .mf-product[data-size="phone"][data-density="semantic"] .mf-passive-label { opacity: 0; }
+
+    #majiflow-responsive-map-study .mf-selection-ring {
+      display: none;
+      fill: none;
+      stroke: var(--mf-active);
+      stroke-width: 4;
+      stroke-dasharray: 7 6;
+      vector-effect: non-scaling-stroke;
+      pointer-events: none;
+    }
+
+    #majiflow-responsive-map-study .mf-selection-ring.is-visible { display: block; }
+
+    #majiflow-responsive-map-study .mf-hit-layer { position: absolute; inset: 0; pointer-events: none; }
+    #majiflow-responsive-map-study .mf-map-hit {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      border: 0;
+      border-radius: 50%;
+      padding: 0;
+      opacity: .001;
+      background: var(--mf-active);
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    #majiflow-responsive-map-study .mf-map-hit:focus-visible { opacity: .22; outline: 3px solid var(--mf-active); outline-offset: 2px; }
+
+    #majiflow-responsive-map-study .mf-map-tools {
+      position: absolute;
+      z-index: 7;
+      top: 12px;
+      right: 12px;
+      display: grid;
+      gap: 6px;
+    }
+
+    #majiflow-responsive-map-study .mf-map-tool {
+      display: grid;
+      place-items: center;
+      min-width: 44px;
+      min-height: 44px;
+      border: 1px solid var(--mf-border);
+      border-radius: 10px;
+      padding: 0 9px;
+      color: var(--mf-text);
+      background: color-mix(in srgb, var(--mf-shell) 90%, transparent);
+      box-shadow: 0 5px 18px light-dark(rgb(15 23 42 / .12), rgb(0 0 0 / .24));
+      cursor: pointer;
+    }
+
+    #majiflow-responsive-map-study .mf-map-status {
+      position: absolute;
+      z-index: 7;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      max-width: calc(100% - 78px);
+      border: 1px solid var(--mf-border);
+      border-radius: 10px;
+      padding: 7px 10px;
+      color: var(--mf-text);
+      background: color-mix(in srgb, var(--mf-shell) 92%, transparent);
+      font-size: 11px;
+    }
+
+    #majiflow-responsive-map-study .mf-status-dot { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: var(--mf-active); }
+    #majiflow-responsive-map-study .mf-product[data-scenario="fault"] .mf-status-dot { background: var(--mf-fault); }
+    #majiflow-responsive-map-study .mf-product[data-scenario="idle"] .mf-status-dot { background: var(--mf-muted); }
+    #majiflow-responsive-map-study .mf-status-copy { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    #majiflow-responsive-map-study .mf-entity-panel {
+      position: absolute;
+      z-index: 12;
+      top: 12px;
+      right: 12px;
+      bottom: 12px;
+      display: none;
+      width: 286px;
+      overflow: auto;
+      border: 1px solid var(--mf-border);
+      border-radius: 14px;
+      padding: 14px;
+      color: var(--mf-text);
+      background: var(--mf-shell);
+      box-shadow: 0 18px 48px light-dark(rgb(15 23 42 / .22), rgb(0 0 0 / .44));
+    }
+
+    #majiflow-responsive-map-study .mf-entity-panel.is-open { display: block; }
+    #majiflow-responsive-map-study .mf-panel-head { display: flex; align-items: start; gap: 10px; }
+    #majiflow-responsive-map-study .mf-panel-title { min-width: 0; flex: 1; font-size: 15px; font-weight: 500; }
+    #majiflow-responsive-map-study .mf-panel-kicker { margin-top: 3px; color: var(--mf-muted); font-size: 11px; }
+    #majiflow-responsive-map-study .mf-panel-close { min-width: 44px; min-height: 44px; border: 0; color: var(--mf-muted); background: transparent; cursor: pointer; }
+    #majiflow-responsive-map-study .mf-panel-state { margin: 18px 0; padding: 12px 0; border-block: 1px solid var(--mf-border); }
+    #majiflow-responsive-map-study .mf-panel-state-label { color: var(--mf-muted); font-size: 11px; }
+    #majiflow-responsive-map-study .mf-panel-state-value { margin-top: 4px; font-size: 20px; font-weight: 500; }
+    #majiflow-responsive-map-study .mf-panel-action { width: 100%; min-height: 48px; border: 0; border-radius: 10px; color: light-dark(#ffffff, #082f49); background: var(--mf-active); font-weight: 500; cursor: pointer; }
+    #majiflow-responsive-map-study .mf-panel-note { margin-top: 10px; color: var(--mf-muted); font-size: 11px; line-height: 1.45; }
+
+    #majiflow-responsive-map-study .mf-bottom-nav {
+      z-index: 10;
+      display: none;
+      grid-template-columns: repeat(4, 1fr);
+      min-height: 62px;
+      padding: 6px 8px 8px;
+      border-top: 1px solid var(--mf-border);
+      background: var(--mf-shell);
+    }
+
+    #majiflow-responsive-map-study .mf-bottom-nav button { border: 0; color: var(--mf-muted); background: transparent; font-size: 11px; }
+    #majiflow-responsive-map-study .mf-bottom-nav button[aria-current="page"] { color: var(--mf-active); }
+
+    #majiflow-responsive-map-study .mf-product[data-size="phone"] .mf-map-status { top: 8px; left: 8px; }
+    #majiflow-responsive-map-study .mf-product[data-size="phone"] .mf-map-tools { top: 8px; right: 8px; }
+    #majiflow-responsive-map-study .mf-product[data-size="phone"] .mf-map-tool { min-width: 44px; min-height: 44px; }
+    #majiflow-responsive-map-study .mf-product[data-size="phone"] .mf-entity-panel {
+      top: auto;
+      right: 8px;
+      bottom: 8px;
+      left: 8px;
+      width: auto;
+      max-height: 46%;
+      border-radius: 18px;
+    }
+    #majiflow-responsive-map-study .mf-product[data-size="phone"] .mf-bottom-nav { display: grid; }
+
+    @keyframes mf-flow { to { stroke-dashoffset: -200; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      #majiflow-responsive-map-study .mf-product { transition: none; }
+      #majiflow-responsive-map-study .mf-product[data-scenario="active"] .mf-pipe.route-a { animation: none; }
+    }
+
+    @media (max-width: 620px) {
+      #majiflow-responsive-map-study .mf-study-head { align-items: stretch; flex-direction: column; }
+      #majiflow-responsive-map-study .mf-study-controls { justify-content: flex-start; }
+      #majiflow-responsive-map-study .mf-product:not([data-size="phone"]) { height: 580px; }
+    }
+  </style>
+
+  <div class="mf-study-head">
+    <div>
+      <h2 class="mf-study-title">One responsive runtime map</h2>
+      <div class="mf-study-subtitle">Same scene, route state, selection layer, and controls at every size</div>
+    </div>
+    <div class="mf-study-controls" aria-label="Preview controls">
+      <button class="btn btn-ghost mf-size" type="button" data-size="phone" aria-pressed="true">Phone</button>
+      <button class="btn btn-ghost mf-size" type="button" data-size="tablet" aria-pressed="false">Tablet</button>
+      <button class="btn btn-ghost mf-size" type="button" data-size="desktop" aria-pressed="false">Desktop</button>
+      <button class="btn mf-scenario" type="button" data-scenario="active" aria-pressed="true">Active route</button>
+      <button class="btn btn-ghost mf-scenario" type="button" data-scenario="fault" aria-pressed="false">Fault</button>
+      <button class="btn btn-ghost mf-scenario" type="button" data-scenario="idle" aria-pressed="false">Idle</button>
+    </div>
+  </div>
+
+  <section class="mf-product" data-size="phone" data-scenario="active" data-density="semantic" aria-label="MajiFlow operator workspace preview">
+    <header class="mf-site-bar">
+      <div class="mf-brand-mark">MF</div>
+      <div class="mf-site-copy">
+        <div class="mf-site-name">North Field</div>
+        <div class="mf-site-meta">Operator workspace</div>
+      </div>
+      <div class="mf-online">2/2 online</div>
+    </header>
+
+    <div class="mf-mode-tabs" role="tablist" aria-label="Workspace mode">
+      <button type="button" role="tab" aria-selected="false">Controls</button>
+      <button type="button" role="tab" aria-selected="true">Map</button>
+    </div>
+
+    <div class="mf-workspace">
+      <aside class="mf-route-dock" aria-label="Routes">
+        <div class="mf-dock-label"><span>Routes</span><span>3</span></div>
+        <button type="button" class="mf-route is-active">
+          <span class="mf-route-name">Header to Tank A</span>
+          <span class="mf-route-state">Running · 68%</span>
+        </button>
+        <button type="button" class="mf-route">
+          <span class="mf-route-name">Header to Tank B</span>
+          <span class="mf-route-state">Ready</span>
+        </button>
+        <button type="button" class="mf-route">
+          <span class="mf-route-name">Flush filter</span>
+          <span class="mf-route-state">Ready</span>
+        </button>
+      </aside>
+
+      <div class="mf-map-stage">
+        <svg class="mf-map-svg" viewBox="0 0 1000 600" role="img" aria-labelledby="mf-map-title mf-map-desc">
+          <title id="mf-map-title">North Field live water topology</title>
+          <desc id="mf-map-desc">A running route carries water from the source through Pump 1 and Filter 1 to Tank A. Pump 1 and Valve A are selectable.</desc>
+
+          <defs>
+            <marker id="mf-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path class="mf-pipe-arrow" d="M 0 0 L 10 5 L 0 10 z"></path>
+            </marker>
+          </defs>
+
+          <path class="mf-pipe route-a" d="M150 300 H250" marker-end="url(#mf-arrow)"></path>
+          <path class="mf-pipe route-a" d="M350 300 H430" marker-end="url(#mf-arrow)"></path>
+          <path class="mf-pipe route-a" d="M530 300 H620" marker-end="url(#mf-arrow)"></path>
+          <path class="mf-pipe route-a" d="M700 300 H750 V175 H820" marker-end="url(#mf-arrow)"></path>
+          <path class="mf-pipe" d="M700 300 H750 V430 H820" marker-end="url(#mf-arrow)"></path>
+
+          <g class="mf-priority" data-node="source">
+            <path class="mf-node-body" d="M65 245 H135 V345 H65 Z"></path>
+            <path class="mf-water" d="M70 290 H130 V340 H70 Z"></path>
+            <path class="mf-node-detail" d="M76 270 Q87 260 98 270 T120 270"></path>
+            <text class="mf-node-label mf-passive-label" x="100" y="382" text-anchor="middle">Source</text>
+            <text class="mf-node-value" x="100" y="410" text-anchor="middle">82%</text>
+          </g>
+
+          <g class="mf-priority" data-node="pump-1">
+            <circle class="mf-node-body" cx="300" cy="300" r="48"></circle>
+            <path class="mf-node-detail" d="M278 322 L315 278 L326 312 Z"></path>
+            <text class="mf-node-label" x="300" y="382" text-anchor="middle">Pump 1</text>
+            <text class="mf-node-value" x="300" y="410" text-anchor="middle">Running</text>
+          </g>
+
+          <g class="mf-priority" data-node="filter-1">
+            <rect class="mf-node-body" x="440" y="250" width="80" height="100" rx="18"></rect>
+            <path class="mf-node-detail" d="M458 278 H502 M458 300 H502 M458 322 H502"></path>
+            <text class="mf-node-label mf-passive-label" x="480" y="382" text-anchor="middle">Filter 1</text>
+          </g>
+
+          <g class="mf-priority" data-node="valve-a">
+            <circle class="mf-node-body" cx="660" cy="300" r="38"></circle>
+            <path class="mf-node-detail" d="M637 280 L660 300 L637 320 Z M683 280 L660 300 L683 320 Z"></path>
+            <text class="mf-node-label" x="660" y="382" text-anchor="middle">Valve A</text>
+            <text class="mf-node-value" x="660" y="410" text-anchor="middle">Open</text>
+          </g>
+
+          <g data-node="tank-a">
+            <path class="mf-node-body" d="M820 100 H925 V250 H820 Z"></path>
+            <path class="mf-water" d="M826 153 H919 V244 H826 Z"></path>
+            <path class="mf-node-detail" d="M835 132 Q850 120 865 132 T895 132 T915 132"></path>
+            <text class="mf-node-label" x="872" y="282" text-anchor="middle">Tank A</text>
+            <text class="mf-node-value" x="872" y="310" text-anchor="middle">68%</text>
+          </g>
+
+          <g data-node="tank-b">
+            <path class="mf-node-body" d="M820 355 H925 V505 H820 Z"></path>
+            <path class="mf-water" d="M826 443 H919 V499 H826 Z"></path>
+            <path class="mf-node-detail" d="M835 385 Q850 373 865 385 T895 385 T915 385"></path>
+            <text class="mf-node-label mf-passive-label" x="872" y="537" text-anchor="middle">Tank B</text>
+            <text class="mf-node-value mf-passive-label" x="872" y="565" text-anchor="middle">41%</text>
+          </g>
+
+          <circle class="mf-selection-ring" cx="300" cy="300" r="62"></circle>
+        </svg>
+
+        <div class="mf-hit-layer" aria-label="Selectable equipment">
+          <button class="mf-map-hit" type="button" data-node="pump-1" aria-label="Pump 1, select controls"></button>
+          <button class="mf-map-hit" type="button" data-node="valve-a" aria-label="Valve A, select controls"></button>
+        </div>
+
+        <div class="mf-map-status" aria-live="polite">
+          <span class="mf-status-dot"></span>
+          <span class="mf-status-copy">Header to Tank A · running</span>
+        </div>
+
+        <div class="mf-map-tools" aria-label="Map view controls">
+          <button class="mf-map-tool" type="button" data-map-action="in" aria-label="Zoom in">+</button>
+          <button class="mf-map-tool" type="button" data-map-action="out" aria-label="Zoom out">−</button>
+          <button class="mf-map-tool" type="button" data-map-action="fit">Fit</button>
+        </div>
+
+        <section class="mf-entity-panel" aria-label="Selected entity controls" aria-live="polite">
+          <div class="mf-panel-head">
+            <div>
+              <div class="mf-panel-title">Pump 1</div>
+              <div class="mf-panel-kicker">Pump · Controller A</div>
+            </div>
+            <button class="mf-panel-close" type="button" aria-label="Close entity controls">Close</button>
+          </div>
+          <div class="mf-panel-state">
+            <div class="mf-panel-state-label">Reported state</div>
+            <div class="mf-panel-state-value">Running</div>
+          </div>
+          <button class="mf-panel-action" type="button">Stop pump</button>
+          <div class="mf-panel-note">Selection opened this panel. Only this explicit action would send a command.</div>
+        </section>
+      </div>
+    </div>
+
+    <nav class="mf-bottom-nav" aria-label="Primary navigation">
+      <button type="button" aria-current="page">Operate</button>
+      <button type="button">Activity</button>
+      <button type="button">Automations</button>
+      <button type="button">More</button>
+    </nav>
+  </section>
+
+  <script>
+    (() => {
+      const root = document.getElementById('majiflow-responsive-map-study');
+      const product = root.querySelector('.mf-product');
+      const stage = root.querySelector('.mf-map-stage');
+      const svg = root.querySelector('.mf-map-svg');
+      const ring = root.querySelector('.mf-selection-ring');
+      const panel = root.querySelector('.mf-entity-panel');
+      const title = root.querySelector('.mf-panel-title');
+      const kicker = root.querySelector('.mf-panel-kicker');
+      const stateValue = root.querySelector('.mf-panel-state-value');
+      const action = root.querySelector('.mf-panel-action');
+      const statusCopy = root.querySelector('.mf-status-copy');
+      const pointers = new Map();
+      const world = { x: 35, y: 65, width: 925, height: 525 };
+      let view = { ...world };
+      let selected = null;
+      let dragging = false;
+      let moved = false;
+      let dragStart = null;
+      let pinchStart = null;
+      let userMoved = false;
+
+      const design = { labelDensity: 'semantic', animateFlow: true };
+      const entities = {
+        'pump-1': { x: 300, y: 300, r: 62, name: 'Pump 1', kind: 'Pump · Controller A', state: 'Running', action: 'Stop pump' },
+        'valve-a': { x: 660, y: 300, r: 53, name: 'Valve A', kind: 'Valve · Controller A', state: 'Open', action: 'Close valve' },
+      };
+
+      function applyView() {
+        svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.width} ${view.height}`);
+        requestAnimationFrame(positionTargets);
+      }
+
+      function fitScene() {
+        const width = Math.max(stage.clientWidth, 1);
+        const height = Math.max(stage.clientHeight, 1);
+        const aspect = width / height;
+        const pad = product.dataset.size === 'phone' ? 48 : 34;
+        let targetWidth = world.width + pad * 2;
+        let targetHeight = world.height + pad * 2;
+        if (targetWidth / targetHeight < aspect) targetWidth = targetHeight * aspect;
+        else targetHeight = targetWidth / aspect;
+        view = {
+          x: world.x + world.width / 2 - targetWidth / 2,
+          y: world.y + world.height / 2 - targetHeight / 2,
+          width: targetWidth,
+          height: targetHeight,
+        };
+        userMoved = false;
+        applyView();
+      }
+
+      function clientToWorld(clientX, clientY) {
+        const rect = svg.getBoundingClientRect();
+        return {
+          x: view.x + ((clientX - rect.left) / rect.width) * view.width,
+          y: view.y + ((clientY - rect.top) / rect.height) * view.height,
+        };
+      }
+
+      function zoomAt(multiplier, clientX, clientY) {
+        const rect = svg.getBoundingClientRect();
+        const cx = clientX ?? rect.left + rect.width / 2;
+        const cy = clientY ?? rect.top + rect.height / 2;
+        const anchor = clientToWorld(cx, cy);
+        const nextWidth = Math.min(1900, Math.max(260, view.width * multiplier));
+        const nextHeight = nextWidth * (rect.height / rect.width);
+        const rx = (cx - rect.left) / rect.width;
+        const ry = (cy - rect.top) / rect.height;
+        view = {
+          x: anchor.x - nextWidth * rx,
+          y: anchor.y - nextHeight * ry,
+          width: nextWidth,
+          height: nextHeight,
+        };
+        userMoved = true;
+        applyView();
+      }
+
+      function positionTargets() {
+        const stageRect = stage.getBoundingClientRect();
+        const matrix = svg.getScreenCTM();
+        if (!matrix) return;
+        root.querySelectorAll('.mf-map-hit').forEach((button) => {
+          const entity = entities[button.dataset.node];
+          const point = new DOMPoint(entity.x, entity.y).matrixTransform(matrix);
+          button.style.left = `${point.x - stageRect.left}px`;
+          button.style.top = `${point.y - stageRect.top}px`;
+        });
+      }
+
+      function selectEntity(id) {
+        selected = id;
+        const entity = entities[id];
+        ring.setAttribute('cx', entity.x);
+        ring.setAttribute('cy', entity.y);
+        ring.setAttribute('r', entity.r);
+        ring.classList.add('is-visible');
+        title.textContent = entity.name;
+        kicker.textContent = entity.kind;
+        stateValue.textContent = entity.state;
+        action.textContent = entity.action;
+        panel.classList.add('is-open');
+      }
+
+      function clearSelection() {
+        selected = null;
+        ring.classList.remove('is-visible');
+        panel.classList.remove('is-open');
+      }
+
+      function setSize(size) {
+        product.dataset.size = size;
+        root.querySelectorAll('.mf-size').forEach((button) => {
+          const on = button.dataset.size === size;
+          button.setAttribute('aria-pressed', String(on));
+          button.classList.toggle('btn-ghost', !on);
+        });
+        clearSelection();
+        requestAnimationFrame(() => requestAnimationFrame(fitScene));
+      }
+
+      function setScenario(scenario) {
+        product.dataset.scenario = scenario;
+        root.querySelectorAll('.mf-scenario').forEach((button) => {
+          const on = button.dataset.scenario === scenario;
+          button.setAttribute('aria-pressed', String(on));
+          button.classList.toggle('btn-ghost', !on);
+        });
+        statusCopy.textContent = scenario === 'active'
+          ? 'Header to Tank A · running'
+          : scenario === 'fault'
+            ? 'Header to Tank A · fault'
+            : 'No routes active';
+      }
+
+      root.querySelectorAll('.mf-size').forEach((button) => button.addEventListener('click', () => setSize(button.dataset.size)));
+      root.querySelectorAll('.mf-scenario').forEach((button) => button.addEventListener('click', () => setScenario(button.dataset.scenario)));
+      root.querySelectorAll('.mf-map-hit').forEach((button) => {
+        button.addEventListener('pointerdown', (event) => event.stopPropagation());
+        button.addEventListener('click', () => selectEntity(button.dataset.node));
+      });
+      root.querySelector('.mf-panel-close').addEventListener('click', clearSelection);
+
+      root.querySelectorAll('[data-map-action]').forEach((button) => button.addEventListener('click', () => {
+        const actionName = button.dataset.mapAction;
+        if (actionName === 'fit') fitScene();
+        if (actionName === 'in') zoomAt(0.78);
+        if (actionName === 'out') zoomAt(1.28);
+      }));
+
+      svg.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        zoomAt(event.deltaY > 0 ? 1.12 : 0.88, event.clientX, event.clientY);
+      }, { passive: false });
+
+      svg.addEventListener('pointerdown', (event) => {
+        svg.setPointerCapture(event.pointerId);
+        pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        moved = false;
+        if (pointers.size === 1) {
+          dragging = true;
+          dragStart = { x: event.clientX, y: event.clientY, view: { ...view } };
+          svg.classList.add('is-dragging');
+        } else if (pointers.size === 2) {
+          dragging = false;
+          const pts = [...pointers.values()];
+          pinchStart = {
+            distance: Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y),
+            centerX: (pts[0].x + pts[1].x) / 2,
+            centerY: (pts[0].y + pts[1].y) / 2,
+            view: { ...view },
+          };
+        }
+      });
+
+      svg.addEventListener('pointermove', (event) => {
+        if (!pointers.has(event.pointerId)) return;
+        pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        if (pointers.size === 2 && pinchStart) {
+          const pts = [...pointers.values()];
+          const distance = Math.max(1, Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y));
+          const centerX = (pts[0].x + pts[1].x) / 2;
+          const centerY = (pts[0].y + pts[1].y) / 2;
+          const factor = pinchStart.distance / distance;
+          view = { ...pinchStart.view };
+          zoomAt(factor, pinchStart.centerX, pinchStart.centerY);
+          const rect = svg.getBoundingClientRect();
+          view.x -= ((centerX - pinchStart.centerX) / rect.width) * view.width;
+          view.y -= ((centerY - pinchStart.centerY) / rect.height) * view.height;
+          moved = true;
+          applyView();
+        } else if (dragging && dragStart) {
+          const rect = svg.getBoundingClientRect();
+          const dx = event.clientX - dragStart.x;
+          const dy = event.clientY - dragStart.y;
+          view = {
+            ...dragStart.view,
+            x: dragStart.view.x - (dx / rect.width) * dragStart.view.width,
+            y: dragStart.view.y - (dy / rect.height) * dragStart.view.height,
+          };
+          if (Math.abs(dx) + Math.abs(dy) > 5) moved = true;
+          userMoved = true;
+          applyView();
+        }
+      });
+
+      function endPointer(event) {
+        pointers.delete(event.pointerId);
+        if (pointers.size < 2) pinchStart = null;
+        if (pointers.size === 0) {
+          dragging = false;
+          dragStart = null;
+          svg.classList.remove('is-dragging');
+        }
+      }
+
+      svg.addEventListener('pointerup', endPointer);
+      svg.addEventListener('pointercancel', endPointer);
+
+      const observer = new ResizeObserver(() => {
+        if (!userMoved) fitScene();
+        else positionTargets();
+      });
+      observer.observe(stage);
+
+      function renderDesign() {
+        product.dataset.density = design.labelDensity;
+        product.style.setProperty('--mf-route-motion', design.animateFlow ? 'running' : 'paused');
+        root.querySelectorAll('.mf-pipe.route-a').forEach((pipe) => {
+          pipe.style.animationPlayState = design.animateFlow ? 'running' : 'paused';
+        });
+      }
+
+      renderDesign();
+      if (globalThis.Tweak) {
+        const tweak = new Tweak({ container: product, onChange: renderDesign });
+        tweak.addSelect(design, 'labelDensity', { label: 'Map labels', options: [
+          { label: 'Semantic', value: 'semantic' },
+          { label: 'Full', value: 'full' },
+        ], reference: 'map.label-density' });
+        tweak.addToggle(design, 'animateFlow', { label: 'Animate active flow', reference: 'map.flow-motion' });
+      }
+
+      requestAnimationFrame(() => requestAnimationFrame(fitScene));
+    })();
+  </script>
+</div>

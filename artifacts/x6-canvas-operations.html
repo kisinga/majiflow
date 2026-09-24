@@ -1,0 +1,1016 @@
+<div id="farmon-x6-operations-study" aria-label="Responsive X6 operations canvas study">
+  <style>
+    #farmon-x6-operations-study {
+      --fo-ink: light-dark(#152019, #e8f1eb);
+      --fo-muted: light-dark(#68756d, #91a299);
+      --fo-shell: light-dark(#fbfcfa, #0d1511);
+      --fo-panel: light-dark(#f3f6f2, #121d17);
+      --fo-panel-strong: light-dark(#e8eee9, #19271f);
+      --fo-canvas: light-dark(#edf2ee, #0a130f);
+      --fo-line: light-dark(#a9b6ad, #405249);
+      --fo-border: light-dark(#d7ded8, #26372e);
+      --fo-green: light-dark(#147448, #58cf8e);
+      --fo-green-soft: light-dark(#e0f2e8, #123425);
+      --fo-blue: light-dark(#196ca6, #6bbcf2);
+      --fo-blue-soft: light-dark(#e0f0fb, #123146);
+      --fo-amber: light-dark(#a85c0e, #f0ad4e);
+      --fo-red: light-dark(#b42318, #ff766c);
+      --fo-shadow: light-dark(rgb(26 43 31 / 0.16), rgb(0 0 0 / 0.38));
+      width: 100%;
+      color-scheme: light dark;
+      color: var(--fo-ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    #farmon-x6-operations-study * { box-sizing: border-box; }
+    #farmon-x6-operations-study button { font: inherit; }
+
+    #farmon-x6-operations-study .fo-study-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 auto 12px;
+      max-width: 1040px;
+    }
+
+    #farmon-x6-operations-study .fo-study-copy { min-width: 0; }
+    #farmon-x6-operations-study .fo-study-title { margin: 0; font-size: 16px; font-weight: 650; }
+    #farmon-x6-operations-study .fo-study-note { margin-top: 3px; color: var(--fo-muted); font-size: 12px; }
+
+    #farmon-x6-operations-study .fo-preview-switch {
+      display: inline-grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+      padding: 3px;
+      border: 1px solid var(--fo-border);
+      border-radius: 11px;
+      background: var(--fo-panel);
+    }
+
+    #farmon-x6-operations-study .fo-preview-switch button {
+      min-height: 38px;
+      border: 0;
+      border-radius: 8px;
+      padding: 0 14px;
+      color: var(--fo-muted);
+      background: transparent;
+      cursor: pointer;
+    }
+
+    #farmon-x6-operations-study .fo-preview-switch button[aria-pressed="true"] {
+      color: var(--fo-ink);
+      background: var(--fo-shell);
+      box-shadow: 0 1px 4px var(--fo-shadow);
+    }
+
+    #farmon-x6-operations-study .fo-product {
+      display: grid;
+      grid-template-columns: 70px minmax(0, 1fr);
+      width: 100%;
+      max-width: 1040px;
+      height: 660px;
+      margin-inline: auto;
+      overflow: hidden;
+      border: 1px solid var(--fo-border);
+      border-radius: 18px;
+      color: var(--fo-ink);
+      background: var(--fo-shell);
+      box-shadow: 0 24px 64px var(--fo-shadow);
+      transition: max-width 240ms cubic-bezier(.2, 0, 0, 1), height 240ms cubic-bezier(.2, 0, 0, 1);
+    }
+
+    #farmon-x6-operations-study .fo-product[data-preview="tablet"] {
+      grid-template-columns: 62px minmax(0, 1fr);
+      max-width: 840px;
+      height: 620px;
+    }
+
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] {
+      grid-template-columns: minmax(0, 1fr);
+      max-width: 390px;
+      height: 760px;
+      border-radius: 28px;
+    }
+
+    #farmon-x6-operations-study .fo-global-rail {
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      padding: 12px 8px;
+      border-right: 1px solid var(--fo-border);
+      background: var(--fo-shell);
+    }
+
+    #farmon-x6-operations-study .fo-brand {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      margin-bottom: 14px;
+      border-radius: 12px;
+      color: #ffffff;
+      background: #147448;
+      font-size: 13px;
+      font-weight: 750;
+      letter-spacing: -.02em;
+    }
+
+    #farmon-x6-operations-study .fo-rail-button {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      min-height: 48px;
+      border: 0;
+      border-radius: 12px;
+      color: var(--fo-muted);
+      background: transparent;
+      cursor: pointer;
+    }
+
+    #farmon-x6-operations-study .fo-rail-button svg { width: 20px; height: 20px; stroke: currentColor; }
+    #farmon-x6-operations-study .fo-rail-button[aria-current="page"] { color: var(--fo-green); background: var(--fo-green-soft); }
+    #farmon-x6-operations-study .fo-rail-spacer { flex: 1; }
+
+    #farmon-x6-operations-study .fo-shell { display: flex; min-width: 0; min-height: 0; flex-direction: column; }
+
+    #farmon-x6-operations-study .fo-sitebar {
+      z-index: 15;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-height: 62px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--fo-border);
+      background: var(--fo-shell);
+    }
+
+    #farmon-x6-operations-study .fo-site-copy { min-width: 0; flex: 1; }
+    #farmon-x6-operations-study .fo-site-name { overflow: hidden; font-size: 14px; font-weight: 680; text-overflow: ellipsis; white-space: nowrap; }
+    #farmon-x6-operations-study .fo-site-subtitle { margin-top: 2px; color: var(--fo-muted); font-size: 11px; }
+    #farmon-x6-operations-study .fo-health { display: inline-flex; align-items: center; gap: 7px; min-height: 38px; color: var(--fo-green); font-size: 12px; white-space: nowrap; }
+    #farmon-x6-operations-study .fo-health-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 4px color-mix(in srgb, var(--fo-green) 14%, transparent); }
+    #farmon-x6-operations-study .fo-avatar { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--fo-border); border-radius: 50%; color: var(--fo-ink); background: var(--fo-panel); font-size: 11px; font-weight: 700; }
+
+    #farmon-x6-operations-study .fo-mobile-brand,
+    #farmon-x6-operations-study .fo-phone-stop,
+    #farmon-x6-operations-study .fo-phone-tabs,
+    #farmon-x6-operations-study .fo-phone-manual-list { display: none; }
+
+    #farmon-x6-operations-study .fo-workspace {
+      display: grid;
+      grid-template-columns: 246px minmax(0, 1fr);
+      min-width: 0;
+      min-height: 0;
+      flex: 1;
+    }
+
+    #farmon-x6-operations-study .fo-product[data-preview="tablet"] .fo-workspace { grid-template-columns: 190px minmax(0, 1fr); }
+
+    #farmon-x6-operations-study .fo-route-dock {
+      z-index: 12;
+      display: flex;
+      min-width: 0;
+      min-height: 0;
+      flex-direction: column;
+      padding: 14px;
+      border-right: 1px solid var(--fo-border);
+      background: var(--fo-panel);
+    }
+
+    #farmon-x6-operations-study .fo-dock-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+    #farmon-x6-operations-study .fo-dock-title { font-size: 13px; font-weight: 700; }
+    #farmon-x6-operations-study .fo-route-count { color: var(--fo-muted); font-size: 11px; }
+
+    #farmon-x6-operations-study .fo-stop-routes {
+      min-height: 46px;
+      margin-bottom: 12px;
+      border: 1px solid color-mix(in srgb, var(--fo-red) 42%, var(--fo-border));
+      border-radius: 11px;
+      color: var(--fo-red);
+      background: var(--fo-shell);
+      font-size: 12px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    #farmon-x6-operations-study .fo-route-list { min-height: 0; overflow: auto; }
+
+    #farmon-x6-operations-study .fo-route {
+      position: relative;
+      display: grid;
+      grid-template-columns: 4px minmax(0, 1fr) 30px;
+      gap: 10px;
+      width: 100%;
+      min-height: 66px;
+      margin-bottom: 8px;
+      overflow: hidden;
+      border: 1px solid var(--fo-border);
+      border-radius: 12px;
+      padding: 9px 7px 9px 8px;
+      color: var(--fo-ink);
+      background: var(--fo-shell);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    #farmon-x6-operations-study .fo-route::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: transparent;
+      transform-origin: left;
+    }
+
+    #farmon-x6-operations-study .fo-route.is-active { border-color: color-mix(in srgb, var(--fo-blue) 62%, var(--fo-border)); background: var(--fo-blue-soft); }
+    #farmon-x6-operations-study .fo-route.is-active::after { background: var(--fo-blue); transform: scaleX(.68); }
+    #farmon-x6-operations-study .fo-route-marker { width: 4px; height: 100%; border-radius: 4px; background: var(--fo-border); }
+    #farmon-x6-operations-study .fo-route.is-active .fo-route-marker { background: var(--fo-blue); }
+    #farmon-x6-operations-study .fo-route-main { min-width: 0; align-self: center; }
+    #farmon-x6-operations-study .fo-route-name { display: block; overflow: hidden; font-size: 12px; font-weight: 660; text-overflow: ellipsis; white-space: nowrap; }
+    #farmon-x6-operations-study .fo-route-state { display: block; margin-top: 5px; color: var(--fo-muted); font-size: 10px; }
+    #farmon-x6-operations-study .fo-route.is-active .fo-route-state { color: var(--fo-blue); }
+    #farmon-x6-operations-study .fo-route-more { display: grid; place-items: center; min-width: 30px; min-height: 44px; align-self: center; border-radius: 8px; color: var(--fo-muted); font-size: 18px; }
+
+    #farmon-x6-operations-study .fo-manual-entry {
+      min-height: 48px;
+      margin-top: auto;
+      border: 1px solid var(--fo-border);
+      border-radius: 11px;
+      color: var(--fo-ink);
+      background: var(--fo-shell);
+      font-size: 12px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    #farmon-x6-operations-study .fo-canvas-stage {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      background: var(--fo-canvas);
+      touch-action: none;
+      user-select: none;
+    }
+
+    #farmon-x6-operations-study .fo-canvas-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .5;
+      background-image: radial-gradient(circle, color-mix(in srgb, var(--fo-line) 45%, transparent) 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events: none;
+    }
+
+    #farmon-x6-operations-study .fo-canvas {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+
+    #farmon-x6-operations-study .fo-canvas.is-dragging { cursor: grabbing; }
+
+    #farmon-x6-operations-study .fo-map-edge {
+      fill: none;
+      stroke: var(--fo-line);
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+      transition: stroke 160ms ease, opacity 160ms ease;
+    }
+
+    #farmon-x6-operations-study .fo-map-edge.is-dimmed { opacity: .38; }
+    #farmon-x6-operations-study .fo-map-edge.is-route {
+      stroke: var(--fo-blue);
+      stroke-dasharray: 10 9;
+      animation: fo-water-flow 7s linear infinite;
+    }
+
+    #farmon-x6-operations-study .fo-map-arrow { fill: var(--fo-line); transition: fill 160ms ease; }
+    #farmon-x6-operations-study .fo-map-arrow.is-route { fill: var(--fo-blue); }
+    #farmon-x6-operations-study .fo-map-node { color: var(--fo-line); }
+    #farmon-x6-operations-study .fo-node-body { fill: var(--fo-shell); stroke: currentColor; stroke-width: 3; vector-effect: non-scaling-stroke; }
+    #farmon-x6-operations-study .fo-node-glyph { fill: none; stroke: var(--fo-muted); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    #farmon-x6-operations-study .fo-node-water { fill: color-mix(in srgb, var(--fo-blue) 24%, transparent); }
+    #farmon-x6-operations-study .fo-map-node.is-engaged { color: var(--fo-blue); }
+    #farmon-x6-operations-study .fo-node-name { fill: var(--fo-ink); font-size: 28px; font-weight: 660; paint-order: stroke; stroke: var(--fo-canvas); stroke-width: 7px; stroke-linejoin: round; pointer-events: none; }
+    #farmon-x6-operations-study .fo-node-value { fill: var(--fo-muted); font-size: 22px; font-weight: 600; paint-order: stroke; stroke: var(--fo-canvas); stroke-width: 6px; pointer-events: none; }
+    #farmon-x6-operations-study .fo-product[data-labels="essential"] .fo-secondary-label { opacity: 0; }
+
+    #farmon-x6-operations-study .fo-selection-ring {
+      fill: none;
+      stroke: var(--fo-green);
+      stroke-width: 4;
+      stroke-dasharray: 6 6;
+      vector-effect: non-scaling-stroke;
+      pointer-events: none;
+      animation: fo-ring 12s linear infinite;
+    }
+
+    #farmon-x6-operations-study .fo-selection-ring[hidden] { display: none; }
+
+    #farmon-x6-operations-study .fo-hit-layer { position: absolute; inset: 0; pointer-events: none; }
+    #farmon-x6-operations-study .fo-node-hit {
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      border: 0;
+      border-radius: 50%;
+      padding: 0;
+      opacity: .001;
+      background: var(--fo-green);
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      cursor: pointer;
+    }
+    #farmon-x6-operations-study .fo-node-hit:focus-visible { opacity: .18; outline: 3px solid var(--fo-green); outline-offset: 3px; }
+
+    #farmon-x6-operations-study .fo-route-status {
+      position: absolute;
+      z-index: 7;
+      top: 14px;
+      left: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      max-width: calc(100% - 148px);
+      border: 1px solid var(--fo-border);
+      border-radius: 11px;
+      padding: 0 12px;
+      color: var(--fo-ink);
+      background: color-mix(in srgb, var(--fo-shell) 93%, transparent);
+      box-shadow: 0 8px 24px var(--fo-shadow);
+      backdrop-filter: blur(8px);
+      font-size: 11px;
+    }
+
+    #farmon-x6-operations-study .fo-route-status-dot { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: var(--fo-blue); }
+    #farmon-x6-operations-study .fo-route-status-copy { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    #farmon-x6-operations-study .fo-map-tools {
+      position: absolute;
+      z-index: 8;
+      top: 14px;
+      right: 14px;
+      display: flex;
+      gap: 6px;
+    }
+
+    #farmon-x6-operations-study .fo-map-tool {
+      display: grid;
+      place-items: center;
+      min-width: 44px;
+      min-height: 44px;
+      border: 1px solid var(--fo-border);
+      border-radius: 10px;
+      padding: 0 10px;
+      color: var(--fo-ink);
+      background: color-mix(in srgb, var(--fo-shell) 93%, transparent);
+      box-shadow: 0 7px 20px var(--fo-shadow);
+      cursor: pointer;
+    }
+
+    #farmon-x6-operations-study .fo-entity-drawer {
+      position: absolute;
+      z-index: 14;
+      top: 70px;
+      right: 14px;
+      bottom: 14px;
+      width: 294px;
+      overflow: auto;
+      border: 1px solid var(--fo-border);
+      border-radius: 15px;
+      padding: 15px;
+      color: var(--fo-ink);
+      background: var(--fo-shell);
+      box-shadow: 0 20px 50px var(--fo-shadow);
+      transform: translateX(calc(100% + 28px));
+      visibility: hidden;
+      transition: transform 240ms cubic-bezier(.2, 0, 0, 1), visibility 0s linear 240ms;
+    }
+
+    #farmon-x6-operations-study .fo-entity-drawer.is-open { transform: translateX(0); visibility: visible; transition-delay: 0s; }
+    #farmon-x6-operations-study .fo-product[data-preview="tablet"] .fo-entity-drawer { width: 260px; }
+    #farmon-x6-operations-study .fo-drawer-head { display: flex; align-items: flex-start; gap: 10px; }
+    #farmon-x6-operations-study .fo-drawer-icon { display: grid; place-items: center; width: 38px; height: 38px; flex: 0 0 auto; border-radius: 10px; color: var(--fo-green); background: var(--fo-green-soft); }
+    #farmon-x6-operations-study .fo-drawer-icon svg { width: 21px; height: 21px; stroke: currentColor; }
+    #farmon-x6-operations-study .fo-drawer-copy { min-width: 0; flex: 1; }
+    #farmon-x6-operations-study .fo-drawer-title { font-size: 15px; font-weight: 720; }
+    #farmon-x6-operations-study .fo-drawer-subtitle { margin-top: 3px; color: var(--fo-muted); font-size: 11px; }
+    #farmon-x6-operations-study .fo-drawer-close { display: grid; place-items: center; min-width: 44px; min-height: 44px; border: 0; border-radius: 9px; color: var(--fo-muted); background: transparent; cursor: pointer; }
+
+    #farmon-x6-operations-study .fo-reported-state { margin: 17px 0 14px; padding: 13px 0; border-block: 1px solid var(--fo-border); }
+    #farmon-x6-operations-study .fo-state-label { color: var(--fo-muted); font-size: 10px; font-weight: 650; letter-spacing: .05em; text-transform: uppercase; }
+    #farmon-x6-operations-study .fo-state-main { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-top: 7px; }
+    #farmon-x6-operations-study .fo-state-value { font-size: 21px; font-weight: 720; }
+    #farmon-x6-operations-study .fo-state-time { color: var(--fo-muted); font-size: 10px; }
+    #farmon-x6-operations-study .fo-reading-list { display: grid; gap: 9px; margin-bottom: 16px; }
+    #farmon-x6-operations-study .fo-reading { display: flex; justify-content: space-between; gap: 10px; color: var(--fo-muted); font-size: 11px; }
+    #farmon-x6-operations-study .fo-reading strong { color: var(--fo-ink); font-weight: 650; }
+
+    #farmon-x6-operations-study .fo-command {
+      width: 100%;
+      min-height: 50px;
+      border: 0;
+      border-radius: 11px;
+      color: #ffffff;
+      background: #147448;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 100ms ease, opacity 100ms ease;
+    }
+
+    #farmon-x6-operations-study .fo-command:active { transform: scale(.985); }
+    #farmon-x6-operations-study .fo-command[disabled] { cursor: wait; opacity: .68; }
+    #farmon-x6-operations-study .fo-command-note { display: flex; align-items: center; gap: 7px; margin-top: 10px; color: var(--fo-muted); font-size: 10px; line-height: 1.45; }
+    #farmon-x6-operations-study .fo-command-note::before { content: ""; width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: var(--fo-muted); }
+    #farmon-x6-operations-study .fo-command-note.is-pending { color: var(--fo-amber); }
+    #farmon-x6-operations-study .fo-command-note.is-pending::before { background: var(--fo-amber); }
+    #farmon-x6-operations-study .fo-command-note.is-confirmed { color: var(--fo-green); }
+    #farmon-x6-operations-study .fo-command-note.is-confirmed::before { background: var(--fo-green); }
+
+    #farmon-x6-operations-study .fo-route-empty {
+      position: absolute;
+      z-index: 6;
+      left: 14px;
+      bottom: 14px;
+      color: var(--fo-muted);
+      font-size: 10px;
+    }
+
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-global-rail { display: none; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-sitebar { min-height: 58px; gap: 10px; padding: 8px 10px; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-mobile-brand { display: grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; border-radius: 11px; color: #ffffff; background: #147448; font-size: 13px; font-weight: 750; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-site-name { font-size: 13px; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-site-subtitle { font-size: 10px; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-health,
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-avatar { display: none; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-phone-stop { display: block; min-height: 40px; padding: 0 10px; border: 1px solid color-mix(in srgb, var(--fo-red) 42%, var(--fo-border)); border-radius: 10px; color: var(--fo-red); background: var(--fo-shell); font-size: 11px; font-weight: 650; white-space: nowrap; cursor: pointer; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-phone-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; min-height: 50px; padding: 6px 10px; border-bottom: 1px solid var(--fo-border); background: var(--fo-shell); }
+    #farmon-x6-operations-study .fo-phone-tab { min-height: 38px; border: 0; border-radius: 9px; color: var(--fo-muted); background: transparent; font-size: 12px; cursor: pointer; }
+    #farmon-x6-operations-study .fo-phone-tab[aria-selected="true"] { color: var(--fo-ink); background: var(--fo-panel-strong); font-weight: 650; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-workspace { position: relative; display: block; min-height: 0; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-route-dock,
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-canvas-stage { position: absolute; inset: 0; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-route-dock { display: none; padding: 12px; border-right: 0; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"][data-phone-view="controls"] .fo-route-dock { display: flex; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"][data-phone-view="controls"] .fo-canvas-stage { display: none; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-route-list { overflow: visible; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-route { min-height: 62px; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-manual-entry { display: none; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-phone-manual-list { display: block; margin-top: 18px; }
+    #farmon-x6-operations-study .fo-phone-manual-head { display: flex; justify-content: space-between; gap: 8px; margin: 0 2px 8px; color: var(--fo-muted); font-size: 11px; }
+    #farmon-x6-operations-study .fo-phone-entity { display: grid; grid-template-columns: 38px minmax(0, 1fr) 24px; width: 100%; min-height: 60px; align-items: center; gap: 10px; margin-bottom: 8px; padding: 8px; border: 1px solid var(--fo-border); border-radius: 11px; color: var(--fo-ink); background: var(--fo-shell); text-align: left; cursor: pointer; }
+    #farmon-x6-operations-study .fo-phone-entity-symbol { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 10px; color: var(--fo-green); background: var(--fo-green-soft); font-size: 11px; font-weight: 700; }
+    #farmon-x6-operations-study .fo-phone-entity strong { display: block; font-size: 12px; font-weight: 660; }
+    #farmon-x6-operations-study .fo-phone-entity small { display: block; margin-top: 3px; color: var(--fo-muted); font-size: 10px; }
+    #farmon-x6-operations-study .fo-phone-entity-arrow { color: var(--fo-muted); font-size: 18px; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-route-status { top: 10px; left: 10px; min-height: 38px; max-width: calc(100% - 152px); }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-map-tools { top: 10px; right: 10px; gap: 4px; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-map-tool { min-width: 38px; min-height: 38px; padding: 0 8px; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-node-name { font-size: 32px; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-node-value { font-size: 27px; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-entity-drawer { top: auto; right: 10px; bottom: 10px; left: 10px; width: auto; overflow: visible; padding: 12px; transform: translateY(calc(100% + 22px)); }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-entity-drawer.is-open { transform: translateY(0); }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-reported-state { margin: 10px 0 8px; padding: 9px 0; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-state-main { margin-top: 4px; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-state-value { font-size: 18px; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-reading-list { display: none; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-command { min-height: 46px; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-command-note { margin-top: 7px; }
+    #farmon-x6-operations-study .fo-product[data-preview="phone"] .fo-route-empty { display: none; }
+
+    @keyframes fo-water-flow { to { stroke-dashoffset: -190; } }
+    @keyframes fo-ring { to { stroke-dashoffset: -120; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      #farmon-x6-operations-study .fo-product,
+      #farmon-x6-operations-study .fo-entity-drawer,
+      #farmon-x6-operations-study .fo-command { transition: none; }
+      #farmon-x6-operations-study .fo-map-edge.is-route,
+      #farmon-x6-operations-study .fo-selection-ring { animation: none; }
+    }
+
+    @media (max-width: 720px) {
+      #farmon-x6-operations-study .fo-study-head { align-items: stretch; flex-direction: column; }
+      #farmon-x6-operations-study .fo-preview-switch { align-self: flex-start; }
+      #farmon-x6-operations-study .fo-product:not([data-preview="phone"]) { height: 620px; }
+    }
+  </style>
+
+  <div class="fo-study-head">
+    <div class="fo-study-copy">
+      <h2 class="fo-study-title">Operator workspace — canonical direction</h2>
+      <div class="fo-study-note">Routes lead, the map stays dominant, and entity controls open only after selection.</div>
+    </div>
+    <div class="fo-preview-switch" aria-label="Preview width">
+      <button type="button" data-preview-button="desktop" aria-pressed="false">Desktop</button>
+      <button type="button" data-preview-button="tablet" aria-pressed="false">Tablet</button>
+      <button type="button" data-preview-button="phone" aria-pressed="true">Phone</button>
+    </div>
+  </div>
+
+  <section class="fo-product" data-preview="phone" data-phone-view="map" data-labels="essential" aria-label="Farm operations workspace">
+    <nav class="fo-global-rail" aria-label="Primary navigation">
+      <div class="fo-brand" aria-label="Farmon">F</div>
+      <button class="fo-rail-button" type="button" aria-current="page" aria-label="Operate">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 14h5v6H4zM15 4h5v16h-5zM9 9h6v11H9z"/></svg>
+      </button>
+      <button class="fo-rail-button" type="button" aria-label="Activity">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M5 18V9m7 9V5m7 13v-7"/></svg>
+      </button>
+      <button class="fo-rail-button" type="button" aria-label="Automations">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M6 5h12v5H6zm0 9h12v5H6zM9 10v4m6-4v4"/></svg>
+      </button>
+      <div class="fo-rail-spacer"></div>
+      <button class="fo-rail-button" type="button" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.4 1A7 7 0 0 0 14.4 6L14 3h-4l-.4 3a7 7 0 0 0-2.1.9l-2.4-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.4-1a7 7 0 0 0 2.1.9l.4 3h4l.4-3a7 7 0 0 0 2.1-.9l2.4 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2Z"/></svg>
+      </button>
+    </nav>
+
+    <div class="fo-shell">
+      <header class="fo-sitebar">
+        <div class="fo-mobile-brand" aria-hidden="true">F</div>
+        <div class="fo-site-copy">
+          <div class="fo-site-name">North Field</div>
+          <div class="fo-site-subtitle">Operator workspace · Main controller</div>
+        </div>
+        <div class="fo-health"><span class="fo-health-dot"></span>2 controllers online</div>
+        <div class="fo-avatar" aria-label="Account: AM">AM</div>
+        <button class="fo-phone-stop" type="button" data-stop-routes aria-label="Stop all routes">Stop routes</button>
+      </header>
+
+      <div class="fo-phone-tabs" role="tablist" aria-label="Operator workspace view">
+        <button id="fo-controls-tab" class="fo-phone-tab" type="button" role="tab" data-phone-tab="controls" aria-controls="fo-controls-panel" aria-selected="false">Controls</button>
+        <button id="fo-map-tab" class="fo-phone-tab" type="button" role="tab" data-phone-tab="map" aria-controls="fo-map-panel" aria-selected="true">Map</button>
+      </div>
+
+      <div class="fo-workspace">
+        <aside id="fo-controls-panel" class="fo-route-dock" aria-label="Route controls">
+          <div class="fo-dock-head">
+            <span class="fo-dock-title">Routes</span>
+            <span class="fo-route-count">3 configured</span>
+          </div>
+          <button class="fo-stop-routes" type="button" data-stop-routes>Stop all routes</button>
+          <div class="fo-route-list">
+            <button class="fo-route is-active" type="button" data-route="tank-a" aria-pressed="true">
+              <span class="fo-route-marker"></span>
+              <span class="fo-route-main"><span class="fo-route-name">Header → Tank A</span><span class="fo-route-state">Running · 68%</span></span>
+              <span class="fo-route-more" aria-hidden="true">⋯</span>
+            </button>
+            <button class="fo-route" type="button" data-route="tank-b" aria-pressed="false">
+              <span class="fo-route-marker"></span>
+              <span class="fo-route-main"><span class="fo-route-name">Header → Tank B</span><span class="fo-route-state">Ready</span></span>
+              <span class="fo-route-more" aria-hidden="true">⋯</span>
+            </button>
+            <button class="fo-route" type="button" data-route="flush" aria-pressed="false">
+              <span class="fo-route-marker"></span>
+              <span class="fo-route-main"><span class="fo-route-name">Flush filter</span><span class="fo-route-state">Ready</span></span>
+              <span class="fo-route-more" aria-hidden="true">⋯</span>
+            </button>
+          </div>
+          <div class="fo-phone-manual-list">
+            <div class="fo-phone-manual-head"><strong>Manual controls</strong><span>Tap to inspect</span></div>
+            <button class="fo-phone-entity" type="button" data-phone-entity="pump-1"><span class="fo-phone-entity-symbol">P1</span><span><strong>Pump 1</strong><small>Running · 2.4 bar</small></span><span class="fo-phone-entity-arrow">›</span></button>
+            <button class="fo-phone-entity" type="button" data-phone-entity="valve-a"><span class="fo-phone-entity-symbol">VA</span><span><strong>Valve A</strong><small>Open · route controlled</small></span><span class="fo-phone-entity-arrow">›</span></button>
+          </div>
+          <button class="fo-manual-entry" type="button">Manual controls</button>
+        </aside>
+
+        <main id="fo-map-panel" class="fo-canvas-stage" aria-label="Interactive site topology">
+          <svg class="fo-canvas" viewBox="0 0 1000 600" role="img" aria-labelledby="fo-map-title fo-map-desc">
+            <title id="fo-map-title">North Field live topology</title>
+            <desc id="fo-map-desc">A live water topology with route highlighting and selectable pump and valve actuators.</desc>
+            <defs>
+              <marker id="fo-arrow-neutral" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path class="fo-map-arrow" d="M0 0 10 5 0 10Z"></path></marker>
+              <marker id="fo-arrow-route" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path class="fo-map-arrow is-route" d="M0 0 10 5 0 10Z"></path></marker>
+            </defs>
+
+            <path class="fo-map-edge" data-edge-routes="tank-a tank-b flush" d="M144 300H250"></path>
+            <path class="fo-map-edge" data-edge-routes="tank-a tank-b flush" d="M350 300H430"></path>
+            <path class="fo-map-edge" data-edge-routes="tank-a tank-b flush" d="M520 300H610"></path>
+            <path class="fo-map-edge" data-edge-routes="tank-a" d="M690 300H744V165H812"></path>
+            <path class="fo-map-edge" data-edge-routes="tank-b" d="M690 300H744V438H812"></path>
+            <path class="fo-map-edge" data-edge-routes="flush" d="M475 350V500H642"></path>
+
+            <g class="fo-map-node" data-node-glyph="source">
+              <path class="fo-node-body" d="M54 242H136V352H54Z"></path>
+              <path class="fo-node-water" d="M60 290H130V346H60Z"></path>
+              <path class="fo-node-glyph" d="M65 270q12-11 24 0t24 0t16 0"></path>
+              <text class="fo-node-name fo-secondary-label" x="95" y="390" text-anchor="middle">Reservoir</text>
+              <text class="fo-node-value fo-secondary-label" x="95" y="420" text-anchor="middle">82%</text>
+            </g>
+
+            <g class="fo-map-node" data-node-glyph="pump-1">
+              <circle class="fo-node-body" cx="300" cy="300" r="49"></circle>
+              <path class="fo-node-glyph" d="m278 323 38-45 11 34Z"></path>
+              <text class="fo-node-name" x="300" y="390" text-anchor="middle">Pump 1</text>
+              <text class="fo-node-value" x="300" y="420" text-anchor="middle">Running · 2.4 bar</text>
+            </g>
+
+            <g class="fo-map-node" data-node-glyph="filter-1">
+              <rect class="fo-node-body" x="430" y="250" width="90" height="100" rx="18"></rect>
+              <path class="fo-node-glyph" d="M449 278h52m-52 22h52m-52 22h52"></path>
+              <text class="fo-node-name fo-secondary-label" x="475" y="390" text-anchor="middle">Filter</text>
+            </g>
+
+            <g class="fo-map-node" data-node-glyph="valve-a">
+              <circle class="fo-node-body" cx="650" cy="300" r="40"></circle>
+              <path class="fo-node-glyph" d="m626 280 24 20-24 20Zm48 0-24 20 24 20Z"></path>
+              <text class="fo-node-name" x="650" y="390" text-anchor="middle">Valve A</text>
+              <text class="fo-node-value" x="650" y="420" text-anchor="middle">Open</text>
+            </g>
+
+            <g class="fo-map-node" data-node-glyph="tank-a">
+              <path class="fo-node-body" d="M812 88H932V248H812Z"></path>
+              <path class="fo-node-water" d="M819 150H925V241H819Z"></path>
+              <path class="fo-node-glyph" d="M827 126q15-12 30 0t30 0t30 0"></path>
+              <text class="fo-node-name" x="872" y="282" text-anchor="middle">Tank A</text>
+              <text class="fo-node-value" x="872" y="312" text-anchor="middle">68%</text>
+            </g>
+
+            <g class="fo-map-node" data-node-glyph="tank-b">
+              <path class="fo-node-body" d="M812 360H932V520H812Z"></path>
+              <path class="fo-node-water" d="M819 452H925V513H819Z"></path>
+              <path class="fo-node-glyph" d="M827 398q15-12 30 0t30 0t30 0"></path>
+              <text class="fo-node-name fo-secondary-label" x="872" y="554" text-anchor="middle">Tank B</text>
+              <text class="fo-node-value fo-secondary-label" x="872" y="584" text-anchor="middle">41%</text>
+            </g>
+
+            <g class="fo-map-node" data-node-glyph="drain">
+              <path class="fo-node-body" d="M642 470H706V530H642Z"></path>
+              <path class="fo-node-glyph" d="M654 488h40m-34 12h28m-22 12h16"></path>
+              <text class="fo-node-name fo-secondary-label" x="674" y="566" text-anchor="middle">Flush</text>
+            </g>
+
+            <circle class="fo-selection-ring" cx="650" cy="300" r="56" hidden></circle>
+          </svg>
+
+          <div class="fo-hit-layer" aria-label="Selectable equipment">
+            <button class="fo-node-hit" type="button" data-node="pump-1" data-x="300" data-y="300" aria-label="Select Pump 1"></button>
+            <button class="fo-node-hit" type="button" data-node="valve-a" data-x="650" data-y="300" aria-label="Select Valve A"></button>
+          </div>
+
+          <div class="fo-route-status" aria-live="polite"><span class="fo-route-status-dot"></span><span class="fo-route-status-copy">Header → Tank A · running</span></div>
+
+          <div class="fo-map-tools" aria-label="Canvas controls">
+            <button class="fo-map-tool" type="button" data-map-action="out" aria-label="Zoom out">−</button>
+            <button class="fo-map-tool" type="button" data-map-action="in" aria-label="Zoom in">+</button>
+            <button class="fo-map-tool" type="button" data-map-action="fit">Fit</button>
+          </div>
+
+          <div class="fo-route-empty">Drag to pan · wheel or buttons to zoom</div>
+
+          <section class="fo-entity-drawer" aria-label="Selected entity controls" aria-live="polite">
+            <div class="fo-drawer-head">
+              <div class="fo-drawer-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="m5 7 7 5-7 5Zm14 0-7 5 7 5Z"/></svg></div>
+              <div class="fo-drawer-copy"><div class="fo-drawer-title">Valve A</div><div class="fo-drawer-subtitle">Valve · Main controller</div></div>
+              <button class="fo-drawer-close" type="button" aria-label="Close entity controls">✕</button>
+            </div>
+            <div class="fo-reported-state">
+              <div class="fo-state-label">Reported state</div>
+              <div class="fo-state-main"><span class="fo-state-value">Open</span><span class="fo-state-time">now</span></div>
+            </div>
+            <div class="fo-reading-list">
+              <div class="fo-reading"><span>Current route</span><strong>Tank A</strong></div>
+              <div class="fo-reading"><span>Last command</span><strong>Route control</strong></div>
+              <div class="fo-reading"><span>Controller</span><strong>Online</strong></div>
+            </div>
+            <button class="fo-command" type="button">Close valve</button>
+            <div class="fo-command-note">Selected · no manual command sent</div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      const root = document.getElementById('farmon-x6-operations-study');
+      const product = root.querySelector('.fo-product');
+      const stage = root.querySelector('.fo-canvas-stage');
+      const svg = root.querySelector('.fo-canvas');
+      const ring = root.querySelector('.fo-selection-ring');
+      const drawer = root.querySelector('.fo-entity-drawer');
+      const drawerTitle = root.querySelector('.fo-drawer-title');
+      const drawerSubtitle = root.querySelector('.fo-drawer-subtitle');
+      const stateValue = root.querySelector('.fo-state-value');
+      const command = root.querySelector('.fo-command');
+      const commandNote = root.querySelector('.fo-command-note');
+      const statusCopy = root.querySelector('.fo-route-status-copy');
+      const pointers = new Map();
+      const world = { x: 32, y: 52, width: 925, height: 545 };
+      let view = { ...world };
+      let userMoved = false;
+      let dragStart = null;
+      let pinchStart = null;
+      let selected = null;
+      let activeRoute = 'tank-a';
+      let phoneView = 'map';
+      let commandTimer = null;
+
+      const design = { labels: 'full', flowMotion: true };
+      const entities = {
+        'pump-1': { x: 300, y: 300, r: 65, name: 'Pump 1', type: 'Pump · Main controller', state: 'Running', action: 'Stop pump' },
+        'valve-a': { x: 650, y: 300, r: 56, name: 'Valve A', type: 'Valve · Main controller', state: 'Open', action: 'Close valve' }
+      };
+      const routes = {
+        'tank-a': { name: 'Header → Tank A', status: 'running' },
+        'tank-b': { name: 'Header → Tank B', status: 'running' },
+        'flush': { name: 'Flush filter', status: 'running' }
+      };
+
+      function applyView() {
+        svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.width} ${view.height}`);
+        requestAnimationFrame(positionTargets);
+      }
+
+      function fitScene() {
+        const width = Math.max(stage.clientWidth, 1);
+        const height = Math.max(stage.clientHeight, 1);
+        const aspect = width / height;
+        const pad = product.dataset.preview === 'tablet' ? 54 : 40;
+        let targetWidth = world.width + pad * 2;
+        let targetHeight = world.height + pad * 2;
+        if (targetWidth / targetHeight < aspect) targetWidth = targetHeight * aspect;
+        else targetHeight = targetWidth / aspect;
+        view = {
+          x: world.x + world.width / 2 - targetWidth / 2,
+          y: world.y + world.height / 2 - targetHeight / 2,
+          width: targetWidth,
+          height: targetHeight
+        };
+        userMoved = false;
+        applyView();
+      }
+
+      function focusPhone() {
+        const width = Math.max(stage.clientWidth, 1);
+        const height = Math.max(stage.clientHeight, 1);
+        const targetWidth = 740;
+        const targetHeight = targetWidth * height / width;
+        view = { x: 200, y: -260, width: targetWidth, height: targetHeight };
+        userMoved = false;
+        applyView();
+      }
+
+      function clientToWorld(clientX, clientY) {
+        const rect = svg.getBoundingClientRect();
+        return {
+          x: view.x + ((clientX - rect.left) / rect.width) * view.width,
+          y: view.y + ((clientY - rect.top) / rect.height) * view.height
+        };
+      }
+
+      function zoomAt(multiplier, clientX, clientY) {
+        const rect = svg.getBoundingClientRect();
+        const cx = clientX ?? (rect.left + rect.width / 2);
+        const cy = clientY ?? (rect.top + rect.height / 2);
+        const anchor = clientToWorld(cx, cy);
+        const nextWidth = Math.min(1800, Math.max(300, view.width * multiplier));
+        const nextHeight = nextWidth * (rect.height / rect.width);
+        const rx = (cx - rect.left) / rect.width;
+        const ry = (cy - rect.top) / rect.height;
+        view = { x: anchor.x - nextWidth * rx, y: anchor.y - nextHeight * ry, width: nextWidth, height: nextHeight };
+        userMoved = true;
+        applyView();
+      }
+
+      function positionTargets() {
+        const stageRect = stage.getBoundingClientRect();
+        const matrix = svg.getScreenCTM();
+        if (!matrix) return;
+        root.querySelectorAll('.fo-node-hit').forEach((button) => {
+          const point = new DOMPoint(Number(button.dataset.x), Number(button.dataset.y)).matrixTransform(matrix);
+          button.style.left = `${point.x - stageRect.left}px`;
+          button.style.top = `${point.y - stageRect.top}px`;
+        });
+      }
+
+      function setPreview(preview) {
+        product.dataset.preview = preview;
+        product.dataset.labels = preview === 'desktop' ? design.labels : 'essential';
+        root.querySelectorAll('[data-preview-button]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.previewButton === preview)));
+        requestAnimationFrame(() => requestAnimationFrame(preview === 'phone' ? focusPhone : fitScene));
+      }
+
+      function setPhoneView(nextView) {
+        phoneView = nextView;
+        product.dataset.phoneView = nextView;
+        root.querySelectorAll('[data-phone-tab]').forEach((button) => button.setAttribute('aria-selected', String(button.dataset.phoneTab === nextView)));
+        if (nextView === 'map') requestAnimationFrame(() => requestAnimationFrame(() => userMoved ? positionTargets() : focusPhone()));
+      }
+
+      function setActiveRoute(routeId) {
+        activeRoute = routeId;
+        root.querySelectorAll('.fo-route').forEach((button) => {
+          const active = button.dataset.route === routeId;
+          button.classList.toggle('is-active', active);
+          button.setAttribute('aria-pressed', String(active));
+          button.querySelector('.fo-route-state').textContent = active ? 'Running · 68%' : 'Ready';
+        });
+        root.querySelectorAll('.fo-map-edge').forEach((edge) => {
+          const routeIds = edge.dataset.edgeRoutes.split(' ');
+          const engaged = routeIds.includes(routeId);
+          edge.classList.toggle('is-route', engaged);
+          edge.classList.toggle('is-dimmed', !engaged);
+          edge.setAttribute('marker-end', engaged ? 'url(#fo-arrow-route)' : 'url(#fo-arrow-neutral)');
+          edge.style.animationPlayState = design.flowMotion ? 'running' : 'paused';
+        });
+        root.querySelectorAll('.fo-map-node').forEach((node) => node.classList.remove('is-engaged'));
+        const engagedNodes = routeId === 'tank-a'
+          ? ['source', 'pump-1', 'filter-1', 'valve-a', 'tank-a']
+          : routeId === 'tank-b'
+            ? ['source', 'pump-1', 'filter-1', 'valve-a', 'tank-b']
+            : ['source', 'pump-1', 'filter-1', 'drain'];
+        engagedNodes.forEach((id) => root.querySelector(`[data-node-glyph="${id}"]`)?.classList.add('is-engaged'));
+        statusCopy.textContent = `${routes[routeId].name} · ${routes[routeId].status}`;
+      }
+
+      function selectEntity(id) {
+        clearTimeout(commandTimer);
+        selected = id;
+        const entity = entities[id];
+        ring.hidden = false;
+        ring.setAttribute('cx', entity.x);
+        ring.setAttribute('cy', entity.y);
+        ring.setAttribute('r', entity.r);
+        drawerTitle.textContent = entity.name;
+        drawerSubtitle.textContent = entity.type;
+        stateValue.textContent = entity.state;
+        command.textContent = entity.action;
+        command.disabled = false;
+        commandNote.textContent = 'Selected · no manual command sent';
+        commandNote.className = 'fo-command-note';
+        drawer.classList.add('is-open');
+      }
+
+      function clearSelection() {
+        selected = null;
+        ring.hidden = true;
+        drawer.classList.remove('is-open');
+      }
+
+      function runCommand() {
+        if (!selected || command.disabled) return;
+        clearTimeout(commandTimer);
+        const targetId = selected;
+        command.disabled = true;
+        commandNote.textContent = 'Sending command…';
+        commandNote.className = 'fo-command-note is-pending';
+        commandTimer = setTimeout(() => {
+          const entity = entities[targetId];
+          if (selected !== targetId) return;
+          entity.state = entity.state === 'Running' ? 'Stopped' : entity.state === 'Open' ? 'Closed' : entity.state;
+          entity.action = entity.state === 'Stopped' ? 'Run pump' : entity.state === 'Closed' ? 'Open valve' : entity.action;
+          stateValue.textContent = entity.state;
+          command.textContent = entity.action;
+          command.disabled = false;
+          commandNote.textContent = 'Confirmed by controller';
+          commandNote.className = 'fo-command-note is-confirmed';
+        }, 680);
+      }
+
+      root.querySelectorAll('[data-preview-button]').forEach((button) => button.addEventListener('click', () => setPreview(button.dataset.previewButton)));
+      root.querySelectorAll('[data-phone-tab]').forEach((button) => button.addEventListener('click', () => setPhoneView(button.dataset.phoneTab)));
+      root.querySelectorAll('.fo-route').forEach((button) => button.addEventListener('click', () => setActiveRoute(button.dataset.route)));
+      function stopRoutes() {
+        root.querySelectorAll('.fo-route').forEach((button) => {
+          button.classList.remove('is-active');
+          button.setAttribute('aria-pressed', 'false');
+          button.querySelector('.fo-route-state').textContent = 'Ready';
+        });
+        root.querySelectorAll('.fo-map-edge').forEach((edge) => {
+          edge.classList.remove('is-route', 'is-dimmed');
+          edge.setAttribute('marker-end', 'url(#fo-arrow-neutral)');
+        });
+        root.querySelectorAll('.fo-map-node').forEach((node) => node.classList.remove('is-engaged'));
+        statusCopy.textContent = 'No routes active';
+      }
+      root.querySelectorAll('[data-stop-routes]').forEach((button) => button.addEventListener('click', stopRoutes));
+      root.querySelectorAll('.fo-node-hit').forEach((button) => {
+        button.addEventListener('pointerdown', (event) => event.stopPropagation());
+        button.addEventListener('click', () => selectEntity(button.dataset.node));
+      });
+      root.querySelector('.fo-drawer-close').addEventListener('click', clearSelection);
+      root.querySelector('.fo-manual-entry').addEventListener('click', () => selectEntity(selected || 'pump-1'));
+      root.querySelectorAll('[data-phone-entity]').forEach((button) => button.addEventListener('click', () => {
+        selectEntity(button.dataset.phoneEntity);
+        setPhoneView('map');
+      }));
+      command.addEventListener('click', runCommand);
+
+      root.querySelectorAll('[data-map-action]').forEach((button) => button.addEventListener('click', () => {
+        if (button.dataset.mapAction === 'fit') fitScene();
+        if (button.dataset.mapAction === 'in') zoomAt(.8);
+        if (button.dataset.mapAction === 'out') zoomAt(1.25);
+      }));
+
+      svg.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        zoomAt(event.deltaY > 0 ? 1.12 : .88, event.clientX, event.clientY);
+      }, { passive: false });
+
+      svg.addEventListener('pointerdown', (event) => {
+        svg.setPointerCapture(event.pointerId);
+        pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        if (pointers.size === 1) {
+          dragStart = { x: event.clientX, y: event.clientY, view: { ...view } };
+          svg.classList.add('is-dragging');
+        } else if (pointers.size === 2) {
+          const points = [...pointers.values()];
+          pinchStart = {
+            distance: Math.max(1, Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y)),
+            centerX: (points[0].x + points[1].x) / 2,
+            centerY: (points[0].y + points[1].y) / 2,
+            view: { ...view }
+          };
+        }
+      });
+
+      svg.addEventListener('pointermove', (event) => {
+        if (!pointers.has(event.pointerId)) return;
+        pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        const rect = svg.getBoundingClientRect();
+        if (pointers.size === 2 && pinchStart) {
+          const points = [...pointers.values()];
+          const distance = Math.max(1, Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y));
+          const factor = pinchStart.distance / distance;
+          view = { ...pinchStart.view };
+          zoomAt(factor, pinchStart.centerX, pinchStart.centerY);
+        } else if (pointers.size === 1 && dragStart) {
+          const dx = event.clientX - dragStart.x;
+          const dy = event.clientY - dragStart.y;
+          view = {
+            ...dragStart.view,
+            x: dragStart.view.x - (dx / rect.width) * dragStart.view.width,
+            y: dragStart.view.y - (dy / rect.height) * dragStart.view.height
+          };
+          userMoved = true;
+          applyView();
+        }
+      });
+
+      function endPointer(event) {
+        pointers.delete(event.pointerId);
+        if (pointers.size < 2) pinchStart = null;
+        if (pointers.size === 1) {
+          const point = [...pointers.values()][0];
+          dragStart = { x: point.x, y: point.y, view: { ...view } };
+        }
+        if (pointers.size === 0) {
+          dragStart = null;
+          svg.classList.remove('is-dragging');
+        }
+      }
+
+      svg.addEventListener('pointerup', endPointer);
+      svg.addEventListener('pointercancel', endPointer);
+
+      const observer = new ResizeObserver(() => {
+        if (userMoved) positionTargets();
+        else if (product.dataset.preview === 'phone' && phoneView === 'map') focusPhone();
+        else fitScene();
+      });
+      observer.observe(stage);
+
+      function applyDesign() {
+        product.dataset.labels = product.dataset.preview === 'desktop' ? design.labels : 'essential';
+        root.querySelectorAll('.fo-map-edge.is-route').forEach((edge) => {
+          edge.style.animationPlayState = design.flowMotion ? 'running' : 'paused';
+        });
+      }
+
+      applyDesign();
+      if (globalThis.Tweak) {
+        const tweak = new Tweak({ container: product, onChange: applyDesign });
+        tweak.addSelect(design, 'labels', { label: 'Desktop labels', options: [{ label: 'Full', value: 'full' }, { label: 'Essential', value: 'essential' }], reference: 'canvas.label-density' });
+        tweak.addToggle(design, 'flowMotion', { label: 'Animate active route', reference: 'canvas.route-motion' });
+      }
+
+      let previewSearch = globalThis.location?.search || '';
+      if (!previewSearch) {
+        try { previewSearch = globalThis.parent?.location?.search || ''; } catch {}
+      }
+      const requestedPreview = new URLSearchParams(previewSearch).get('preview');
+      const initialPreview = ['desktop', 'tablet', 'phone'].includes(requestedPreview) ? requestedPreview : 'phone';
+      setActiveRoute(activeRoute);
+      if (initialPreview === 'phone') selectEntity('valve-a');
+      else clearSelection();
+      setPreview(initialPreview);
+    })();
+  </script>
+</div>

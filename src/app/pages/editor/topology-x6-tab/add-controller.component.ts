@@ -16,15 +16,15 @@ import type { TemplateListEntry } from '../../../core/models/backend-api';
   host: { class: 'contents' },
   template: `
     <div class="dropdown dropdown-end">
-      <div tabindex="0" role="button" class="btn btn-ghost btn-xs gap-1">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+      <button tabindex="0" type="button" class="design-tool">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9zM12 1v3M12 20v3M1 12h3M20 12h3"/>
         </svg>
-        Add Controller
-      </div>
-      <ul tabindex="0" class="dropdown-content menu menu-xs bg-base-200 rounded-lg shadow-lg z-30 w-48 p-1">
-        <li><a (click)="openBlankControllerModal()">Blank Controller…</a></li>
-        <li><a (click)="openTemplateModal()">From Template…</a></li>
+        <span>Add controller</span>
+      </button>
+      <ul tabindex="0" class="controller-menu dropdown-content menu z-30 w-52 p-2">
+        <li><button type="button" (click)="openBlankControllerModal()">Blank controller…</button></li>
+        <li><button type="button" (click)="openTemplateModal()">From template…</button></li>
       </ul>
     </div>
 
@@ -103,6 +103,11 @@ import type { TemplateListEntry } from '../../../core/models/backend-api';
       </dialog>
     }
   `,
+  styles: [`
+    .controller-menu { margin-top: 6px; border: 1px solid var(--op-border, #d7ded8); border-radius: 11px; background: #fff; box-shadow: 0 16px 42px rgb(21 32 25 / .16); color: var(--op-ink, #152019); }
+    .controller-menu button { min-height: 42px; width: 100%; border-radius: 8px; font-size: 12px; text-align: left; }
+    .controller-menu button:hover { background: var(--op-panel, #f3f6f2); }
+  `],
 })
 export class AddControllerComponent {
   protected workspace = inject(WorkspaceService);

@@ -3,11 +3,17 @@
  * suitable for X6's image shape attrs.
  */
 import { NODE_REGISTRY } from '../../../core/models/entities.model';
+import { UI_COLORS } from '../../../core/models/colors.model';
 
 export function svgDataUri(kind: string, data: Record<string, unknown>, activeControllerId?: string, importCount?: number): string {
   const desc = NODE_REGISTRY.get(kind);
   if (!desc) return '';
   let svg = desc.renderSvg(data);
+  // Editor-only light presentation. The canonical glyph renderer remains
+  // unchanged for firmware/docs exports; X6 gets white surfaces and dark labels.
+  svg = svg
+    .replaceAll(UI_COLORS.bg, '#ffffff')
+    .replaceAll(UI_COLORS.text, '#152019');
   if (data['disabled']) {
     // Wrap SVG content with reduced opacity for disabled entities
     svg = svg.replace(/^<svg([^>]*)>/, '<svg$1><g opacity="0.3">').replace(/<\/svg>\s*$/, '</g></svg>');
