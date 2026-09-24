@@ -250,6 +250,19 @@ const DEVICE_UI_BASE_URL = '/device-ui/';
 /** Warn when the embedded payload passes this gzip total (ESP32 flash budget). */
 const GZ_WARN_BYTES = 700 * 1024;
 
+/**
+ * Stable versioning material for a generated asset header. Everything before
+ * the first blob is comments/includes and contains the environment-specific
+ * source path (`/device-ui/...` in-browser, an absolute dist path under Node).
+ * The blob arrays + lookup table are the bytes and metadata that actually land
+ * in firmware, so only that section should participate in its version hash.
+ */
+export function localUiFirmwareMaterial(header: string): string {
+  const marker = 'static const uint8_t LOCAL_UI_ASSET_0[]';
+  const start = header.indexOf(marker);
+  return start >= 0 ? header.slice(start) : header;
+}
+
 /** Parse + shape-check the manifest — trusted, but a malformed one must not poison the flash image. */
 function parseManifest(raw: string): DeviceUiManifest | null {
   try {

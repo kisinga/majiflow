@@ -30,6 +30,12 @@ export interface GenerateOptions {
    * on-device dashboard boots from the exact site it was generated for.
    */
   topologyJson?: string;
+  /**
+   * Prebuilt local-UI asset table. The browser build pipeline uses this to make
+   * the firmware version and the emitted header depend on the exact same bytes,
+   * without fetching `/device-ui/` twice (and risking a deploy between reads).
+   */
+  localUiAssetsHeader?: string;
 }
 
 /**
@@ -257,7 +263,9 @@ export async function generateEsphome(
   const localUi = m.device.local?.ui === true;
   // Async: the asset table is read from the device-ui manifest (disk under Node,
   // HTTP fetch in the browser bundle).
-  const localUiAssets = localUi ? await generateLocalUiAssetsHeader(m, options?.topologyJson) : undefined;
+  const localUiAssets = localUi
+    ? options?.localUiAssetsHeader ?? await generateLocalUiAssetsHeader(m, options?.topologyJson)
+    : undefined;
 
   const files: GeneratedFile[] = [
     {

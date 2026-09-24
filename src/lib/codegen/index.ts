@@ -24,6 +24,7 @@ export { generateLocalInputs } from './generators/local-inputs';
 export {
   generateLocalUiYaml,
   generateLocalUiAssetsHeader,
+  localUiFirmwareMaterial,
   fetchDeviceUiAssets,
   type DeviceUiManifest,
 } from './generators/local-ui';

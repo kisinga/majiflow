@@ -14,6 +14,8 @@ import type { ExpansionBoardCatalog, DeploymentMode } from '@core';
 import {
   generateEsphome,
   generateDefaultSecrets,
+  generateLocalUiAssetsHeader,
+  localUiFirmwareMaterial,
   type GeneratedFile,
   type SecretsMap,
   type GenerationMetadata,
@@ -436,10 +438,23 @@ export class BuildService {
     const { board } = await this.backend.boardLoad(ctrl.board);
     const manifest = topologyToManifestForController(topo, ctrl.id);
 
-    // Deterministic hash over topology-derived inputs (manifest + board) —
-    // drives the version string and commit de-duplication. Secrets are excluded
-    // so regenerated credentials don't churn the version.
-    const hashPart = JSON.stringify(manifest) + JSON.stringify(board);
+    const topologyJson = topologyRaw !== undefined ? JSON.stringify(topologyRaw) : undefined;
+    // Build the local UI once, before versioning, so a UI-only release changes
+    // the firmware version. Previously the hash covered only manifest + board;
+    // OTA then answered ALREADY and skipped firmware whose embedded app changed.
+    // Hash only the emitted blob/table section: the header's Source comment is
+    // environment-specific and does not become firmware data.
+    const localUiAssetsHeader = manifest.device.local?.ui === true
+      ? await generateLocalUiAssetsHeader(manifest, topologyJson)
+      : undefined;
+    const localUiHash = localUiAssetsHeader
+      ? await sha256Hex(localUiFirmwareMaterial(localUiAssetsHeader))
+      : '';
+
+    // Deterministic hash over topology-derived inputs, board, and the exact
+    // embedded local UI. Secrets and build time remain excluded so rebuilding
+    // identical firmware doesn't churn the version.
+    const hashPart = JSON.stringify(manifest) + JSON.stringify(board) + localUiHash;
     const sourceHash = await sha256Hex(hashPart);
     const metadata: GenerationMetadata = {
       configSha: sourceHash,
@@ -479,7 +494,9 @@ export class BuildService {
       expansionBoards,
       // The raw draft topology — baked into the local-UI bundle as
       // /topology.json so the on-device dashboard boots from this exact site.
-      topologyRaw !== undefined ? { topologyJson: JSON.stringify(topologyRaw) } : undefined,
+      topologyJson !== undefined || localUiAssetsHeader !== undefined
+        ? { topologyJson, localUiAssetsHeader }
+        : undefined,
     );
     // Re-align this controller's automations to the route table just baked
     // (route_index + route_set_version) so the device accepts the retained set once

@@ -17,7 +17,7 @@ import * as path from "node:path";
 import { parse as parseYaml } from "yaml";
 import { gunzipSync, gzipSync } from "fflate";
 import { parseTopology, topologyToManifestForController, type Manifest } from "@core";
-import { generateAll, createTestMetadata, generateBoardPackage, generateLocalUiAssetsHeader, fetchDeviceUiAssets, type GeneratedFile } from "@core/codegen";
+import { generateAll, createTestMetadata, generateBoardPackage, generateLocalUiAssetsHeader, localUiFirmwareMaterial, fetchDeviceUiAssets, type GeneratedFile } from "@core/codegen";
 import { makeAsserter, loadBoard } from "./helpers";
 
 const { assert, done } = makeAsserter();
@@ -256,6 +256,30 @@ assert(/Embedded: 4 file\(s\)/.test(real), "fixture: header comment reports the 
 process.env.DEVICE_UI_DIST = fixture;
 assert(await generateLocalUiAssetsHeader(onManifest, TOPO_JSON) === real, "fixture: generator is deterministic");
 process.env.DEVICE_UI_DIST = MISSING_DIST;
+
+// Firmware versioning consumes the actual blob/table, not the environment-specific
+// Source comment. A changed embedded byte must change that material; a different
+// source path must not.
+const differentSource = real.replace(/^\/\/ Source:.*$/m, "// Source: /some/other/build/path");
+assert(localUiFirmwareMaterial(differentSource) === localUiFirmwareMaterial(real),
+  "version material: ignores the environment-specific asset source path");
+const changedAsset = real.replace("0x1f, 0x8b", "0x1e, 0x8b");
+assert(localUiFirmwareMaterial(changedAsset) !== localUiFirmwareMaterial(real),
+  "version material: changes when an embedded asset byte changes");
+
+// The prebuilt table is passed through verbatim. BuildService relies on this to
+// hash and emit one snapshot even if a deployment changes while codegen runs.
+const preloadedFiles = await generateAll(
+  onManifest,
+  kc868,
+  "test-site",
+  undefined,
+  createTestMetadata(),
+  {},
+  { topologyJson: TOPO_JSON, localUiAssetsHeader: real },
+);
+assert(get(preloadedFiles, "packages/local-ui-assets.h")?.content === real,
+  "preloaded assets: versioned header is emitted verbatim without a second read");
 
 // Mixed-build guard: the index references an asset the manifest doesn't carry
 // (stale cache / mid-deploy fetch) — the bundle must hard-fail, not ship a UI
